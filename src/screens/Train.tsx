@@ -65,7 +65,7 @@ export default function Train({ pieceSet, onProgress }: { pieceSet: string; onPr
           <div className="card coach">
             <Mascot mood={mood} size={96} />
             <div className="bubble">
-              <p>{t("train.played", { san: item.playedSan, cls: classLabel(item.cls) })}</p>
+              <p>{t(item.kind === "punish" ? "train.punish" : item.kind === "learn" ? "train.learn" : "train.played", { san: item.playedSan, cls: classLabel(item.cls) })}</p>
               {status === "wrong" && <p><b>{t("train.wrong")}</b></p>}
               {status === "right" && <p><b>{t("train.right")}</b> {bestSan(item)} +{XP_PER_FIX} XP</p>}
               <div className="row">

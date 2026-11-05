@@ -1,43 +1,46 @@
 import { GameAnalysis } from "./analyze";
 import { MoveClassification as MC } from "@/types/enums";
-import { Side, sideOfPosition } from "./stats";
+import { Side } from "./stats";
 import { uciToSan } from "./chess";
-import { getLineWinPercentage } from "@/engine/winPercentage";
+import { PracticeKind, acceptedMoves, practiceAt } from "./practice";
 import { readJson, writeJson } from "./store";
 
+/** One saved exercise from an analyzed game (the file keeps its old name, it now holds all practice kinds). */
 export interface MistakeItem {
   id: string;
-  fen: string; // position before your bad move
-  playedSan: string;
+  kind?: PracticeKind; // missing in older saves, means "mine"
+  fen: string; // the position to solve
+  playedSan: string; // the move that was played in the game
   bestUci: string;
-  accepted: string[]; // uci moves that count as good (best and near-best lines)
+  accepted: string[]; // uci moves that count as good
   cls: MC;
 }
 
 const KEY = "zetje-mistakes";
-const MAX = 60;
+const MAX = 80;
+const PER_GAME_OPPONENT = 5; // keep the deck tidy: at most this many opponent exercises per game
 
 export const loadMistakes = (): MistakeItem[] => readJson<{ items: MistakeItem[] }>(KEY, { items: [] }).items;
 
-/** Save your blunders, mistakes and misses from an analysis as practice positions. */
-export function saveMistakes(a: GameAnalysis, side: Side) {
-  const found: MistakeItem[] = [];
+/** Turn your mistakes, your opponent's slips and their strong moves into practice positions. */
+export function saveTraining(a: GameAnalysis, side: Side) {
+  const mine: MistakeItem[] = [];
+  const opponent: MistakeItem[] = [];
   for (let p = 1; p < a.positions.length; p++) {
-    const cls = a.positions[p].moveClassification;
-    if (sideOfPosition(p) !== side || (cls !== MC.Blunder && cls !== MC.Mistake && cls !== MC.Miss)) continue;
-    const before = a.positions[p - 1];
-    if (!before.bestMove || !before.lines.length) continue;
-    const wp = (l: (typeof before.lines)[number]) => (side === "white" ? getLineWinPercentage(l) : 100 - getLineWinPercentage(l));
-    const best = Math.max(...before.lines.map(wp));
-    found.push({
-      id: `${a.fens[p - 1]}|${a.uciMoves[p - 1]}`,
-      fen: a.fens[p - 1],
+    const target = practiceAt(a, p, side);
+    if (!target) continue;
+    const item: MistakeItem = {
+      id: `${target.fen}|${target.kind}`,
+      kind: target.kind,
+      fen: target.fen,
       playedSan: a.sans[p - 1],
-      bestUci: before.bestMove,
-      accepted: before.lines.filter((l) => wp(l) >= best - 3).map((l) => l.pv[0]),
-      cls,
-    });
+      bestUci: target.bestUci,
+      accepted: acceptedMoves(target),
+      cls: a.positions[p].moveClassification!,
+    };
+    (target.kind === "mine" ? mine : opponent).push(item);
   }
+  const found = [...mine, ...opponent.slice(0, PER_GAME_OPPONENT)];
   const existing = loadMistakes().filter((m) => !found.some((f) => f.id === m.id));
   writeJson(KEY, { items: [...found, ...existing].slice(0, MAX) });
 }

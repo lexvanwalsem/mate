@@ -194,3 +194,42 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 .lang-pop button { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 38px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; font-size: 15px; font-weight: 500; color: var(--ink); cursor: pointer; text-align: left; }
 .lang-pop button:hover { background: var(--violet-soft); }
 .lang-pop button.on { color: var(--violet-dark); font-weight: 600; }
+
+/* ---------- move animations: landing, capture, class bursts, badge pop, arrows, coach ---------- */
+.piece.moved img { animation: m-land 0.38s ease-out; }
+.piece.ghost { z-index: 0; }
+.piece.ghost img { animation: m-ghost 0.4s ease-in forwards; }
+.burst { position: absolute; width: 12.5%; height: 12.5%; pointer-events: none; z-index: 1; }
+.burst::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--hl); animation: m-ring 0.65s ease-out forwards; }
+.burst.bad::before { border: 0; border-radius: 0; background: var(--hl); animation: m-flash 0.5s ease-out forwards; }
+.burst.great::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 2px; background: var(--hl);
+  box-shadow: 0 -24px 0 var(--hl), 0 24px 0 var(--hl), -24px 0 0 var(--hl), 24px 0 0 var(--hl);
+  animation: m-sparkle 0.75s ease-out forwards;
+}
+.badge-pos { animation: m-pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) both; }
+.arrows .arrow { animation: m-arrow 0.4s ease-out both; }
+.bubble { animation: m-bubble 0.3s ease-out both; }
+.evalbar-me { transition: height 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.move { transition: background 0.15s, color 0.15s; }
+
+@keyframes m-land { 0% { transform: scale(1.18) translateY(-8%); } 60% { transform: scale(0.95); } 100% { transform: scale(1); } }
+@keyframes m-ghost { to { opacity: 0; transform: scale(0.4) rotate(14deg); } }
+@keyframes m-ring { from { transform: scale(0.5); opacity: 0.95; } to { transform: scale(1.9); opacity: 0; } }
+@keyframes m-flash { from { opacity: 0.75; } to { opacity: 0; } }
+@keyframes m-sparkle { from { transform: translate(-50%, -50%) scale(0.3) rotate(0); opacity: 1; } to { transform: translate(-50%, -50%) scale(1.5) rotate(60deg); opacity: 0; } }
+@keyframes m-pop { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes m-arrow { from { opacity: 0; } to { opacity: 0.85; } }
+@keyframes m-bubble { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .burst, .badge-pos, .arrows .arrow, .bubble, .piece.ghost img, .piece.moved img { animation: none !important; }
+}
+
+/* ---------- dragging and your own line ---------- */
+.board.draggable { touch-action: none; }
+.board.draggable .piece img { cursor: grab; }
+.piece.dragging img { opacity: 0.3; }
+.drag-ghost { position: absolute; z-index: 6; width: 12.5%; pointer-events: none; transform: translate(-50%, -50%) scale(1.18); filter: drop-shadow(0 10px 8px rgba(31, 27, 58, 0.4)); }
+.board.draggable { cursor: grab; }
+.var-line { color: var(--muted); font-size: 12.5px; -webkit-line-clamp: 1 !important; font-family: var(--font-body); }

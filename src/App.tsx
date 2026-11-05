@@ -11,7 +11,7 @@ import { Settings, applyBoardTheme, applyMascotTheme, loadSettings, saveSettings
 import { Key, setLang, t } from "./lib/i18n";
 import { addToHistory, loadHistory } from "./lib/history";
 import { loadProgress, levelOf } from "./lib/progress";
-import { saveMistakes, loadMistakes } from "./lib/mistakes";
+import { saveTraining, loadMistakes } from "./lib/mistakes";
 import Learn from "./screens/Learn";
 import Puzzles from "./screens/Puzzles";
 import Train from "./screens/Train";
@@ -36,6 +36,7 @@ export default function App() {
   applyMascotTheme(settings.mascot);
   applyBoardTheme(settings.boardTheme);
   const pool = useRef<Promise<EnginePool> | undefined>(undefined);
+  const getPool = () => (pool.current ??= EnginePool.create(EnginePool.recommendedSize(), 3));
 
   const updateSettings = (s: Settings) => {
     setSettings(s);
@@ -49,8 +50,7 @@ export default function App() {
       const game: LoadedGame = await loadGame(input, sideHint, settings.usernames.split(","));
 
       setScreen({ name: "loading", text: t("loading.engine"), progress: 0 });
-      pool.current ??= EnginePool.create(EnginePool.recommendedSize(), 3);
-      const engine = await pool.current;
+      const engine = await getPool();
 
       const result = await analyzeGame(
         game.pgn,
@@ -99,14 +99,14 @@ export default function App() {
         sideKnown={sideKnown}
         onSideChange={(s) => { setSide(s); setSideKnown(true); }}
         onReview={(p) => {
-          saveMistakes(analysis, side);
+          saveTraining(analysis, side);
           setScreen({ name: "review", start: p ?? 0 });
         }}
         onBack={() => setScreen({ name: "home" })}
       />
     );
   else if (screen.name === "review" && analysis)
-    content = <Review a={analysis} side={side} pieceSet={settings.pieceSet} start={screen.start} onBack={() => setScreen({ name: "summary" })} />;
+    content = <Review a={analysis} side={side} pieceSet={settings.pieceSet} start={screen.start} getPool={getPool} onBack={() => setScreen({ name: "summary" })} />;
   else content = <Home settings={settings} history={recent} level={levelOf(progress.xp)} onChangeSettings={updateSettings} onAnalyze={(i) => run(i)} error={error} />;
 
   const tabs: Tab[] = ["analyze", "lessons", "puzzles", "train"];

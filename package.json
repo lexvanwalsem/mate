@@ -15,6 +15,8 @@
     "check:lessons": "tsx scripts/check-lessons.ts",
     "test:ext": "node scripts/test-extension.mjs",
     "test:fit": "node scripts/test-fit.mjs",
+    "test:explore": "node scripts/test-explore.mjs",
+    "test:practice": "node scripts/test-practice.mjs",
     "test:audit": "node scripts/test-audit.mjs",
     "preview": "vite preview --port 4173"
   },

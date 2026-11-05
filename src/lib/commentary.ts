@@ -41,3 +41,19 @@ export function verdictFor(accuracy: number): string {
   if (accuracy >= 50) return t("verdict.50");
   return t("verdict.0");
 }
+
+/** Short verdict on a move you tried on the board. `betterSan` is the engine's preference when yours was not the best. */
+export function lineComment(cls: MC, san: string, betterSan?: string): string {
+  const better = betterSan ? t("better", { best: betterSan }) : "";
+  const vars = { san, better, who: t("who.you") };
+  switch (cls) {
+    case MC.Best: return t("c.best.me", vars);
+    case MC.Excellent: return t("c.excellent", vars);
+    case MC.Okay: return t("c.okay", vars);
+    case MC.Inaccuracy: return t("c.inaccuracy", vars);
+    case MC.Mistake: return t("c.mistake", vars);
+    case MC.Miss: return t("c.mistake", vars);
+    case MC.Blunder: return t("c.blunder", vars);
+    default: return t("c.okay", vars);
+  }
+}

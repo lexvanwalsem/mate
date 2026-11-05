@@ -44,6 +44,16 @@ export default function PlayBoard({ fen, orientation, pieceSet, onMove, disabled
       selected={selected}
       targets={legal.map((m) => m.to)}
       onSquareClick={click}
+      canDrag={(sq) => {
+        const piece = chess.get(sq as Square);
+        return !disabled && !!piece && piece.color === chess.turn();
+      }}
+      onDragStart={(sq) => setSelected(sq)}
+      onDragMove={(from, to) => {
+        setSelected(undefined);
+        const hit = chess.moves({ square: from as Square, verbose: true }).find((m) => m.to === to);
+        if (hit) onMove(hit.from + hit.to + (hit.promotion ?? ""));
+      }}
     />
   );
 }
