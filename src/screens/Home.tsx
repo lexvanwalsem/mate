@@ -1,7 +1,7 @@
 import { HistoryItem } from "@/lib/history";
 import { useState } from "react";
 import Mascot from "@/ui/Mascot";
-import { MASCOT_THEMES, Settings } from "@/lib/settings";
+import { BOARD_THEMES, MASCOT_THEMES, PIECE_SETS, Settings } from "@/lib/settings";
 
 import { Key, t } from "@/lib/i18n";
 
@@ -84,7 +84,7 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
           />
         </label>
         <div className="swatches">
-          <span>{t("home.mascot")}</span>
+          <span className="picker-label">{t("home.mascot")}</span>
           <div className="row">
             {MASCOT_THEMES.map((m) => (
               <button
@@ -98,14 +98,31 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
             ))}
           </div>
         </div>
-        <label>
-          {t("home.pieces")}
-          <select value={settings.pieceSet} onChange={(e) => onChangeSettings({ ...settings, pieceSet: e.target.value })}>
-            {["cburnett", "staunty", "kosal"].map((p) => (
-              <option key={p} value={p}>{t(`pieces.${p}` as Key)}</option>
+        <div className="swatches">
+          <span className="picker-label">{t("home.pieces")}</span>
+          <div className="piece-grid">
+            {PIECE_SETS.map((p) => (
+              <button key={p.id} className={`piece-opt ${settings.pieceSet === p.id ? "on" : ""}`} onClick={() => onChangeSettings({ ...settings, pieceSet: p.id })}>
+                <img alt="" src={`pieces/${p.id}/wN.svg`} />
+                {p.name}
+              </button>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
+        <div className="swatches">
+          <span className="picker-label">{t("home.board")}</span>
+          <div className="board-opts">
+            {BOARD_THEMES.map((b) => (
+              <button
+                key={b.id}
+                className={`board-opt ${settings.boardTheme === b.id ? "on" : ""}`}
+                style={{ background: `linear-gradient(135deg, ${b.light} 50%, ${b.dark} 50%)` }}
+                onClick={() => onChangeSettings({ ...settings, boardTheme: b.id })}
+                aria-label={b.id}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import Mascot from "@/ui/Mascot";
 import ClassBadge from "@/ui/ClassBadge";
+import PlayerBar from "@/ui/PlayerBar";
 import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
 import { CLASS_ORDER, Side, countClasses, keyMoments, openingName, phaseAccuracy, resultFor } from "@/lib/stats";
@@ -39,6 +40,10 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
             {t("summary.vs", { white: playerName(a.headers.White, "White"), black: playerName(a.headers.Black, "Black") })} {resultText && <span className={`pill ${result}`}>{resultText}</span>}
           </div>
           <h2>{verdictFor(mine)}</h2>
+          <div className="players">
+            <PlayerBar headers={a.headers} color="white" isYou={side === "white"} />
+            <PlayerBar headers={a.headers} color="black" isYou={side === "black"} />
+          </div>
           {!sideKnown && <p className="muted">{t("summary.pickSide")}</p>}
           <div className="seg">
             <button className={side === "white" ? "on" : ""} onClick={() => onSideChange("white")}>{t("summary.iWhite")}</button>

@@ -7,7 +7,7 @@ import { EnginePool } from "./engine/pool";
 import { GameAnalysis, analyzeGame } from "./lib/analyze";
 import { LoadedGame, loadGame } from "./lib/sources";
 import { Side, pickSide } from "./lib/stats";
-import { Settings, applyMascotTheme, loadSettings, saveSettings } from "./lib/settings";
+import { Settings, applyBoardTheme, applyMascotTheme, loadSettings, saveSettings } from "./lib/settings";
 import { Key, setLang, t } from "./lib/i18n";
 import { addToHistory, loadHistory } from "./lib/history";
 import { loadProgress, levelOf } from "./lib/progress";
@@ -33,6 +33,7 @@ export default function App() {
   const [progress, setProgress] = useState(loadProgress);
   setLang(settings.lang);
   applyMascotTheme(settings.mascot);
+  applyBoardTheme(settings.boardTheme);
   const pool = useRef<Promise<EnginePool> | undefined>(undefined);
 
   const updateSettings = (s: Settings) => {

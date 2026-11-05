@@ -3,6 +3,7 @@ import { Chess, Square } from "chess.js";
 import Board, { Arrow, BoardPiece, buildFrames, piecesFromFen } from "@/ui/Board";
 import { EvalBar, EvalGraph } from "@/ui/Charts";
 import ClassBadge from "@/ui/ClassBadge";
+import PlayerBar from "@/ui/PlayerBar";
 import Mascot from "@/ui/Mascot";
 import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
@@ -88,6 +89,7 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
   return (
     <div className="screen review">
       <div className="board-col">
+        <PlayerBar headers={a.headers} color={orientation === "white" ? "black" : "white"} isYou={(orientation === "white" ? "black" : "white") === side} accuracy={a.accuracy[orientation === "white" ? "black" : "white"]} />
         <div className="board-row">
           <EvalBar whitePct={bar.whitePct} label={bar.label} side={orientation} />
           <Board
@@ -95,6 +97,7 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
             orientation={orientation}
             pieceSet={pieceSet}
             lastMove={retry ? undefined : lastMove}
+            highlight={cls ? CLASS_META[cls].color : undefined}
             badge={!retry && lastMove && cls ? { square: lastMove.to, cls } : undefined}
             arrows={arrows}
             selected={retry?.selected}
@@ -102,6 +105,7 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
             onSquareClick={onSquareClick}
           />
         </div>
+        <PlayerBar headers={a.headers} color={orientation} isYou={orientation === side} accuracy={a.accuracy[orientation]} />
         <div className="controls">
           <button onClick={() => goto(0)} aria-label="First">|&lt;</button>
           <button onClick={() => goto(pos - 1)} aria-label="Previous">&lt;</button>

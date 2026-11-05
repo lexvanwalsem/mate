@@ -66,6 +66,8 @@ interface Props {
   orientation: Side;
   pieceSet: string;
   lastMove?: { from: string; to: string };
+  /** Accent color for the last move squares and the moved piece (e.g. the move class color). */
+  highlight?: string;
   badge?: { square: string; cls: MoveClassification };
   arrows?: Arrow[];
   selected?: string;
@@ -73,7 +75,7 @@ interface Props {
   onSquareClick?: (square: string) => void;
 }
 
-export default function Board({ pieces, orientation, pieceSet, lastMove, badge, arrows = [], selected, targets = [], onSquareClick }: Props) {
+export default function Board({ pieces, orientation, pieceSet, lastMove, highlight = "#f5c120", badge, arrows = [], selected, targets = [], onSquareClick }: Props) {
   const flipped = orientation === "black";
   // Returns the top-left corner of a square in board units (0..8).
   const pos = (sq: string) => {
@@ -90,10 +92,11 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, badge, 
       const { x, y } = pos(sq);
       const dark = (f + r) % 2 === 0;
       const cls = ["sq", dark ? "dark" : "light"];
-      if (lastMove && (sq === lastMove.from || sq === lastMove.to)) cls.push("last");
+      if (lastMove && sq === lastMove.from) cls.push("last-from");
+      if (lastMove && sq === lastMove.to) cls.push("last-to");
       if (sq === selected) cls.push("selected");
       squares.push(
-        <div key={sq} className={cls.join(" ")} style={{ left: pct(x), top: pct(y) }} onClick={() => onSquareClick?.(sq)}>
+        <div key={sq} className={cls.join(" ")} style={{ left: pct(x), top: pct(y), ["--hl" as string]: highlight }} onClick={() => onSquareClick?.(sq)}>
           {targets.includes(sq) && <span className="target" />}
         </div>
       );
@@ -112,15 +115,13 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, badge, 
       ))}
       {pieces.map((p) => {
         const { x, y } = pos(p.square);
+        const cls = ["piece"];
+        if (p.square === selected) cls.push("lifted");
+        if (lastMove && p.square === lastMove.to) cls.push("moved");
         return (
-          <img
-            key={p.id}
-            className="piece"
-            alt=""
-            draggable={false}
-            src={`pieces/${pieceSet}/${p.color}${p.type.toUpperCase()}.svg`}
-            style={{ transform: `translate(${x * 100}%, ${y * 100}%)` }}
-          />
+          <div key={p.id} className={cls.join(" ")} style={{ transform: `translate(${x * 100}%, ${y * 100}%)`, ["--hl" as string]: highlight }}>
+            <img alt="" draggable={false} src={`pieces/${pieceSet}/${p.color}${p.type.toUpperCase()}.svg`} />
+          </div>
         );
       })}
       <svg className="arrows" viewBox="0 0 8 8">
@@ -143,7 +144,7 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, badge, 
         })}
       </svg>
       {badge && (
-        <div className="badge-pos" style={{ left: pct(pos(badge.square).x + 0.62), top: pct(pos(badge.square).y - 0.12) }}>
+        <div className="badge-pos" style={{ left: pct(pos(badge.square).x + 0.56), top: pct(pos(badge.square).y - 0.12) }}>
           <ClassBadge cls={badge.cls} size={0} />
         </div>
       )}

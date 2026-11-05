@@ -1,0 +1,109 @@
+/* ---------- board: highlights and pieces ---------- */
+.sq::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.sq.last-from::after { background: var(--hl); opacity: 0.32; }
+.sq.last-to::after { background: var(--hl); opacity: 0.6; }
+.sq.selected::after { box-shadow: inset 0 0 0 4px var(--violet); background: rgba(108, 76, 245, 0.18); }
+.piece { position: absolute; left: 0; top: 0; width: 12.5%; height: 12.5%; transition: transform 0.22s ease; pointer-events: none; }
+.piece img { display: block; width: 100%; height: 100%; filter: drop-shadow(0 2px 2px rgba(31, 27, 58, 0.28)); transition: transform 0.15s ease, filter 0.15s ease; }
+.piece.lifted { z-index: 2; }
+.piece.lifted img { transform: scale(1.14) translateY(-5%); filter: drop-shadow(0 7px 6px rgba(31, 27, 58, 0.35)); }
+.piece.moved img { filter: drop-shadow(0 2px 2px rgba(31, 27, 58, 0.28)) drop-shadow(0 0 5px var(--hl)); }
+.badge-pos { width: 5.6%; height: 5.6%; }
+.class-badge { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 100%; height: 100%; border-radius: 32%; box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18); }
+.class-badge svg { width: 74%; height: 74%; }
+
+/* ---------- player bars ---------- */
+.player-bar { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 14px; background: #fff; border-radius: 14px; box-shadow: 0 3px 0 #e6dfff; min-width: 0; }
+.player-bar.you { box-shadow: 0 3px 0 var(--violet); }
+.chip-color { width: 16px; height: 16px; border-radius: 5px; flex: none; }
+.chip-color.white { background: #fff; box-shadow: inset 0 0 0 2px var(--ink); }
+.chip-color.black { background: var(--ink); }
+.player-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.player-rating { color: var(--muted); font-size: 13px; flex: none; }
+.you-tag { background: var(--violet); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 8px 8px 8px 3px; flex: none; }
+.player-acc { font-weight: 700; flex: none; min-width: 52px; text-align: right; }
+.player-bar .grow { flex: 1; }
+.players { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+
+/* ---------- fixed sizes so content changes never shift the layout ---------- */
+.coach { height: 184px; align-items: stretch; }
+.bubble { display: flex; flex-direction: column; gap: 8px; height: 100%; min-width: 0; overflow: hidden auto; }
+.bubble .row { margin-top: auto; flex-wrap: nowrap; }
+.lines { min-height: 148px; }
+.lines .line { height: 28px; align-items: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.movelist { height: 300px; max-height: none; }
+.hero { min-height: 250px; }
+.hero > div:last-child { min-width: 0; flex: 1; }
+.hero h2 { min-height: 68px; font-size: 24px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.stat { height: 120px; display: grid; align-content: center; }
+.class-tile { height: 84px; align-content: center; }
+.lesson-btn { width: 132px; height: 104px; min-height: 0; }
+.btn { min-height: 44px; }
+.btn.small { min-height: 36px; }
+.moments button span:nth-child(2) { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav .pill-xp { min-width: 108px; text-align: center; }
+
+/* ---------- settings pickers ---------- */
+.picker-label { font-size: 14px; color: var(--muted); font-weight: 600; }
+.piece-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+.piece-opt { border: 3px solid transparent; border-radius: 16px; background: var(--violet-soft); cursor: pointer; padding: 6px 4px 4px; display: grid; justify-items: center; gap: 2px; font: inherit; font-size: 12px; font-weight: 600; color: var(--ink); }
+.piece-opt img { width: 44px; height: 44px; }
+.piece-opt.on { border-color: var(--violet); background: #fff; }
+.board-opts { display: flex; gap: 8px; }
+.board-opt { width: 44px; height: 44px; border-radius: 14px; border: 3px solid transparent; cursor: pointer; }
+.board-opt.on { border-color: var(--ink); }
+
+/* ---------- Blokje: every part moves on its own ---------- */
+.mascot { overflow: visible; flex: none; }
+.mascot [class^="m-"], .mascot [class*=" m-"] { transform-box: fill-box; }
+.m-root { transform-origin: 50% 100%; animation: m-breathe 3.4s ease-in-out infinite; }
+.m-shadow { transform-origin: 50% 50%; animation: m-shadow 3.4s ease-in-out infinite; }
+.m-merlon { transform-origin: 50% 100%; animation: m-merlon 4.2s ease-in-out infinite; }
+.m-merlon-2 { animation-duration: 3.6s; animation-delay: 0.6s; }
+.m-merlon-3 { animation-duration: 4.8s; animation-delay: 1.3s; }
+.m-arm-l { transform-origin: 50% 12%; animation: m-sway-l 3.8s ease-in-out infinite; }
+.m-arm-r { transform-origin: 50% 12%; animation: m-sway-r 4.4s ease-in-out infinite 0.9s; }
+.m-foot { transform-origin: 50% 100%; animation: m-tap 6s ease-in-out infinite; }
+.m-foot-r { animation-delay: 3s; }
+.m-eyes { transform-origin: 50% 50%; animation: m-blink 5.5s infinite; }
+.m-pupils { animation: m-look 8s ease-in-out infinite; }
+.m-cheek { animation: m-glow 3.2s ease-in-out infinite; }
+.m-zzz { animation: m-zzz 2.4s ease-in-out infinite; }
+.m-star { transform-origin: 50% 50%; animation: m-twinkle 1s ease-in-out infinite; }
+.m-drop { animation: m-drop 1.4s ease-in infinite; }
+
+.mascot-happy .m-root, .mascot-proud .m-root, .mascot-wow .m-root { animation: m-jump 1s ease-in-out infinite; }
+.mascot-happy .m-arm-r, .mascot-proud .m-arm-r { animation: m-wave 0.9s ease-in-out infinite; }
+.mascot-cheer .m-root { animation: m-jump 0.7s ease-in-out infinite; }
+.mascot-cheer .m-arm-l { animation: m-cheer-l 0.5s ease-in-out infinite; }
+.mascot-cheer .m-arm-r { animation: m-cheer-r 0.5s ease-in-out infinite; }
+.mascot-shocked .m-root, .mascot-worried .m-root { animation: m-shake 0.45s ease-in-out infinite; }
+.mascot-shocked .m-merlon, .mascot-worried .m-merlon { animation: m-jitter 0.3s ease-in-out infinite; }
+.mascot-thinking .m-root { animation: m-tilt 2.4s ease-in-out infinite; }
+.mascot-sleepy .m-root { animation-duration: 5s; }
+.mascot-sleepy .m-eyes, .mascot-sleepy .m-pupils { animation: none; }
+.mascot-oops .m-root { animation: m-tilt 1.8s ease-in-out infinite; }
+
+@keyframes m-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, 0.975); } }
+@keyframes m-shadow { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.05); } }
+@keyframes m-merlon { 0%, 100% { transform: rotate(0) translateY(0); } 40% { transform: rotate(-3deg) translateY(-2px); } 70% { transform: rotate(2deg) translateY(1px); } }
+@keyframes m-sway-l { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(7deg); } }
+@keyframes m-sway-r { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+@keyframes m-tap { 0%, 88%, 100% { transform: translateY(0); } 92% { transform: translateY(-5px) scaleY(1.06); } 96% { transform: translateY(0) scaleY(0.94); } }
+@keyframes m-blink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+@keyframes m-look { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(4px, -1px); } 45% { transform: translate(-4px, 1px); } 70% { transform: translate(2px, 2px); } }
+@keyframes m-glow { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.95; } }
+@keyframes m-zzz { 0%, 100% { opacity: 0.2; transform: translateY(6px); } 50% { opacity: 1; transform: translateY(-6px); } }
+@keyframes m-twinkle { 0%, 100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.18) rotate(12deg); } }
+@keyframes m-drop { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(16px); opacity: 0; } }
+@keyframes m-jump { 0%, 100% { transform: translateY(0) scale(1.04, 0.94); } 40% { transform: translateY(-16px) scale(0.96, 1.06); } 70% { transform: translateY(0) scale(1.05, 0.93); } }
+@keyframes m-wave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-70deg); } }
+@keyframes m-cheer-l { 0%, 100% { transform: rotate(140deg); } 50% { transform: rotate(170deg); } }
+@keyframes m-cheer-r { 0%, 100% { transform: rotate(-140deg); } 50% { transform: rotate(-170deg); } }
+@keyframes m-shake { 0%, 100% { transform: translateX(0) rotate(0); } 25% { transform: translateX(-4px) rotate(-2deg); } 75% { transform: translateX(4px) rotate(2deg); } }
+@keyframes m-jitter { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes m-tilt { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot *, .piece, .piece img, .progress-fill { animation: none !important; transition: none !important; }
+}
