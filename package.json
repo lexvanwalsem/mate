@@ -1,0 +1,33 @@
+{
+  "name": "zetje",
+  "version": "0.1.0",
+  "description": "Zetje — gratis, lokale schaakanalyse met Blokje de mascotte. Chrome-extensie voor chess.com, lichess en meer.",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "icons": "node scripts/make-icons.mjs",
+    "build:app": "vite build",
+    "build:ext": "cross-env EXT_ENTRY=content vite build --config vite.ext.config.ts && cross-env EXT_ENTRY=background vite build --config vite.ext.config.ts",
+    "build": "npm run icons && npm run build:app && npm run build:ext",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview --port 4173"
+  },
+  "dependencies": {
+    "chess.js": "^1.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.300",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "cross-env": "^7.0.3",
+    "sharp": "^0.33.5",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

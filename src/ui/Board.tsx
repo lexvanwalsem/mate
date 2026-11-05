@@ -1,0 +1,152 @@
+import { Side } from "@/lib/stats";
+import { MoveClassification } from "@/types/enums";
+import ClassBadge from "./ClassBadge";
+
+export interface BoardPiece {
+  id: string;
+  square: string; // "e4"
+  type: string; // p n b r q k
+  color: "w" | "b";
+}
+
+export interface Arrow {
+  from: string;
+  to: string;
+  color: string;
+}
+
+const fileOf = (sq: string) => sq.charCodeAt(0) - 97;
+const rankOf = (sq: string) => Number(sq[1]) - 1;
+const squareName = (file: number, rank: number) => String.fromCharCode(97 + file) + (rank + 1);
+
+/** Pieces from a FEN, ids are "type+square" (no tracking across moves). */
+export function piecesFromFen(fen: string, idPrefix = "f"): BoardPiece[] {
+  const out: BoardPiece[] = [];
+  fen.split(" ")[0].split("/").forEach((row, r) => {
+    let file = 0;
+    for (const ch of row) {
+      if (/\d/.test(ch)) { file += Number(ch); continue; }
+      const sq = squareName(file, 7 - r);
+      out.push({ id: `${idPrefix}${ch}${sq}`, square: sq, type: ch.toLowerCase(), color: ch === ch.toUpperCase() ? "w" : "b" });
+      file++;
+    }
+  });
+  return out;
+}
+
+/** One piece list per position, with stable ids so pieces slide between moves. */
+export function buildFrames(startFen: string, uciMoves: string[]): BoardPiece[][] {
+  let current = piecesFromFen(startFen, "s").map((p, i) => ({ ...p, id: `p${i}` }));
+  const frames = [current];
+  for (const uci of uciMoves) {
+    const from = uci.slice(0, 2);
+    const to = uci.slice(2, 4);
+    const promo = uci[4];
+    const mover = current.find((p) => p.square === from);
+    let next = current.filter((p) => p.square !== to);
+    if (mover) {
+      if (mover.type === "p" && from[0] !== to[0] && !current.some((p) => p.square === to)) {
+        next = next.filter((p) => p.square !== to[0] + from[1]); // en passant
+      }
+      if (mover.type === "k" && Math.abs(fileOf(to) - fileOf(from)) === 2) {
+        const rookFrom = (to[0] === "g" ? "h" : "a") + from[1];
+        const rookTo = (to[0] === "g" ? "f" : "d") + from[1];
+        next = next.map((p) => (p.square === rookFrom ? { ...p, square: rookTo } : p));
+      }
+      next = next.map((p) => (p.id === mover.id ? { ...p, square: to, type: promo ?? p.type } : p));
+    }
+    current = next;
+    frames.push(current);
+  }
+  return frames;
+}
+
+interface Props {
+  pieces: BoardPiece[];
+  orientation: Side;
+  pieceSet: string;
+  lastMove?: { from: string; to: string };
+  badge?: { square: string; cls: MoveClassification };
+  arrows?: Arrow[];
+  selected?: string;
+  targets?: string[];
+  onSquareClick?: (square: string) => void;
+}
+
+export default function Board({ pieces, orientation, pieceSet, lastMove, badge, arrows = [], selected, targets = [], onSquareClick }: Props) {
+  const flipped = orientation === "black";
+  // Returns the top-left corner of a square in board units (0..8).
+  const pos = (sq: string) => {
+    const f = fileOf(sq);
+    const r = rankOf(sq);
+    return { x: flipped ? 7 - f : f, y: flipped ? r : 7 - r };
+  };
+  const pct = (n: number) => `${n * 12.5}%`;
+
+  const squares = [];
+  for (let r = 0; r < 8; r++) {
+    for (let f = 0; f < 8; f++) {
+      const sq = squareName(f, r);
+      const { x, y } = pos(sq);
+      const dark = (f + r) % 2 === 0;
+      const cls = ["sq", dark ? "dark" : "light"];
+      if (lastMove && (sq === lastMove.from || sq === lastMove.to)) cls.push("last");
+      if (sq === selected) cls.push("selected");
+      squares.push(
+        <div key={sq} className={cls.join(" ")} style={{ left: pct(x), top: pct(y) }} onClick={() => onSquareClick?.(sq)}>
+          {targets.includes(sq) && <span className="target" />}
+        </div>
+      );
+    }
+  }
+
+  const files = "abcdefgh";
+  return (
+    <div className="board">
+      {squares}
+      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+        <span key={`c${i}`}>
+          <span className="coord coord-file" style={{ left: pct(i), top: "calc(100% - 1.1em)" }}>{files[flipped ? 7 - i : i]}</span>
+          <span className="coord coord-rank" style={{ left: 2, top: pct(i) }}>{flipped ? i + 1 : 8 - i}</span>
+        </span>
+      ))}
+      {pieces.map((p) => {
+        const { x, y } = pos(p.square);
+        return (
+          <img
+            key={p.id}
+            className="piece"
+            alt=""
+            draggable={false}
+            src={`pieces/${pieceSet}/${p.color}${p.type.toUpperCase()}.svg`}
+            style={{ transform: `translate(${x * 100}%, ${y * 100}%)` }}
+          />
+        );
+      })}
+      <svg className="arrows" viewBox="0 0 8 8">
+        {arrows.map((a, i) => {
+          const s = pos(a.from);
+          const e = pos(a.to);
+          const x1 = s.x + 0.5, y1 = s.y + 0.5, x2 = e.x + 0.5, y2 = e.y + 0.5;
+          const len = Math.hypot(x2 - x1, y2 - y1);
+          const ux = (x2 - x1) / len, uy = (y2 - y1) / len;
+          const hx = x2 - ux * 0.3, hy = y2 - uy * 0.3;
+          return (
+            <g key={i} opacity="0.85">
+              <line x1={x1} y1={y1} x2={hx} y2={hy} stroke={a.color} strokeWidth="0.2" strokeLinecap="round" />
+              <polygon
+                points={`${x2},${y2} ${hx - uy * 0.2},${hy + ux * 0.2} ${hx + uy * 0.2},${hy - ux * 0.2}`}
+                fill={a.color}
+              />
+            </g>
+          );
+        })}
+      </svg>
+      {badge && (
+        <div className="badge-pos" style={{ left: pct(pos(badge.square).x + 0.62), top: pct(pos(badge.square).y - 0.12) }}>
+          <ClassBadge cls={badge.cls} size={0} />
+        </div>
+      )}
+    </div>
+  );
+}
