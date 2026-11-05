@@ -185,12 +185,6 @@ textarea { resize: vertical; margin-bottom: 12px; }
 @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
 /* nav and learning screens */
-.nav { display: flex; gap: 8px; align-items: center; padding: 12px 20px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
-.nav .brand { font-weight: 800; font-size: 22px; color: var(--violet); display: flex; align-items: center; gap: 6px; margin-right: 10px; }
-.nav button.tab { border: 0; background: transparent; padding: 8px 14px; border-radius: 12px; font: inherit; font-weight: 800; cursor: pointer; color: var(--violet-dark); }
-.nav button.tab.on { background: var(--violet); color: #fff; }
-.nav .grow { flex: 1; }
-.pill-xp { background: var(--sun); color: var(--ink); padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 14px; }
 .path { display: grid; gap: 22px; }
 .unit h3 { font-size: 18px; margin-bottom: 10px; }
 .lessons { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -211,3 +205,19 @@ textarea { resize: vertical; margin-bottom: 12px; }
 .swatch { width: 40px; height: 40px; border-radius: 14px; border: 4px solid transparent; cursor: pointer; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.18); }
 .swatch.on { border-color: var(--ink); }
 .swatch:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* header: one soft rounded card with squircle tabs */
+.nav {
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  max-width: 1100px; width: calc(100% - 40px); margin: 16px auto 0; padding: 8px 10px 8px 14px;
+  background: #fff; border-radius: 30px 30px 30px 12px; box-shadow: 0 4px 0 #e6dfff;
+}
+.nav .brand { display: flex; align-items: center; gap: 8px; margin-right: 12px; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; color: var(--violet); }
+.nav button.tab {
+  border: 0; background: transparent; padding: 8px 14px; border-radius: 16px 16px 16px 6px;
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+.nav button.tab:hover { background: var(--violet-soft); color: var(--violet-dark); transform: translateY(-1px); }
+.nav button.tab.on { background: var(--violet-soft); color: var(--violet-dark); box-shadow: inset 0 -3px 0 var(--violet); }
+.nav .grow { flex: 1; }
+.pill-xp { background: #fff3cf; color: #8a5a00; padding: 6px 12px; border-radius: 14px 14px 14px 5px; font-size: 13px; font-weight: 600; }
