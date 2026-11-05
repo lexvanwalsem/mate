@@ -25,7 +25,15 @@ function Eyes({ mood }: { mood: Mood }) {
       </g>
     );
   }
-  if (mood === "proud") {
+  if (mood === "sleepy") {
+    return (
+      <g fill="none" stroke="#1f1b3a" strokeWidth="7" strokeLinecap="round" className="mascot-eyes-static">
+        <path d="M64 108 L92 108" />
+        <path d="M108 108 L136 108" />
+      </g>
+    );
+  }
+  if (mood === "proud" || mood === "cheer") {
     return (
       <g fill="none" stroke="#1f1b3a" strokeWidth="7" strokeLinecap="round" className="mascot-eyes-static">
         <path d="M64 108 Q78 90 92 108" />
@@ -56,6 +64,10 @@ function Mouth({ mood }: { mood: Mood }) {
     case "happy":
     case "proud":
       return <path d="M82 138 Q100 158 118 138" {...stroke} />;
+    case "cheer":
+      return <path d="M80 136 Q100 166 120 136 Z" fill="#1f1b3a" />;
+    case "sleepy":
+      return <ellipse cx="100" cy="146" rx="7" ry="5" fill="#1f1b3a" />;
     case "wow":
       return <rect x="86" y="136" width="28" height="22" rx="11" fill="#1f1b3a" />;
     case "shocked":
@@ -100,6 +112,7 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
         <Eyes mood={mood} />
         {mood === "worried" && <path d="M54 76 L88 84 M146 76 L112 84" stroke="#1f1b3a" strokeWidth="6" strokeLinecap="round" />}
         {mood === "thinking" && <path d="M108 78 L142 72" stroke="#1f1b3a" strokeWidth="6" strokeLinecap="round" />}
+        {mood === "sleepy" && <text x="150" y="60" fontSize="26" fontWeight="800" fill="#7a76a0" className="mascot-zzz">z</text>}
         {mood === "shocked" && <path d="M164 70 Q170 84 164 90 Q158 84 164 70Z" fill="#7fd6ff" />}
         <Mouth mood={mood} />
       </g>

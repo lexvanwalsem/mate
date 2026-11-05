@@ -8,8 +8,16 @@ import { GameAnalysis, analyzeGame } from "./lib/analyze";
 import { LoadedGame, loadGame } from "./lib/sources";
 import { Side, pickSide } from "./lib/stats";
 import { Settings, loadSettings, saveSettings } from "./lib/settings";
-import { setLang, t } from "./lib/i18n";
+import { Key, setLang, t } from "./lib/i18n";
 import { addToHistory, loadHistory } from "./lib/history";
+import { loadProgress, levelOf } from "./lib/progress";
+import { saveMistakes, loadMistakes } from "./lib/mistakes";
+import Learn from "./screens/Learn";
+import Puzzles from "./screens/Puzzles";
+import Train from "./screens/Train";
+import Mascot from "./ui/Mascot";
+
+type Tab = "analyze" | "lessons" | "puzzles" | "train";
 
 type Screen = { name: "home" } | { name: "loading"; text: string; progress?: number } | { name: "summary" } | { name: "review"; start: number };
 
@@ -21,6 +29,8 @@ export default function App() {
   const [sideKnown, setSideKnown] = useState(false);
   const [error, setError] = useState<string>();
   const [recent, setRecent] = useState(loadHistory);
+  const [tab, setTab] = useState<Tab>("analyze");
+  const [progress, setProgress] = useState(loadProgress);
   setLang(settings.lang);
   const pool = useRef<Promise<EnginePool> | undefined>(undefined);
 
@@ -73,19 +83,44 @@ export default function App() {
     }
   }, []);
 
+  let content;
   if (screen.name === "loading") return <Loading text={screen.text} progress={screen.progress} />;
-  if (screen.name === "summary" && analysis)
-    return (
+  if (tab === "lessons") content = <Learn pieceSet={settings.pieceSet} progress={progress} onProgress={setProgress} />;
+  else if (tab === "puzzles") content = <Puzzles pieceSet={settings.pieceSet} onProgress={setProgress} />;
+  else if (tab === "train") content = <Train key={progress.xp} pieceSet={settings.pieceSet} onProgress={setProgress} />;
+  else if (screen.name === "summary" && analysis)
+    content = (
       <Summary
         a={analysis}
         side={side}
         sideKnown={sideKnown}
         onSideChange={(s) => { setSide(s); setSideKnown(true); }}
-        onReview={(p) => setScreen({ name: "review", start: p ?? 0 })}
+        onReview={(p) => {
+          saveMistakes(analysis, side);
+          setScreen({ name: "review", start: p ?? 0 });
+        }}
         onBack={() => setScreen({ name: "home" })}
       />
     );
-  if (screen.name === "review" && analysis)
-    return <Review a={analysis} side={side} pieceSet={settings.pieceSet} start={screen.start} onBack={() => setScreen({ name: "summary" })} />;
-  return <Home settings={settings} history={recent} onChangeSettings={updateSettings} onAnalyze={(i) => run(i)} error={error} />;
+  else if (screen.name === "review" && analysis)
+    content = <Review a={analysis} side={side} pieceSet={settings.pieceSet} start={screen.start} onBack={() => setScreen({ name: "summary" })} />;
+  else content = <Home settings={settings} history={recent} onChangeSettings={updateSettings} onAnalyze={(i) => run(i)} error={error} />;
+
+  const tabs: Tab[] = ["analyze", "lessons", "puzzles", "train"];
+  return (
+    <>
+      <nav className="nav">
+        <span className="brand"><Mascot size={34} /> Zetje</span>
+        {tabs.map((id) => (
+          <button key={id} className={`tab ${tab === id ? "on" : ""}`} onClick={() => setTab(id)}>
+            {t(`nav.${id}` as Key)}{id === "train" && loadMistakes().length ? ` (${loadMistakes().length})` : ""}
+          </button>
+        ))}
+        <span className="grow" />
+        {progress.streak > 0 && <span className="pill-xp">{t("nav.streak", { n: progress.streak })}</span>}
+        <span className="pill-xp">{t("nav.level", { n: levelOf(progress.xp) })} - {t("nav.xp", { n: progress.xp })}</span>
+      </nav>
+      {content}
+    </>
+  );
 }

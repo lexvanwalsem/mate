@@ -1,3 +1,5 @@
+import { readJson, writeJson } from "./store";
+
 export interface HistoryItem {
   title: string;
   pgn: string;
@@ -6,19 +8,9 @@ export interface HistoryItem {
 const KEY = "zetje-history";
 const MAX = 10;
 
-export function loadHistory(): HistoryItem[] {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) ?? "[]");
-  } catch {
-    return [];
-  }
-}
+export const loadHistory = (): HistoryItem[] => readJson<{ items: HistoryItem[] }>(KEY, { items: [] }).items;
 
 export function addToHistory(item: HistoryItem) {
-  try {
-    const rest = loadHistory().filter((h) => h.pgn !== item.pgn);
-    localStorage.setItem(KEY, JSON.stringify([item, ...rest].slice(0, MAX)));
-  } catch {
-    // storage may be unavailable, history just will not persist
-  }
+  const rest = loadHistory().filter((h) => h.pgn !== item.pgn);
+  writeJson(KEY, { items: [item, ...rest].slice(0, MAX) });
 }

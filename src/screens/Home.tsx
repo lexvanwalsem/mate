@@ -1,7 +1,8 @@
+import { HistoryItem } from "@/lib/history";
 import { useState } from "react";
 import Mascot from "@/ui/Mascot";
 import { Settings } from "@/lib/settings";
-import { HistoryItem } from "@/lib/history";
+
 import { Key, t } from "@/lib/i18n";
 
 interface Props {

@@ -172,3 +172,35 @@ textarea { resize: vertical; margin-bottom: 12px; }
 .phase { display: grid; grid-template-columns: 110px 1fr 44px; gap: 10px; align-items: center; }
 .phase-bar { height: 16px; background: var(--violet-soft); border-radius: 10px; overflow: hidden; }
 .phase-bar div { height: 100%; background: var(--mint); border-radius: 10px; }
+
+/* mascot extras */
+.mascot-cheer .mascot-body { animation: jump 0.7s ease-in-out infinite; }
+.mascot-cheer .mascot-arm-l { transform: rotate(-35deg); transform-origin: 30px 120px; }
+.mascot-cheer .mascot-arm-r { transform: rotate(35deg); transform-origin: 170px 120px; }
+.mascot-sleepy .mascot-body { animation: bob 4s ease-in-out infinite; }
+.mascot-zzz { animation: zzz 2s ease-in-out infinite; }
+@keyframes zzz { 0%, 100% { opacity: 0.2; transform: translateY(6px); } 50% { opacity: 1; transform: translateY(-6px); } }
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti span { position: absolute; top: -20px; width: 12px; height: 12px; border-radius: 4px; animation: fall linear infinite; }
+@keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+/* nav and learning screens */
+.nav { display: flex; gap: 8px; align-items: center; padding: 12px 20px; max-width: 1100px; margin: 0 auto; flex-wrap: wrap; }
+.nav .brand { font-weight: 800; font-size: 22px; color: var(--violet); display: flex; align-items: center; gap: 6px; margin-right: 10px; }
+.nav button.tab { border: 0; background: transparent; padding: 8px 14px; border-radius: 12px; font: inherit; font-weight: 800; cursor: pointer; color: var(--violet-dark); }
+.nav button.tab.on { background: var(--violet); color: #fff; }
+.nav .grow { flex: 1; }
+.pill-xp { background: var(--sun); color: var(--ink); padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 14px; }
+.path { display: grid; gap: 22px; }
+.unit h3 { font-size: 18px; margin-bottom: 10px; }
+.lessons { display: flex; gap: 12px; flex-wrap: wrap; }
+.lesson-btn { border: 0; width: 120px; min-height: 96px; padding: 12px; border-radius: 20px; background: var(--violet-soft); box-shadow: 0 5px 0 #d4caff; font: inherit; font-weight: 800; color: var(--ink); cursor: pointer; display: grid; gap: 6px; align-content: center; text-align: center; }
+.lesson-btn.done { background: var(--mint); color: #fff; box-shadow: 0 5px 0 #159a6b; }
+.lesson-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #d4caff; }
+.player { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; }
+@media (max-width: 900px) { .player { grid-template-columns: 1fr; } }
+.player .board-col { max-width: min(100%, calc(100vh - 160px)); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.chip { border: 0; padding: 8px 14px; border-radius: 12px; background: var(--violet-soft); color: var(--violet-dark); font: inherit; font-weight: 800; cursor: pointer; }
+.chip.on { background: var(--violet); color: #fff; }
+.done-card { text-align: center; display: grid; gap: 12px; justify-items: center; }

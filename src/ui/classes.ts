@@ -6,7 +6,7 @@ export interface ClassMeta {
   mood: Mood;
 }
 
-export type Mood = "idle" | "happy" | "wow" | "thinking" | "worried" | "oops" | "shocked" | "proud";
+export type Mood = "idle" | "happy" | "wow" | "thinking" | "worried" | "oops" | "shocked" | "proud" | "cheer" | "sleepy";
 
 export const CLASS_META: Record<MC, ClassMeta> = {
   [MC.Splendid]: { color: "#22c7e8", glyph: "!!", mood: "wow" },

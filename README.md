@@ -8,6 +8,12 @@ Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-sh
 - Move classes: Brilliant, Great, Best, Excellent, Good, Book, Forced, Inaccuracy, Mistake, Miss, Blunder.
 - Accuracy, estimated rating, accuracy per game phase, opening name, key moments, eval graph, best lines, recent games, and "Try again" on your mistakes.
 
+## Learn and practice
+
+- **Lessons**: 13 short interactive lessons (pieces, checkmate in one, forks, opening principles, promotion). Blokje explains, you play. XP, levels and a daily streak are stored locally. `npm run check:lessons` verifies every lesson position and solution with chess.js.
+- **Puzzles**: themed puzzles (mate in 1 and 2, fork, pin, skewer, free piece, endgame, opening), fetched live from the free Lichess puzzle API (puzzle data is CC0).
+- **My mistakes**: the blunders, mistakes and misses from the games you review become practice positions. Fix one and it leaves your list.
+
 ## Build and install
 
 ```bash
