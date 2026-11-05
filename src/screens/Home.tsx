@@ -1,6 +1,5 @@
 import { HistoryItem } from "@/lib/history";
 import { useState } from "react";
-import Mascot from "@/ui/Mascot";
 import { BOARD_THEMES, MASCOT_THEMES, PIECE_SETS, Settings } from "@/lib/settings";
 
 import { Key, t } from "@/lib/i18n";
@@ -25,11 +24,8 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
     <div className="screen home">
       <div className="home-left">
       <div className="home-title">
-        <Mascot mood="happy" size={120} />
-        <div>
-          <h1>Zetje</h1>
-          <p className="tagline">{t("home.tagline")}</p>
-        </div>
+        <h1>{t("home.title")}</h1>
+        <p className="tagline">{t("home.tagline")}</p>
       </div>
 
       <div

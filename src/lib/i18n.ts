@@ -1,6 +1,7 @@
 export type Lang = "nl" | "en";
 
 const en = {
+  "home.title": "Analyze a game",
   "home.tagline": "Free chess analysis, running locally on your computer. Blokje watches along.",
   "home.placeholder": "Paste a chess.com or lichess link, or a PGN. You can also drop a .pgn file here.",
   "home.analyze": "Analyze",
@@ -155,6 +156,7 @@ const en = {
 export type Key = keyof typeof en;
 
 const nl: Record<Key, string> = {
+  "home.title": "Analyseer een partij",
   "home.tagline": "Gratis schaakanalyse, lokaal op jouw computer. Blokje kijkt mee.",
   "home.placeholder": "Plak een link van chess.com of lichess, of een PGN. Je kunt ook een .pgn-bestand hierheen slepen.",
   "home.analyze": "Analyseer",

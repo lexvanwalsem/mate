@@ -17,8 +17,8 @@ body { overflow: hidden; }
 /* ---------- home ---------- */
 .main .home { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; text-align: left; max-width: 1100px; }
 .home-left { display: grid; gap: 16px; align-content: start; }
-.home-title { display: flex; align-items: center; gap: 16px; }
-.home-title h1 { font-size: 40px; }
+.home-title { display: grid; gap: 6px; }
+.home-title h1 { font-size: 30px; color: var(--ink); letter-spacing: -0.5px; }
 .home-title .tagline { max-width: 420px; }
 .home .card { width: auto; }
 .home textarea { margin-bottom: 12px; }
