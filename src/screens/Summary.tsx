@@ -40,15 +40,15 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
             {t("summary.vs", { white: playerName(a.headers.White, "White"), black: playerName(a.headers.Black, "Black") })} {resultText && <span className={`pill ${result}`}>{resultText}</span>}
           </div>
           <h2>{verdictFor(mine)}</h2>
-          <div className="players">
-            <PlayerBar headers={a.headers} color="white" isYou={side === "white"} />
-            <PlayerBar headers={a.headers} color="black" isYou={side === "black"} />
-          </div>
-          {!sideKnown && <p className="muted">{t("summary.pickSide")}</p>}
+          <p className="muted hint" style={{ visibility: sideKnown ? "hidden" : "visible" }}>{t("summary.pickSide")}</p>
           <div className="seg">
             <button className={side === "white" ? "on" : ""} onClick={() => onSideChange("white")}>{t("summary.iWhite")}</button>
             <button className={side === "black" ? "on" : ""} onClick={() => onSideChange("black")}>{t("summary.iBlack")}</button>
           </div>
+        </div>
+        <div className="players">
+          <PlayerBar headers={a.headers} color="white" isYou={side === "white"} />
+          <PlayerBar headers={a.headers} color="black" isYou={side === "black"} />
         </div>
       </div>
 
@@ -63,7 +63,7 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
         </div>
         {elo && (
           <div className="card stat">
-            <div className="stat-num">{Math.round(elo)}</div>
+            <div className="stat-num">~{Math.round(elo)}</div>
             <div className="stat-label">{t("summary.elo")}</div>
           </div>
         )}

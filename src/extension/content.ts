@@ -13,15 +13,13 @@ const platform = location.hostname.includes("lichess") ? "lichess" : "chesscom";
 
 /** Best effort: the logged-in user, or the player at the bottom of the board. */
 function detectUser(): string | undefined {
-  const sel = platform === "lichess"
-    ? "#user_tag"
-    : ".board-layout-bottom .user-username-component, .player-bottom .user-username-component, [data-test-element=\"user-tagline-username\"]";
+  const sel =
+    platform === "lichess"
+      ? "#user_tag"
+      : ".board-layout-bottom .user-username-component, .player-bottom .user-username-component, [data-test-element=\"user-tagline-username\"]";
   const text = document.body.dataset.user || document.querySelector(sel)?.textContent;
   return text?.trim().replace(/^\W+/, "") || undefined;
 }
-
-/** What to analyze: the open game, or else the latest game of this user on this site. */
-const target = () => findGameUrl() ?? `latest:${platform}:${detectUser() ?? ""}`;
 
 /** The page URL when it is a game, else a game link in the page (e.g. the Game Review button after a chess.com game). */
 function findGameUrl(): string | undefined {
@@ -32,28 +30,80 @@ function findGameUrl(): string | undefined {
   return link && isGameUrl(link.href) ? link.href : undefined;
 }
 
+/** What to analyze: the open game, or else the latest game of this user on this site. */
+const target = () => findGameUrl() ?? `latest:${platform}:${detectUser() ?? ""}`;
+
 /** Best effort: the game has ended when a result banner or game-over dialog shows. */
 const gameIsOver = () =>
   !!document.querySelector(".result-wrap, .game-over-modal-container, .board-modal-container-container, [class*='game-over']");
 
+const POS_KEY = "zetje-button-pos";
 const host = document.createElement("div");
-host.style.cssText = "position:fixed;right:18px;bottom:18px;z-index:2147483647;display:none";
+host.style.cssText = "position:fixed;z-index:2147483647;right:20px;bottom:20px;";
 const root = host.attachShadow({ mode: "open" });
 root.innerHTML = `
   <style>
-    button { all: unset; cursor: pointer; display: flex; align-items: center; gap: 8px; background: #6c4cf5; color: #fff;
-      font: 800 15px "Segoe UI", system-ui, sans-serif; padding: 10px 16px 10px 10px; border-radius: 18px; box-shadow: 0 5px 0 #4a2fd0; }
-    button:active { transform: translateY(4px); box-shadow: 0 1px 0 #4a2fd0; }
-    button.over { animation: pulse 1.2s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-    svg { width: 34px; height: 34px; }
+    button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; height: 48px;
+      padding: 6px 18px 6px 6px; background: #6c4cf5; color: #fff; border-radius: 24px 24px 24px 10px;
+      font: 600 14px "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; letter-spacing: 0.1px;
+      box-shadow: 0 8px 22px rgba(74, 47, 208, 0.38), inset 0 -3px 0 rgba(0, 0, 0, 0.16); transition: transform 0.15s, box-shadow 0.15s; user-select: none; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(74, 47, 208, 0.45), inset 0 -3px 0 rgba(0, 0, 0, 0.16); }
+    button:active { transform: translateY(1px); }
+    button.over { animation: pulse 1.4s ease-in-out infinite; }
+    .face { width: 36px; height: 36px; flex: none; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    @media (prefers-reduced-motion: reduce) { button { transition: none; animation: none !important; } }
   </style>
   <button>
-    <svg viewBox="0 0 200 200"><rect x="36" y="22" width="30" height="44" rx="12" fill="#a992ff"/><rect x="85" y="14" width="30" height="52" rx="12" fill="#c4b4ff"/><rect x="134" y="22" width="30" height="44" rx="12" fill="#a992ff"/><rect x="28" y="48" width="144" height="124" rx="46" fill="#fff"/><rect x="60" y="86" width="30" height="40" rx="12" fill="#1f1b3a"/><rect x="110" y="86" width="30" height="40" rx="12" fill="#1f1b3a"/></svg>
+    <svg class="face" viewBox="0 0 200 200">
+      <rect x="36" y="18" width="30" height="44" rx="12" fill="#c9bcff"/><rect x="85" y="10" width="30" height="52" rx="12" fill="#e2dbff"/><rect x="134" y="18" width="30" height="44" rx="12" fill="#c9bcff"/>
+      <rect x="22" y="46" width="156" height="136" rx="52" fill="#fff"/>
+      <rect x="58" y="88" width="32" height="42" rx="13" fill="#1f1b3a"/><rect x="110" y="88" width="32" height="42" rx="13" fill="#1f1b3a"/>
+      <circle cx="74" cy="104" r="6" fill="#fff"/><circle cx="126" cy="104" r="6" fill="#fff"/>
+    </svg>
     <span>${chrome.i18n.getMessage("buttonLabel")}</span>
   </button>`;
 const button = root.querySelector("button")!;
+
+// Restore a saved position and let the user drag the button out of the way of the site UI.
+try {
+  const saved = JSON.parse(localStorage.getItem(POS_KEY) ?? "null");
+  if (saved) Object.assign(host.style, { left: `${saved.x}px`, top: `${saved.y}px`, right: "auto", bottom: "auto" });
+} catch {
+  // no saved position
+}
+
+let dragged = false;
+button.addEventListener("pointerdown", (down) => {
+  const rect = host.getBoundingClientRect();
+  const dx = down.clientX - rect.left;
+  const dy = down.clientY - rect.top;
+  dragged = false;
+  const move = (e: PointerEvent) => {
+    if (!dragged && Math.hypot(e.clientX - down.clientX, e.clientY - down.clientY) < 5) return;
+    dragged = true;
+    const x = Math.min(Math.max(0, e.clientX - dx), window.innerWidth - rect.width);
+    const y = Math.min(Math.max(0, e.clientY - dy), window.innerHeight - rect.height);
+    Object.assign(host.style, { left: `${x}px`, top: `${y}px`, right: "auto", bottom: "auto" });
+  };
+  const up = () => {
+    window.removeEventListener("pointermove", move);
+    window.removeEventListener("pointerup", up);
+    if (dragged) {
+      try {
+        const r = host.getBoundingClientRect();
+        localStorage.setItem(POS_KEY, JSON.stringify({ x: r.left, y: r.top }));
+      } catch {
+        // storage blocked, position just will not persist
+      }
+    }
+  };
+  window.addEventListener("pointermove", move);
+  window.addEventListener("pointerup", up);
+});
+
 button.addEventListener("click", () => {
+  if (dragged) return;
   chrome.runtime.sendMessage({ type: "analyze", url: target(), side: detectSide() });
 });
 document.documentElement.appendChild(host);
@@ -65,6 +115,5 @@ chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
 
 // These sites are single-page apps, so re-check regularly.
 setInterval(() => {
-  host.style.display = "block";
   button.classList.toggle("over", !!findGameUrl() && gameIsOver());
 }, 1000);
