@@ -110,7 +110,7 @@ export default function App() {
 
   const tabs: Tab[] = ["analyze", "lessons", "puzzles", "train"];
   return (
-    <>
+    <div className="app">
       <nav className="nav">
         <span className="brand"><Mascot size={34} /> Zetje</span>
         {tabs.map((id) => (
@@ -119,10 +119,17 @@ export default function App() {
           </button>
         ))}
         <span className="grow" />
+        <div className="lang">
+          {(["nl", "en"] as const).map((l) => (
+            <button key={l} className={settings.lang === l ? "on" : ""} onClick={() => updateSettings({ ...settings, lang: l })}>
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
         {progress.streak > 0 && <span className="pill-xp">{t("nav.streak", { n: progress.streak })}</span>}
         <span className="pill-xp">{t("nav.level", { n: levelOf(progress.xp) })} · {t("nav.xp", { n: progress.xp })}</span>
       </nav>
-      {content}
-    </>
+      <main className="main">{content}</main>
+    </div>
   );
 }

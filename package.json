@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "check:lessons": "tsx scripts/check-lessons.ts",
     "test:ext": "node scripts/test-extension.mjs",
+    "test:fit": "node scripts/test-fit.mjs",
     "preview": "vite preview --port 4173"
   },
   "dependencies": {

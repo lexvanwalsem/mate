@@ -113,7 +113,6 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
           <button onClick={() => goto(last)} aria-label="Last">&gt;|</button>
           <button onClick={() => setFlipped(!flipped)}>{t("review.flip")}</button>
         </div>
-        <EvalGraph a={a} side={side} current={pos} onSelect={goto} />
       </div>
 
       <div className="side-col">
@@ -146,6 +145,10 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
               </div>
             )}
           </div>
+        </div>
+
+        <div className="card graph-card">
+          <EvalGraph a={a} side={side} current={pos} onSelect={goto} />
         </div>
 
         {!retry && lines.length > 0 && (

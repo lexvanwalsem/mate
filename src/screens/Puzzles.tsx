@@ -81,7 +81,7 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
   const mood: Mood = status === "solved" ? "cheer" : status === "wrong" ? "worried" : status === "loading" ? "thinking" : "happy";
 
   return (
-    <div className="screen">
+    <div className="screen with-chips">
       <p className="muted">{t("puzzle.intro")}</p>
       <div className="chips">
         {PUZZLE_THEMES.map((th) => (

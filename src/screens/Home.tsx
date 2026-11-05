@@ -23,16 +23,14 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
 
   return (
     <div className="screen home">
-      <div className="lang">
-        {(["nl", "en"] as const).map((l) => (
-          <button key={l} className={settings.lang === l ? "on" : ""} onClick={() => onChangeSettings({ ...settings, lang: l })}>
-            {l.toUpperCase()}
-          </button>
-        ))}
+      <div className="home-left">
+      <div className="home-title">
+        <Mascot mood="happy" size={120} />
+        <div>
+          <h1>Zetje</h1>
+          <p className="tagline">{t("home.tagline")}</p>
+        </div>
       </div>
-      <Mascot mood="happy" size={170} />
-      <h1>Zetje</h1>
-      <p className="tagline">{t("home.tagline")}</p>
 
       <div
         className="card dropzone"
@@ -64,6 +62,7 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
         </div>
       )}
 
+      </div>
       <div className="card settings">
         <label>
           {t("home.usernames")}

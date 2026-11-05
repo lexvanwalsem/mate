@@ -1,0 +1,106 @@
+/* One-page layout: every screen fits the window, nothing needs page scrolling.
+   Inner lists (moves, key moments) scroll on their own when they must. */
+
+:root {
+  --nav-h: 80px;
+  --pad: 16px;
+  --avail: calc(100vh - var(--nav-h) - 2 * var(--pad));
+}
+
+html, body, #root { height: 100%; }
+body { overflow: hidden; }
+.app { height: 100vh; display: flex; flex-direction: column; }
+.nav { flex: none; }
+.main { flex: 1; min-height: 0; overflow: auto; }
+.main .screen { max-width: 1500px; margin: 0 auto; padding: var(--pad); height: 100%; }
+
+/* ---------- home ---------- */
+.main .home { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; text-align: left; max-width: 1100px; }
+.home-left { display: grid; gap: 16px; align-content: start; }
+.home-title { display: flex; align-items: center; gap: 16px; }
+.home-title h1 { font-size: 40px; }
+.home-title .tagline { max-width: 420px; }
+.home .card { width: auto; }
+.home textarea { margin-bottom: 12px; }
+.home .settings { gap: 14px; }
+.home .history { max-height: 200px; overflow: auto; }
+
+/* ---------- summary: two columns ---------- */
+.main .summary { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+.sum-left, .sum-right { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+.sum-left > .card:last-child, .sum-right > .card.moments-card { flex: 1; min-height: 0; overflow: auto; }
+.hero { grid-template-columns: 130px 1fr; padding: 18px; gap: 10px 22px; }
+.hero .mascot { width: 130px; height: 130px; }
+.hero h2 { font-size: 22px; min-height: 56px; margin: 4px 0 6px; }
+.hero .hint { margin: 0 0 6px; min-height: 18px; font-size: 13px; }
+.stats { gap: 12px; }
+.stat { height: 96px; }
+.stat-num { font-size: 30px; }
+.class-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.class-tile { height: 72px; padding: 10px 12px; }
+.class-count { font-size: 26px; }
+.sum-right .card h3 { margin-bottom: 10px; }
+.moments { max-height: none; }
+.sum-actions { display: flex; gap: 10px; align-items: center; margin-top: auto; }
+.sum-actions .btn.big { flex: 1; }
+
+/* ---------- review ---------- */
+.main .review {
+  --board: min(calc(var(--avail) - 160px), calc(100vw - 32px - 16px - 400px - 46px));
+  display: grid; grid-template-columns: calc(var(--board) + 46px) 400px; gap: 16px; justify-content: center; align-items: start;
+}
+.review .board-col { width: calc(var(--board) + 46px); max-width: none; gap: 8px; align-content: start; }
+.review .board-row { gap: 10px; }
+.review .board { flex: none; width: var(--board); height: var(--board); }
+.review .side-col { height: var(--avail); grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 12px; }
+.review .coach { height: 150px; padding: 14px; }
+.review .bubble { font-size: 14px; }
+.review .graph-card { padding: 10px; }
+.review .graph { height: 64px; }
+.review .lines { min-height: 0; height: 112px; padding: 14px 18px; overflow: hidden; }
+.review .lines h3 { margin-bottom: 6px; }
+.review .lines .line { height: 22px; font-size: 13px; }
+.review .movelist { height: auto; min-height: 0; }
+.review .side-col > .btn { min-height: 40px; }
+
+/* ---------- lessons, puzzles, train ---------- */
+.main .path { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-content: start; }
+.path > p { grid-column: 1 / -1; margin: 0; }
+.unit.card { padding: 16px; }
+.unit h3 { margin-bottom: 10px; }
+.lessons { gap: 10px; }
+.lesson-btn { width: 104px; height: 72px; font-size: 13px; padding: 8px; }
+
+.main .screen.with-chips, .main .screen.with-intro { display: flex; flex-direction: column; }
+.with-chips .chips { margin-bottom: 8px; }
+.with-chips > .muted, .with-intro > .muted { margin: 0 0 8px; }
+.main .player {
+  --extra: 40px;
+  --board: min(calc(var(--avail) - var(--extra)), calc(100vw - 32px - 16px - 360px));
+  display: grid; grid-template-columns: var(--board) 360px; gap: 16px; justify-content: center; align-items: start; flex: 1; min-height: 0;
+}
+.with-chips .player { --extra: 110px; }
+.with-intro .player { --extra: 50px; }
+.player .board-col { width: var(--board); max-width: none; }
+.player .board { flex: none; width: var(--board); height: var(--board); }
+.player .coach { height: 170px; }
+
+/* ---------- narrow windows: fall back to a normal scrolling page ---------- */
+@media (max-width: 1000px), (max-height: 560px) {
+  body { overflow: auto; }
+  .app { height: auto; min-height: 100vh; }
+  .main { overflow: visible; }
+  .main .screen { height: auto; }
+  .main .home, .main .summary, .main .review, .main .player { grid-template-columns: 1fr; }
+  .main .review, .main .player { --board: min(calc(100vw - 32px - 46px), 560px); }
+  .review .board-col, .player .board-col { width: 100%; }
+  .review .side-col { height: auto; }
+  .review .movelist { height: 280px; }
+}
+
+/* ---------- alignment: header and content share the same edges, game screens are centered ---------- */
+.nav { max-width: 1500px; width: calc(100% - 2 * var(--pad)); }
+.main .screen.with-chips, .main .screen.with-intro { align-items: center; }
+.with-chips .chips { justify-content: center; }
+.main .screen.with-chips > .muted, .main .screen.with-intro > .muted { text-align: center; }
+input[type="range"] { accent-color: var(--violet); }

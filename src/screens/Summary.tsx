@@ -33,6 +33,7 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
 
   return (
     <div className="screen summary">
+      <div className="sum-left">
       <div className="card hero">
         <Mascot mood={moodFor(mine)} size={150} />
         <div>
@@ -70,6 +71,20 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
       </div>
 
       <div className="card">
+        <h3>{t("summary.moves")}</h3>
+        <div className="class-grid">
+          {CLASS_ORDER.filter((c) => counts[c] > 0).map((c) => (
+            <div key={c} className="class-tile" style={{ background: CLASS_META[c].color }}>
+              <span className="class-count">{counts[c]}</span>
+              <span className="class-name">{classLabel(c)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      </div>
+      <div className="sum-right">
+      <div className="card">
         <h3>{t("summary.phases")}</h3>
         <div className="phases">
           {(["opening", "middlegame", "endgame"] as const).map((p) =>
@@ -85,20 +100,8 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
         {opening && <p className="muted">{t("summary.opening")}: {opening}</p>}
       </div>
 
-      <div className="card">
-        <h3>{t("summary.moves")}</h3>
-        <div className="class-grid">
-          {CLASS_ORDER.filter((c) => counts[c] > 0).map((c) => (
-            <div key={c} className="class-tile" style={{ background: CLASS_META[c].color }}>
-              <span className="class-count">{counts[c]}</span>
-              <span className="class-name">{classLabel(c)}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {moments.length > 0 && (
-        <div className="card">
+        <div className="card moments-card">
           <h3>{t("summary.moments")}</h3>
           <ul className="moments">
             {moments.map((m) => (
@@ -116,9 +119,10 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
         </div>
       )}
 
-      <div className="row center">
+      <div className="sum-actions">
         <button className="btn primary big" onClick={() => onReview()}>{t("summary.review")}</button>
         <button className="btn ghost" onClick={onBack}>{t("summary.another")}</button>
+      </div>
       </div>
     </div>
   );

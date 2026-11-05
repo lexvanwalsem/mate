@@ -46,7 +46,7 @@ export default function Train({ pieceSet, onProgress }: { pieceSet: string; onPr
   };
 
   return (
-    <div className="screen">
+    <div className="screen with-intro">
       <p className="muted">{t("train.intro")} {t("train.count", { n: items.length })}</p>
       <div className="player">
         {status === "right" && <Confetti />}

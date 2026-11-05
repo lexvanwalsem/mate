@@ -24,7 +24,7 @@ export default function Learn({ pieceSet, progress, onProgress }: Props) {
       <div className="screen path">
         <p className="muted">{t("learn.intro")}</p>
         {UNITS.map((u) => (
-          <div key={u.id} className="unit">
+          <div key={u.id} className="unit card">
             <h3>{t(`unit.${u.id}` as Key)}</h3>
             <div className="lessons">
               {u.lessons.map((l) => (
