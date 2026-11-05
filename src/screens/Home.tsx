@@ -1,15 +1,18 @@
 import { useState } from "react";
 import Mascot from "@/ui/Mascot";
 import { Settings } from "@/lib/settings";
+import { HistoryItem } from "@/lib/history";
+import { Key, t } from "@/lib/i18n";
 
 interface Props {
   settings: Settings;
+  history: HistoryItem[];
   onChangeSettings: (s: Settings) => void;
   onAnalyze: (input: string) => void;
   error?: string;
 }
 
-export default function Home({ settings, onChangeSettings, onAnalyze, error }: Props) {
+export default function Home({ settings, history, onChangeSettings, onAnalyze, error }: Props) {
   const [input, setInput] = useState("");
 
   const onFile = async (file?: File) => {
@@ -18,9 +21,16 @@ export default function Home({ settings, onChangeSettings, onAnalyze, error }: P
 
   return (
     <div className="screen home">
+      <div className="lang">
+        {(["nl", "en"] as const).map((l) => (
+          <button key={l} className={settings.lang === l ? "on" : ""} onClick={() => onChangeSettings({ ...settings, lang: l })}>
+            {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
       <Mascot mood="happy" size={170} />
       <h1>Zetje</h1>
-      <p className="tagline">Gratis schaakanalyse, lokaal op jouw computer. Blokje kijkt mee.</p>
+      <p className="tagline">{t("home.tagline")}</p>
 
       <div
         className="card dropzone"
@@ -30,35 +40,39 @@ export default function Home({ settings, onChangeSettings, onAnalyze, error }: P
           onFile(e.dataTransfer.files[0]);
         }}
       >
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Plak een link van chess.com of lichess, of een PGN. Je kunt ook een .pgn-bestand hierheen slepen."
-          rows={5}
-        />
+        <textarea value={input} onChange={(e) => setInput(e.target.value)} placeholder={t("home.placeholder")} rows={5} />
         <div className="row">
           <button className="btn primary" disabled={!input.trim()} onClick={() => onAnalyze(input)}>
-            Analyseer
+            {t("home.analyze")}
           </button>
           <label className="btn ghost">
-            Kies PGN-bestand
+            {t("home.pickFile")}
             <input type="file" accept=".pgn,.txt" hidden onChange={(e) => onFile(e.target.files?.[0])} />
           </label>
         </div>
         {error && <p className="error">{error}</p>}
       </div>
 
+      {history.length > 0 && (
+        <div className="card history">
+          <h3>{t("home.recent")}</h3>
+          {history.map((h) => (
+            <button key={h.pgn} onClick={() => onAnalyze(h.pgn)}>{h.title}</button>
+          ))}
+        </div>
+      )}
+
       <div className="card settings">
         <label>
-          Mijn gebruikersnamen
+          {t("home.usernames")}
           <input
             value={settings.usernames}
-            placeholder="bijv. lexvanwalsem, lex123"
+            placeholder={t("home.usernamesHint")}
             onChange={(e) => onChangeSettings({ ...settings, usernames: e.target.value })}
           />
         </label>
         <label>
-          Diepte ({settings.depth})
+          {t("home.depth", { n: settings.depth })}
           <input
             type="range"
             min={8}
@@ -68,11 +82,11 @@ export default function Home({ settings, onChangeSettings, onAnalyze, error }: P
           />
         </label>
         <label>
-          Stukken
+          {t("home.pieces")}
           <select value={settings.pieceSet} onChange={(e) => onChangeSettings({ ...settings, pieceSet: e.target.value })}>
-            <option value="cburnett">Klassiek</option>
-            <option value="staunty">Staunty</option>
-            <option value="kosal">Kosal</option>
+            {["cburnett", "staunty", "kosal"].map((p) => (
+              <option key={p} value={p}>{t(`pieces.${p}` as Key)}</option>
+            ))}
           </select>
         </label>
       </div>

@@ -1,11 +1,13 @@
+import { detectLang } from "./i18n";
 export interface Settings {
+  lang: "nl" | "en";
   depth: number;
   usernames: string; // comma separated
   pieceSet: string;
 }
 
 const KEY = "zetje-settings";
-const DEFAULTS: Settings = { depth: 14, usernames: "", pieceSet: "cburnett" };
+const DEFAULTS: Settings = { lang: detectLang(), depth: 14, usernames: "", pieceSet: "cburnett" };
 
 export function loadSettings(): Settings {
   try {

@@ -1,0 +1,6 @@
+{
+  "extDescription": { "message": "Free local chess game analysis with Blokje the mascot. Works with chess.com, lichess and PGN." },
+  "actionTitle": { "message": "Analyze this game with Zetje" },
+  "menuTitle": { "message": "Analyze selected PGN with Zetje" },
+  "buttonLabel": { "message": "Analyze with Zetje" }
+}

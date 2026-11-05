@@ -161,3 +161,14 @@ textarea { resize: vertical; margin-bottom: 12px; }
 @media (prefers-reduced-motion: reduce) {
   .mascot *, .piece, .progress-fill { animation: none !important; transition: none !important; }
 }
+
+/* language switch, history, phases */
+.lang { align-self: flex-end; display: inline-flex; gap: 4px; background: var(--violet-soft); padding: 4px; border-radius: 12px; }
+.lang button { border: 0; background: transparent; padding: 6px 12px; border-radius: 9px; font: inherit; font-weight: 800; cursor: pointer; color: var(--violet-dark); }
+.lang button.on { background: var(--violet); color: #fff; }
+.history { display: grid; gap: 8px; text-align: left; }
+.history button { border: 0; background: var(--violet-soft); padding: 10px 14px; border-radius: 14px; font: inherit; font-weight: 800; cursor: pointer; color: var(--ink); text-align: left; }
+.phases { display: grid; gap: 10px; }
+.phase { display: grid; grid-template-columns: 110px 1fr 44px; gap: 10px; align-items: center; }
+.phase-bar { height: 16px; background: var(--violet-soft); border-radius: 10px; overflow: hidden; }
+.phase-bar div { height: 100%; background: var(--mint); border-radius: 10px; }

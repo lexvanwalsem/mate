@@ -4,10 +4,11 @@ import Board, { Arrow, BoardPiece, buildFrames, piecesFromFen } from "@/ui/Board
 import { EvalBar, EvalGraph } from "@/ui/Charts";
 import ClassBadge from "@/ui/ClassBadge";
 import Mascot from "@/ui/Mascot";
-import { CLASS_META, Mood } from "@/ui/classes";
+import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
 import { Side, sideOfPosition } from "@/lib/stats";
 import { commentFor } from "@/lib/commentary";
+import { t } from "@/lib/i18n";
 import { getEvaluationBar, getLineEvalLabel, moveLineUciToSan } from "@/lib/chess";
 import { getLineWinPercentage } from "@/engine/winPercentage";
 import { MoveClassification as MC } from "@/types/enums";
@@ -102,11 +103,11 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
           />
         </div>
         <div className="controls">
-          <button onClick={() => goto(0)} aria-label="Begin">|&lt;</button>
-          <button onClick={() => goto(pos - 1)} aria-label="Vorige">&lt;</button>
-          <button onClick={() => goto(pos + 1)} aria-label="Volgende">&gt;</button>
-          <button onClick={() => goto(last)} aria-label="Einde">&gt;|</button>
-          <button onClick={() => setFlipped(!flipped)}>Draai bord</button>
+          <button onClick={() => goto(0)} aria-label="First">|&lt;</button>
+          <button onClick={() => goto(pos - 1)} aria-label="Previous">&lt;</button>
+          <button onClick={() => goto(pos + 1)} aria-label="Next">&gt;</button>
+          <button onClick={() => goto(last)} aria-label="Last">&gt;|</button>
+          <button onClick={() => setFlipped(!flipped)}>{t("review.flip")}</button>
         </div>
         <EvalGraph a={a} side={side} current={pos} onSelect={goto} />
       </div>
@@ -117,27 +118,27 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
           <div className="bubble">
             {retry ? (
               <p>
-                {retry.result === "right" && "Yes! Dat is een sterke zet."}
-                {retry.result === "wrong" && "Niet helemaal. Probeer een andere zet, of bekijk de beste zet met de pijl."}
-                {!retry.result && "Kun je een betere zet vinden? Klik een stuk en dan een veld."}
+                {retry.result === "right" && t("review.right")}
+                {retry.result === "wrong" && t("review.wrong")}
+                {!retry.result && t("review.ask")}
               </p>
             ) : pos === 0 ? (
-              <p>Klaar voor de review! Gebruik de pijltjestoetsen om door de partij te lopen.</p>
+              <p>{t("review.start")}</p>
             ) : (
               <>
                 {cls && (
                   <div className="bubble-title">
-                    <ClassBadge cls={cls} size={22} /> {CLASS_META[cls].label}
+                    <ClassBadge cls={cls} size={22} /> {classLabel(cls)}
                   </div>
                 )}
                 <p>{commentFor(a, pos, side)}</p>
               </>
             )}
-            {canRetry && !retry && <button className="btn primary small" onClick={() => setRetry({})}>Probeer opnieuw</button>}
+            {canRetry && !retry && <button className="btn primary small" onClick={() => setRetry({})}>{t("review.retry")}</button>}
             {retry && (
               <div className="row">
-                {retry.result === "wrong" && <button className="btn ghost small" onClick={() => setRetry({})}>Nog een keer</button>}
-                <button className="btn ghost small" onClick={() => setRetry(null)}>Stoppen</button>
+                {retry.result === "wrong" && <button className="btn ghost small" onClick={() => setRetry({})}>{t("review.again")}</button>}
+                <button className="btn ghost small" onClick={() => setRetry(null)}>{t("review.stop")}</button>
               </div>
             )}
           </div>
@@ -145,7 +146,7 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
 
         {!retry && lines.length > 0 && (
           <div className="card lines">
-            <h3>Beste lijnen</h3>
+            <h3>{t("review.lines")}</h3>
             {lines.map((l) => (
               <div key={l.multiPv} className="line">
                 <b>{getLineEvalLabel(l)}</b>
@@ -172,7 +173,7 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
             </div>
           ))}
         </div>
-        <button className="btn ghost" onClick={onBack}>Terug naar samenvatting</button>
+        <button className="btn ghost" onClick={onBack}>{t("review.back")}</button>
       </div>
     </div>
   );

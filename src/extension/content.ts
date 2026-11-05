@@ -22,7 +22,7 @@ root.innerHTML = `
   </style>
   <button>
     <svg viewBox="0 0 200 200"><rect x="36" y="22" width="30" height="44" rx="12" fill="#a992ff"/><rect x="85" y="14" width="30" height="52" rx="12" fill="#c4b4ff"/><rect x="134" y="22" width="30" height="44" rx="12" fill="#a992ff"/><rect x="28" y="48" width="144" height="124" rx="46" fill="#fff"/><rect x="60" y="86" width="30" height="40" rx="12" fill="#1f1b3a"/><rect x="110" y="86" width="30" height="40" rx="12" fill="#1f1b3a"/></svg>
-    <span>Analyse with Zetje</span>
+    <span>${chrome.i18n.getMessage("buttonLabel")}</span>
   </button>`;
 root.querySelector("button")!.addEventListener("click", () => {
   chrome.runtime.sendMessage({ type: "analyze", url: location.href, side: detectSide() });

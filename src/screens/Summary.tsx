@@ -1,8 +1,9 @@
 import Mascot from "@/ui/Mascot";
 import ClassBadge from "@/ui/ClassBadge";
-import { CLASS_META, Mood } from "@/ui/classes";
+import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
-import { CLASS_ORDER, Side, countClasses, keyMoments, resultFor } from "@/lib/stats";
+import { CLASS_ORDER, Side, countClasses, keyMoments, openingName, phaseAccuracy, resultFor } from "@/lib/stats";
+import { t, Key } from "@/lib/i18n";
 import { verdictFor } from "@/lib/commentary";
 
 interface Props {
@@ -23,7 +24,9 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
   const moments = keyMoments(a, side);
   const elo = a.estimatedElo?.[side];
   const result = resultFor(a.headers, side);
-  const resultText = { win: "Gewonnen", loss: "Verloren", draw: "Remise", unknown: "" }[result];
+  const resultText = result === "unknown" ? "" : t(`summary.${result}` as Key);
+  const phases = phaseAccuracy(a, side);
+  const opening = openingName(a);
 
   return (
     <div className="screen summary">
@@ -31,13 +34,13 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
         <Mascot mood={moodFor(mine)} size={150} />
         <div>
           <div className="hero-sub">
-            {a.headers.White} tegen {a.headers.Black} {resultText && <span className={`pill ${result}`}>{resultText}</span>}
+            {t("summary.vs", { white: a.headers.White, black: a.headers.Black })} {resultText && <span className={`pill ${result}`}>{resultText}</span>}
           </div>
           <h2>{verdictFor(mine)}</h2>
-          {!sideKnown && <p className="muted">Ik weet niet aan welke kant jij zat. Kies hieronder.</p>}
+          {!sideKnown && <p className="muted">{t("summary.pickSide")}</p>}
           <div className="seg">
-            <button className={side === "white" ? "on" : ""} onClick={() => onSideChange("white")}>Ik was wit</button>
-            <button className={side === "black" ? "on" : ""} onClick={() => onSideChange("black")}>Ik was zwart</button>
+            <button className={side === "white" ? "on" : ""} onClick={() => onSideChange("white")}>{t("summary.iWhite")}</button>
+            <button className={side === "black" ? "on" : ""} onClick={() => onSideChange("black")}>{t("summary.iBlack")}</button>
           </div>
         </div>
       </div>
@@ -45,27 +48,43 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
       <div className="stats">
         <div className="card stat accent">
           <div className="stat-num">{mine.toFixed(1)}%</div>
-          <div className="stat-label">Jouw nauwkeurigheid</div>
+          <div className="stat-label">{t("summary.accuracy")}</div>
         </div>
         <div className="card stat">
           <div className="stat-num">{opp.toFixed(1)}%</div>
-          <div className="stat-label">Tegenstander</div>
+          <div className="stat-label">{t("summary.opponent")}</div>
         </div>
         {elo && (
           <div className="card stat">
             <div className="stat-num">{Math.round(elo)}</div>
-            <div className="stat-label">Geschatte rating</div>
+            <div className="stat-label">{t("summary.elo")}</div>
           </div>
         )}
       </div>
 
       <div className="card">
-        <h3>Jouw zetten</h3>
+        <h3>{t("summary.phases")}</h3>
+        <div className="phases">
+          {(["opening", "middlegame", "endgame"] as const).map((p) =>
+            phases[p] === undefined ? null : (
+              <div key={p} className="phase">
+                <span>{t(`phase.${p}` as Key)}</span>
+                <div className="phase-bar"><div style={{ width: `${phases[p]}%` }} /></div>
+                <b>{phases[p]!.toFixed(0)}%</b>
+              </div>
+            )
+          )}
+        </div>
+        {opening && <p className="muted">{t("summary.opening")}: {opening}</p>}
+      </div>
+
+      <div className="card">
+        <h3>{t("summary.moves")}</h3>
         <div className="class-grid">
           {CLASS_ORDER.filter((c) => counts[c] > 0).map((c) => (
             <div key={c} className="class-tile" style={{ background: CLASS_META[c].color }}>
               <span className="class-count">{counts[c]}</span>
-              <span className="class-name">{CLASS_META[c].label}</span>
+              <span className="class-name">{classLabel(c)}</span>
             </div>
           ))}
         </div>
@@ -73,16 +92,16 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
 
       {moments.length > 0 && (
         <div className="card">
-          <h3>Sleutelmomenten</h3>
+          <h3>{t("summary.moments")}</h3>
           <ul className="moments">
             {moments.map((m) => (
               <li key={m.position}>
                 <button onClick={() => onReview(m.position)}>
                   <ClassBadge cls={m.cls} size={26} />
                   <span>
-                    Zet {Math.ceil(m.position / 2)}: {a.sans[m.position - 1]}
+                    {t("summary.moveN", { n: Math.ceil(m.position / 2), san: a.sans[m.position - 1] })}
                   </span>
-                  <span className="muted">{CLASS_META[m.cls].label}</span>
+                  <span className="muted">{classLabel(m.cls)}</span>
                 </button>
               </li>
             ))}
@@ -91,8 +110,8 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
       )}
 
       <div className="row center">
-        <button className="btn primary big" onClick={() => onReview()}>Start review</button>
-        <button className="btn ghost" onClick={onBack}>Andere partij</button>
+        <button className="btn primary big" onClick={() => onReview()}>{t("summary.review")}</button>
+        <button className="btn ghost" onClick={onBack}>{t("summary.another")}</button>
       </div>
     </div>
   );

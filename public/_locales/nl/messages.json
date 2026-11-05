@@ -1,0 +1,6 @@
+{
+  "extDescription": { "message": "Gratis lokale schaakanalyse met Blokje de mascotte. Werkt met chess.com, lichess en PGN." },
+  "actionTitle": { "message": "Analyseer deze partij met Zetje" },
+  "menuTitle": { "message": "Analyseer geselecteerde PGN met Zetje" },
+  "buttonLabel": { "message": "Analyseer met Zetje" }
+}

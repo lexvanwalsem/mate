@@ -6,7 +6,7 @@ Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-sh
 - Everything runs locally with Stockfish 18 (lite, WebAssembly). No server, no account.
 - Review is told from your side of the board (your color is at the bottom).
 - Move classes: Brilliant, Great, Best, Excellent, Good, Book, Forced, Inaccuracy, Mistake, Miss, Blunder.
-- Accuracy, estimated rating, key moments, eval graph, best lines, and "Try again" on your mistakes.
+- Accuracy, estimated rating, accuracy per game phase, opening name, key moments, eval graph, best lines, recent games, and "Try again" on your mistakes.
 
 ## Build and install
 
@@ -21,7 +21,7 @@ Open `chrome://extensions`, enable Developer mode, choose "Load unpacked" and se
 
 - Opponent and own color: the content script reads the board orientation. For pasted PGNs set your usernames on the start page, or pick a side on the summary.
 - "Miss" is a heuristic: the opponent erred, you were clearly better, and your move gave up 5 percent or more win chance.
-- UI text is Dutch. All code and comments are English.
+- The UI is bilingual (Dutch and English, switch on the start page; defaults to the browser language). All code and comments are English.
 
 ## Credits and license
 

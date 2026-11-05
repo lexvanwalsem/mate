@@ -8,7 +8,7 @@ function openAnalysis(params: { url?: string; pgn?: string; side?: string }) {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({ id: "zetje-selection", title: "Analyse selected PGN with Zetje", contexts: ["selection"] });
+  chrome.contextMenus.create({ id: "zetje-selection", title: chrome.i18n.getMessage("menuTitle"), contexts: ["selection"] });
 });
 
 chrome.contextMenus.onClicked.addListener((info) => {

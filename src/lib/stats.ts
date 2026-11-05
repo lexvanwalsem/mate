@@ -60,3 +60,24 @@ export const resultFor = (headers: Record<string, string>, side: Side): "win" | 
   if (r === "0-1") return side === "black" ? "win" : "loss";
   return "unknown";
 };
+
+export type Phase = "opening" | "middlegame" | "endgame";
+
+import { getPieceMaterial } from "./chess";
+
+const phaseOfMove = (a: GameAnalysis, moveIdx: number): Phase =>
+  moveIdx < 20 ? "opening" : getPieceMaterial(a.fens[moveIdx]) <= 24 ? "endgame" : "middlegame";
+
+/** Average move accuracy per game phase for one side (undefined when the phase never happened). */
+export function phaseAccuracy(a: GameAnalysis, side: Side): Record<Phase, number | undefined> {
+  const buckets: Record<Phase, number[]> = { opening: [], middlegame: [], endgame: [] };
+  a.moveAccuracy.forEach((v, m) => {
+    if (sideOfPosition(m + 1) === side) buckets[phaseOfMove(a, m)].push(v);
+  });
+  const avg = (xs: number[]) => (xs.length ? xs.reduce((s, x) => s + x, 0) / xs.length : undefined);
+  return { opening: avg(buckets.opening), middlegame: avg(buckets.middlegame), endgame: avg(buckets.endgame) };
+}
+
+/** Last opening name seen in the game. */
+export const openingName = (a: GameAnalysis): string | undefined =>
+  [...a.positions].reverse().find((p) => p.opening)?.opening;

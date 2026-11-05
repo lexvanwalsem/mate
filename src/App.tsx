@@ -8,6 +8,8 @@ import { GameAnalysis, analyzeGame } from "./lib/analyze";
 import { LoadedGame, loadGame } from "./lib/sources";
 import { Side, pickSide } from "./lib/stats";
 import { Settings, loadSettings, saveSettings } from "./lib/settings";
+import { setLang, t } from "./lib/i18n";
+import { addToHistory, loadHistory } from "./lib/history";
 
 type Screen = { name: "home" } | { name: "loading"; text: string; progress?: number } | { name: "summary" } | { name: "review"; start: number };
 
@@ -18,6 +20,8 @@ export default function App() {
   const [side, setSide] = useState<Side>("white");
   const [sideKnown, setSideKnown] = useState(false);
   const [error, setError] = useState<string>();
+  const [recent, setRecent] = useState(loadHistory);
+  setLang(settings.lang);
   const pool = useRef<Promise<EnginePool> | undefined>(undefined);
 
   const updateSettings = (s: Settings) => {
@@ -28,10 +32,10 @@ export default function App() {
   const run = async (input: string, sideHint?: Side) => {
     setError(undefined);
     try {
-      setScreen({ name: "loading", text: "Partij ophalen" });
+      setScreen({ name: "loading", text: t("loading.fetch") });
       const game: LoadedGame = await loadGame(input, sideHint);
 
-      setScreen({ name: "loading", text: "Blokje start de motor", progress: 0 });
+      setScreen({ name: "loading", text: t("loading.engine"), progress: 0 });
       pool.current ??= EnginePool.create(EnginePool.recommendedSize(), 3);
       const engine = await pool.current;
 
@@ -40,7 +44,7 @@ export default function App() {
         {
           depth: settings.depth,
           multiPv: 3,
-          onProgress: (done, total) => setScreen({ name: "loading", text: "Blokje denkt na", progress: done / total }),
+          onProgress: (done, total) => setScreen({ name: "loading", text: t("loading.think"), progress: done / total }),
         },
         engine
       );
@@ -48,6 +52,8 @@ export default function App() {
       const picked = pickSide(result.headers, game.side, settings.usernames.split(","));
       setSide(picked.side);
       setSideKnown(picked.known);
+      addToHistory({ title: `${result.headers.White} - ${result.headers.Black}`, pgn: game.pgn });
+      setRecent(loadHistory());
       setAnalysis(result);
       setScreen({ name: "summary" });
     } catch (e) {
@@ -81,5 +87,5 @@ export default function App() {
     );
   if (screen.name === "review" && analysis)
     return <Review a={analysis} side={side} pieceSet={settings.pieceSet} start={screen.start} onBack={() => setScreen({ name: "summary" })} />;
-  return <Home settings={settings} onChangeSettings={updateSettings} onAnalyze={(i) => run(i)} error={error} />;
+  return <Home settings={settings} history={recent} onChangeSettings={updateSettings} onAnalyze={(i) => run(i)} error={error} />;
 }

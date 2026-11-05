@@ -2,8 +2,9 @@ import { GameAnalysis } from "./analyze";
 import { MoveClassification as MC } from "@/types/enums";
 import { Side, sideOfPosition } from "./stats";
 import { uciToSan } from "./chess";
+import { t } from "./i18n";
 
-/** What the mascot says about move number `p` (position index 1..n). Spoken from `side`'s point of view. */
+/** What the mascot says about move number `p` (position index 1..n), from `side`'s point of view. */
 export function commentFor(a: GameAnalysis, p: number, side: Side): string {
   const cls = a.positions[p]?.moveClassification;
   if (!cls) return "";
@@ -12,47 +13,31 @@ export function commentFor(a: GameAnalysis, p: number, side: Side): string {
   const san = a.sans[p - 1];
   const bestUci = a.positions[p - 1].bestMove;
   const best = uciToSan(a.fens[p - 1], bestUci);
-  const bestText = best && bestUci !== a.uciMoves[p - 1] ? ` Beter was ${best}.` : "";
-  const subject = mine ? "Je speelde" : "Je tegenstander speelde";
+  const better = best && bestUci !== a.uciMoves[p - 1] ? t("better", { best }) : "";
+  const who = t(mine ? "who.you" : "who.opp");
   const opening = a.positions[p].opening;
+  const vars = { san, better, who, opening: opening ?? "" };
+  const me = mine ? "me" : "opp";
 
   switch (cls) {
-    case MC.Splendid:
-      return mine
-        ? `${san}! Een briljante zet, je offert iets en het loont. Dit was niet makkelijk te zien.`
-        : `${san} is een briljante zet van je tegenstander. Dat kon je niet verwachten.`;
-    case MC.Perfect:
-      return mine
-        ? `${san} is geweldig. Dit was de enige zet die echt werkte.`
-        : `${san} is een geweldige zet van je tegenstander. Alleen deze zet hield de stelling bij elkaar.`;
-    case MC.Best:
-      return `${san} is de beste zet. ${mine ? "Precies wat de computer ook kiest." : "Je tegenstander speelt precies goed."}`;
-    case MC.Excellent:
-      return `${san} is een uitstekende zet.`;
-    case MC.Okay:
-      return `${san} is een prima zet.${bestText}`;
-    case MC.Opening:
-      return opening ? `${san}: een bekende openingszet. ${opening}.` : `${san} is een bekende openingszet.`;
-    case MC.Forced:
-      return `${san} was de enige zet, dus geen keuze.`;
-    case MC.Inaccuracy:
-      return `${subject} ${san}, een kleine onnauwkeurigheid.${bestText}`;
-    case MC.Mistake:
-      return `${subject} ${san}, een fout. Dit kost een flink deel van je voordeel.${bestText}`;
-    case MC.Miss:
-      return mine
-        ? `${san} laat een kans liggen. Je tegenstander gaf je een voordeel en je greep het niet.${bestText}`
-        : `${san} laat een kans liggen om je pijn te doen.${bestText}`;
-    case MC.Blunder:
-      return `${subject} ${san}, een blunder. De stelling kantelt hier.${bestText}`;
+    case MC.Splendid: return t(`c.splendid.${me}`, vars);
+    case MC.Perfect: return t(`c.perfect.${me}`, vars);
+    case MC.Best: return t(`c.best.${me}`, vars);
+    case MC.Excellent: return t("c.excellent", vars);
+    case MC.Okay: return t("c.okay", vars);
+    case MC.Opening: return t(opening ? "c.openingNamed" : "c.opening", vars);
+    case MC.Forced: return t("c.forced", vars);
+    case MC.Inaccuracy: return t("c.inaccuracy", vars);
+    case MC.Mistake: return t("c.mistake", vars);
+    case MC.Miss: return t(`c.miss.${me}`, vars);
+    case MC.Blunder: return t("c.blunder", vars);
   }
 }
 
-/** Overall verdict line for the summary card. */
 export function verdictFor(accuracy: number): string {
-  if (accuracy >= 95) return "Bijna foutloos. Wat een partij!";
-  if (accuracy >= 85) return "Sterk gespeeld, een paar details en het was perfect.";
-  if (accuracy >= 70) return "Solide partij. Kijk naar de fouten, daar zit winst.";
-  if (accuracy >= 50) return "Wisselvallig. Laten we de kantelpunten bekijken.";
-  return "Zware partij. Geen zorgen, hier leer je het meest van.";
+  if (accuracy >= 95) return t("verdict.95");
+  if (accuracy >= 85) return t("verdict.85");
+  if (accuracy >= 70) return t("verdict.70");
+  if (accuracy >= 50) return t("verdict.50");
+  return t("verdict.0");
 }

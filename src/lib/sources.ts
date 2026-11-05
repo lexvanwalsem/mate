@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { Chess } from "chess.js";
 
 export type GameSource = "lichess" | "chesscom" | "pgn";
@@ -22,7 +23,7 @@ export const looksLikePgn = (s: string) =>
 export function validatePgn(pgn: string): string {
   const chess = new Chess();
   chess.loadPgn(pgn);
-  if (chess.history().length < 2) throw new Error("De partij heeft te weinig zetten om te analyseren.");
+  if (chess.history().length < 2) throw new Error(t("err.short"));
   return chess.pgn();
 }
 
@@ -30,7 +31,7 @@ async function fetchLichess(id: string, side?: "white" | "black"): Promise<Loade
   const res = await fetch(`https://lichess.org/game/export/${id}?clocks=true&opening=true&literate=false`, {
     headers: { Accept: "application/x-chess-pgn" },
   });
-  if (!res.ok) throw new Error(`Lichess gaf een fout (${res.status}). Bestaat deze partij?`);
+  if (!res.ok) throw new Error(t("err.lichess", { status: res.status }));
   return { pgn: await res.text(), source: "lichess", url: `https://lichess.org/${id}`, side };
 }
 
@@ -38,7 +39,7 @@ interface ChessComArchiveGame { url: string; pgn?: string }
 
 async function fetchChessCom(kind: "live" | "daily", id: string, side?: "white" | "black"): Promise<LoadedGame> {
   const cb = await fetch(`https://www.chess.com/callback/${kind}/game/${id}`);
-  if (!cb.ok) throw new Error(`Chess.com gaf een fout (${cb.status}). Is de partij openbaar?`);
+  if (!cb.ok) throw new Error(t("err.chesscom", { status: cb.status }));
   const data = await cb.json();
   const headers = data?.pgnHeaders ?? {};
   const white: string | undefined = headers.White;
@@ -63,13 +64,13 @@ async function fetchChessCom(kind: "live" | "daily", id: string, side?: "white" 
       if (hit?.pgn) return { pgn: hit.pgn, source: "chesscom", url: hit.url, side };
     }
   }
-  throw new Error("Kon de PGN van deze Chess.com-partij niet vinden. Plak de PGN handmatig (Delen → PGN).");
+  throw new Error(t("err.chesscomPgn"));
 }
 
 /** Turn a URL or PGN text into a game. */
 export async function loadGame(input: string, sideHint?: "white" | "black"): Promise<LoadedGame> {
   const text = input.trim();
-  if (!text) throw new Error("Plak een link of PGN.");
+  if (!text) throw new Error(t("err.empty"));
 
   if (looksLikePgn(text) && !/^https?:\/\//i.test(text)) {
     return { pgn: validatePgn(text), source: "pgn", side: sideHint };
@@ -90,5 +91,5 @@ export async function loadGame(input: string, sideHint?: "white" | "black"): Pro
     return { ...g, pgn: validatePgn(g.pgn) };
   }
 
-  throw new Error("Dit platform herken ik nog niet. Plak de PGN (de meeste sites hebben een 'Deel → PGN'-knop).");
+  throw new Error(t("err.unknown"));
 }
