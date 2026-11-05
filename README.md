@@ -2,7 +2,7 @@
 
 Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-shaped rook mascot who reviews your games.
 
-- Works on chess.com and lichess (floating button on game pages), plus any site via PGN: paste it, drop a file, or right-click a selected PGN.
+- Works on chess.com and lichess: a floating Zetje button appears on game pages (it pulses when the game is over) and the toolbar button does the same. Either one opens a new tab that analyzes that game, plus any site via PGN: paste it, drop a file, or right-click a selected PGN.
 - Everything runs locally with Stockfish 18 (lite, WebAssembly). No server, no account.
 - Review is told from your side of the board (your color is at the bottom).
 - Move classes: Brilliant, Great, Best, Excellent, Good, Book, Forced, Inaccuracy, Mistake, Miss, Blunder.
@@ -10,7 +10,7 @@ Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-sh
 
 ## Learn and practice
 
-- **Lessons**: 13 short interactive lessons (pieces, checkmate in one, forks, opening principles, promotion). Blokje explains, you play. XP, levels and a daily streak are stored locally. `npm run check:lessons` verifies every lesson position and solution with chess.js.
+- **Lessons**: 15 short interactive lessons (pieces, checkmate in one, forks, opening principles, promotion). Blokje explains, you play. XP, levels and a daily streak are stored locally. `npm run check:lessons` verifies every lesson position and solution with chess.js.
 - **Puzzles**: themed puzzles (mate in 1 and 2, fork, pin, skewer, free piece, endgame, opening), fetched live from the free Lichess puzzle API (puzzle data is CC0).
 - **My mistakes**: the blunders, mistakes and misses from the games you review become practice positions. Fix one and it leaves your list.
 

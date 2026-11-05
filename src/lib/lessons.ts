@@ -95,6 +95,13 @@ export const UNITS: Unit[] = [
         ],
       },
       {
+        id: "two-rooks",
+        title: { en: "Two rooks", nl: "Twee torens" },
+        steps: [
+          move("7k/R7/8/8/8/8/1R6/4K3 w - - 0 1", ["b2b8"], "One rook cuts off the 7th rank. Use the other to give mate.", "Een toren sluit de zevende rij af. Gebruik de andere voor mat.", "Check on the back rank.", "Geef schaak op de achterste rij.", true),
+        ],
+      },
+      {
         id: "scholars",
         title: { en: "Scholar's mate", nl: "Herdersmat" },
         steps: [
@@ -114,6 +121,13 @@ export const UNITS: Unit[] = [
         steps: [
           info("q3k3/8/8/1N6/8/8/8/4K3 w - - 0 1", "A fork attacks two pieces at once. Knights are great at it because they jump.", "Een vork valt twee stukken tegelijk aan. Paarden zijn er goed in omdat ze springen.", [["b5", "c7"]]),
           move("q3k3/8/8/1N6/8/8/8/4K3 w - - 0 1", ["b5c7"], "Fork the king and the queen.", "Val koning en dame tegelijk aan.", "Look for a square that attacks both e8 and a8.", "Zoek een veld dat zowel e8 als a8 aanvalt."),
+        ],
+      },
+      {
+        id: "pawn-fork",
+        title: { en: "The pawn fork", nl: "De pionnenvork" },
+        steps: [
+          move("4k3/8/8/3r1n2/8/8/4P3/4K3 w - - 0 1", ["e2e4"], "Even a pawn can fork. Attack the rook and the knight at once.", "Zelfs een pion kan vorken. Val de toren en het paard tegelijk aan.", "Pawns attack diagonally forward. Which square hits d5 and f5?", "Pionnen vallen schuin vooruit aan. Welk veld raakt d5 en f5?"),
         ],
       },
       {

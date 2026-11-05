@@ -1,4 +1,5 @@
 import { t } from "./i18n";
+import { LICHESS_RESERVED } from "./gameUrl";
 import { Chess } from "chess.js";
 
 export type GameSource = "lichess" | "chesscom" | "pgn";
@@ -11,11 +12,6 @@ export interface LoadedGame {
   side?: "white" | "black";
 }
 
-const LICHESS_RESERVED = new Set([
-  "analysis", "training", "practice", "tournament", "streamer", "study", "broadcast",
-  "editor", "learn", "coach", "forum", "team", "player", "games", "puzzle", "video",
-  "settings", "account", "inbox", "setup", "variant", "opening", "insights", "patron",
-]);
 
 export const looksLikePgn = (s: string) =>
   /\[(Event|White|Black|Site)\s+"/.test(s) || /(^|\s)1\.\s*[a-hNBRQKO]/.test(s.trim());
