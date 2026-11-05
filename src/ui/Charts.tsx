@@ -30,7 +30,7 @@ export function EvalGraph({ a, side, current, onSelect }: { a: GameAnalysis; sid
 
   return (
     <svg
-      className="graph"
+      className={`graph side-${side}`}
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="none"
       onClick={(e) => {
