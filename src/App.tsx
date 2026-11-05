@@ -7,7 +7,7 @@ import { EnginePool } from "./engine/pool";
 import { GameAnalysis, analyzeGame } from "./lib/analyze";
 import { LoadedGame, loadGame } from "./lib/sources";
 import { Side, pickSide } from "./lib/stats";
-import { Settings, loadSettings, saveSettings } from "./lib/settings";
+import { Settings, applyMascotTheme, loadSettings, saveSettings } from "./lib/settings";
 import { Key, setLang, t } from "./lib/i18n";
 import { addToHistory, loadHistory } from "./lib/history";
 import { loadProgress, levelOf } from "./lib/progress";
@@ -32,6 +32,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("analyze");
   const [progress, setProgress] = useState(loadProgress);
   setLang(settings.lang);
+  applyMascotTheme(settings.mascot);
   const pool = useRef<Promise<EnginePool> | undefined>(undefined);
 
   const updateSettings = (s: Settings) => {
@@ -104,7 +105,7 @@ export default function App() {
     );
   else if (screen.name === "review" && analysis)
     content = <Review a={analysis} side={side} pieceSet={settings.pieceSet} start={screen.start} onBack={() => setScreen({ name: "summary" })} />;
-  else content = <Home settings={settings} history={recent} onChangeSettings={updateSettings} onAnalyze={(i) => run(i)} error={error} />;
+  else content = <Home settings={settings} history={recent} level={levelOf(progress.xp)} onChangeSettings={updateSettings} onAnalyze={(i) => run(i)} error={error} />;
 
   const tabs: Tab[] = ["analyze", "lessons", "puzzles", "train"];
   return (

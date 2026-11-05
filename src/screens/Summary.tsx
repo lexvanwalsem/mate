@@ -15,6 +15,8 @@ interface Props {
   onBack: () => void;
 }
 
+const playerName = (name: string | undefined, fallback: string) => (name && name !== "?" ? name : fallback);
+
 const moodFor = (acc: number): Mood => (acc >= 90 ? "proud" : acc >= 75 ? "happy" : acc >= 55 ? "thinking" : "worried");
 
 export default function Summary({ a, side, sideKnown, onSideChange, onReview, onBack }: Props) {
@@ -34,7 +36,7 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
         <Mascot mood={moodFor(mine)} size={150} />
         <div>
           <div className="hero-sub">
-            {t("summary.vs", { white: a.headers.White, black: a.headers.Black })} {resultText && <span className={`pill ${result}`}>{resultText}</span>}
+            {t("summary.vs", { white: playerName(a.headers.White, "White"), black: playerName(a.headers.Black, "Black") })} {resultText && <span className={`pill ${result}`}>{resultText}</span>}
           </div>
           <h2>{verdictFor(mine)}</h2>
           {!sideKnown && <p className="muted">{t("summary.pickSide")}</p>}

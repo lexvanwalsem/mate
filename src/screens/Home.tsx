@@ -1,19 +1,20 @@
 import { HistoryItem } from "@/lib/history";
 import { useState } from "react";
 import Mascot from "@/ui/Mascot";
-import { Settings } from "@/lib/settings";
+import { MASCOT_THEMES, Settings } from "@/lib/settings";
 
 import { Key, t } from "@/lib/i18n";
 
 interface Props {
   settings: Settings;
   history: HistoryItem[];
+  level: number;
   onChangeSettings: (s: Settings) => void;
   onAnalyze: (input: string) => void;
   error?: string;
 }
 
-export default function Home({ settings, history, onChangeSettings, onAnalyze, error }: Props) {
+export default function Home({ settings, history, level, onChangeSettings, onAnalyze, error }: Props) {
   const [input, setInput] = useState("");
 
   const onFile = async (file?: File) => {
@@ -82,6 +83,21 @@ export default function Home({ settings, history, onChangeSettings, onAnalyze, e
             onChange={(e) => onChangeSettings({ ...settings, depth: Number(e.target.value) })}
           />
         </label>
+        <div className="swatches">
+          <span>{t("home.mascot")}</span>
+          <div className="row">
+            {MASCOT_THEMES.map((m) => (
+              <button
+                key={m.id}
+                className={`swatch ${settings.mascot === m.id ? "on" : ""}`}
+                style={{ background: m.swatch }}
+                disabled={level < m.unlockLevel}
+                title={level < m.unlockLevel ? t("home.unlockAt", { n: m.unlockLevel }) : m.id}
+                onClick={() => onChangeSettings({ ...settings, mascot: m.id })}
+              />
+            ))}
+          </div>
+        </div>
         <label>
           {t("home.pieces")}
           <select value={settings.pieceSet} onChange={(e) => onChangeSettings({ ...settings, pieceSet: e.target.value })}>

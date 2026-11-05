@@ -88,21 +88,21 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
     <svg className={`mascot mascot-${mood}`} width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="Blokje">
       <defs>
         <linearGradient id="mascot-body" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#8d6bff" />
-          <stop offset="1" stopColor="#5b3df0" />
+          <stop offset="0" style={{ stopColor: "var(--m-top)" }} />
+          <stop offset="1" style={{ stopColor: "var(--m-bottom)" }} />
         </linearGradient>
       </defs>
       <ellipse className="mascot-shadow" cx="100" cy="188" rx="58" ry="8" fill="#1f1b3a" opacity="0.15" />
       <g className="mascot-body">
         {/* rook-style battlements */}
-        <rect x="36" y="22" width="30" height="44" rx="12" fill="#6a49f5" />
-        <rect x="85" y="14" width="30" height="52" rx="12" fill="#7a5bff" />
-        <rect x="134" y="22" width="30" height="44" rx="12" fill="#6a49f5" />
+        <rect x="36" y="22" width="30" height="44" rx="12" style={{ fill: "var(--m-mid)" }} />
+        <rect x="85" y="14" width="30" height="52" rx="12" style={{ fill: "var(--m-light)" }} />
+        <rect x="134" y="22" width="30" height="44" rx="12" style={{ fill: "var(--m-mid)" }} />
         {/* feet and arms */}
-        <rect x="52" y="160" width="32" height="26" rx="12" fill="#4a2fd0" />
-        <rect x="116" y="160" width="32" height="26" rx="12" fill="#4a2fd0" />
-        <rect className="mascot-arm-l" x="14" y="104" width="30" height="42" rx="14" fill="#6a49f5" />
-        <rect className="mascot-arm-r" x="156" y="104" width="30" height="42" rx="14" fill="#6a49f5" />
+        <rect x="52" y="160" width="32" height="26" rx="12" style={{ fill: "var(--m-dark)" }} />
+        <rect x="116" y="160" width="32" height="26" rx="12" style={{ fill: "var(--m-dark)" }} />
+        <rect className="mascot-arm-l" x="14" y="104" width="30" height="42" rx="14" style={{ fill: "var(--m-mid)" }} />
+        <rect className="mascot-arm-r" x="156" y="104" width="30" height="42" rx="14" style={{ fill: "var(--m-mid)" }} />
         {/* body */}
         <rect x="28" y="48" width="144" height="124" rx="46" fill="url(#mascot-body)" />
         <rect x="44" y="140" width="112" height="22" rx="11" fill="#fff" opacity="0.12" />

@@ -13,6 +13,7 @@
     "build": "npm run icons && npm run build:app && npm run build:ext",
     "typecheck": "tsc --noEmit",
     "check:lessons": "tsx scripts/check-lessons.ts",
+    "test:ext": "node scripts/test-extension.mjs",
     "preview": "vite preview --port 4173"
   },
   "dependencies": {

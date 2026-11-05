@@ -124,6 +124,22 @@ export const UNITS: Unit[] = [
         ],
       },
       {
+        id: "pin",
+        title: { en: "The pin", nl: "De aanpinning" },
+        steps: [
+          info("4k3/4n3/8/3P4/8/8/8/4RK2 w - - 0 1", "The black knight cannot move: the rook behind it points at the king. That is a pin.", "Het zwarte paard kan niet weg: de toren erachter mikt op de koning. Dat is een aanpinning.", [["e1", "e7"]]),
+          move("4k3/4n3/8/3P4/8/8/8/4RK2 w - - 0 1", ["d5d6"], "Attack the pinned knight with your pawn.", "Val het vastgepinde paard aan met je pion.", "A pawn on d6 attacks e7.", "Een pion op d6 valt e7 aan."),
+        ],
+      },
+      {
+        id: "skewer",
+        title: { en: "The skewer", nl: "Het spiesen" },
+        steps: [
+          info("1r2k3/8/8/8/8/8/8/4K2R w - - 0 1", "A skewer is a pin the other way around: check the valuable piece, it must move, and you win the piece behind it.", "Spiesen is een aanpinning andersom: geef schaak, de koning moet weg en je wint het stuk erachter.", [["h1", "h8"], ["h8", "b8"]]),
+          move("1r2k3/8/8/8/8/8/8/4K2R w - - 0 1", ["h1h8"], "Check the king along the back rank. The rook on b8 is behind him.", "Geef schaak langs de achterste rij. De toren op b8 staat erachter.", "Go to h8.", "Ga naar h8."),
+        ],
+      },
+      {
         id: "pawn-fork",
         title: { en: "The pawn fork", nl: "De pionnenvork" },
         steps: [

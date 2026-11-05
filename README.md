@@ -10,9 +10,11 @@ Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-sh
 
 ## Learn and practice
 
-- **Lessons**: 15 short interactive lessons (pieces, checkmate in one, forks, opening principles, promotion). Blokje explains, you play. XP, levels and a daily streak are stored locally. `npm run check:lessons` verifies every lesson position and solution with chess.js.
+- **Lessons**: 17 short interactive lessons (pieces, checkmate in one, forks, pins, skewers, opening principles, promotion). Blokje explains, you play. XP, levels and a daily streak are stored locally. `npm run check:lessons` verifies every lesson position and solution with chess.js.
 - **Puzzles**: themed puzzles (mate in 1 and 2, fork, pin, skewer, free piece, endgame, opening), fetched live from the free Lichess puzzle API (puzzle data is CC0).
 - **My mistakes**: the blunders, mistakes and misses from the games you review become practice positions. Fix one and it leaves your list.
+
+- **Blokje colors**: unlock new mascot colors by leveling up.
 
 ## Build and install
 
@@ -22,6 +24,10 @@ npm run build
 ```
 
 Open `chrome://extensions`, enable Developer mode, choose "Load unpacked" and select the `dist` folder.
+
+## Test
+
+`npm run check:lessons` validates the lessons. `npm run test:ext -- "<path to chrome.exe>" dist` loads the built extension in a headless browser and runs a full Stockfish analysis inside it (no server needed).
 
 ## Notes
 
