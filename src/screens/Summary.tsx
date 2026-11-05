@@ -42,14 +42,10 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
           </div>
           <h2>{verdictFor(mine)}</h2>
           <p className="muted hint" style={{ visibility: sideKnown ? "hidden" : "visible" }}>{t("summary.pickSide")}</p>
-          <div className="seg">
-            <button className={side === "white" ? "on" : ""} onClick={() => onSideChange("white")}>{t("summary.iWhite")}</button>
-            <button className={side === "black" ? "on" : ""} onClick={() => onSideChange("black")}>{t("summary.iBlack")}</button>
-          </div>
         </div>
         <div className="players">
-          <PlayerBar headers={a.headers} color="white" isYou={side === "white"} />
-          <PlayerBar headers={a.headers} color="black" isYou={side === "black"} />
+          <PlayerBar headers={a.headers} color="white" isYou={sideKnown && side === "white"} onClick={() => onSideChange("white")} />
+          <PlayerBar headers={a.headers} color="black" isYou={sideKnown && side === "black"} onClick={() => onSideChange("black")} />
         </div>
       </div>
 
