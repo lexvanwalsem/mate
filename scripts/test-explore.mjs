@@ -89,9 +89,42 @@ try {
   await clickText(undoLabel);
   await sleep(200);
   expect("undo removes the last move", /1\. d4$/.test(await ev(`document.querySelector(".var-line")?.textContent ?? ""`)));
-  await clickText("Back to game");
+  await clickText("To game");
   await sleep(200);
   expect("back to game leaves the variation", (await ev(`!!document.querySelector(".var-line")`)) === false);
+
+  // Free analysis board: the same colour may move twice in a row, and the engine can answer for the other side.
+  const dragSquares = async (f1, r1, f2, r2) => {
+    const a = await square(f1, r1);
+    const b = await square(f2, r2);
+    await mouse("mousePressed", a.x, a.y);
+    for (let k = 1; k <= 6; k++) await mouse("mouseMoved", a.x + ((b.x - a.x) * k) / 6, a.y + ((b.y - a.y) * k) / 6);
+    await mouse("mouseReleased", b.x, b.y);
+    await sleep(250);
+  };
+  await ev(`document.querySelectorAll(".move")[0].click()`); // back to the first move of the game
+  await ev(`document.querySelectorAll(".controls button")[0].click()`); // |< goes to the start
+  await sleep(250);
+  await dragSquares(3, 2, 3, 4); // d2-d4, White
+  await dragSquares(4, 2, 4, 4); // e2-e4, White again, out of turn
+  const twice = await ev(`document.querySelector(".var-line")?.textContent ?? ""`);
+  expect("the same colour can move twice in a row", /d4/.test(twice) && /e4/.test(twice), JSON.stringify(twice));
+  await dragSquares(3, 7, 3, 5); // d7-d5, Black
+  const three = await ev(`document.querySelector(".var-line")?.textContent ?? ""`);
+  expect("and the line keeps going", /d5/.test(three), JSON.stringify(three));
+  // Engine answers for the side to move.
+  let enabled = false;
+  for (let k = 0; k < 40; k++) {
+    enabled = await ev(`(() => { const b = [...document.querySelectorAll(".bubble button")].find(x => x.innerText.trim() === "Engine move"); return !!b && !b.disabled; })()`);
+    if (enabled) break;
+    await sleep(500);
+  }
+  expect("the engine move button becomes available", enabled);
+  const before = (await ev(`document.querySelector(".var-line")?.textContent ?? ""`)).split(" ").length;
+  await ev(`[...document.querySelectorAll(".bubble button")].find(x => x.innerText.trim() === "Engine move")?.click()`);
+  await sleep(300);
+  const after = (await ev(`document.querySelector(".var-line")?.textContent ?? ""`)).split(" ").length;
+  expect("the engine move extends the line", after > before, `${before} -> ${after}`);
 } finally {
   proc.kill();
 }

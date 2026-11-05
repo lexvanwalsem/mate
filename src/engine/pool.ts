@@ -9,6 +9,7 @@ interface Job {
   depth: number;
   resolve: (e: PositionEval) => void;
   onUpdate?: (e: PositionEval) => void;
+  latest?: boolean; // a newer 'latest' request replaces this one while it still waits in the queue
 }
 
 class EngineWorker {
@@ -51,11 +52,6 @@ class EngineWorker {
     await this.run([`setoption name MultiPV value ${n}`, "isready"], "readyok");
   }
 
-  stop() {
-    this.listener = () => {};
-    this.send("stop");
-  }
-
   terminate() {
     this.send("quit");
     this.worker.terminate();
@@ -84,7 +80,12 @@ export class EnginePool {
     return Math.max(1, Math.min(6, Math.floor(cores / 2)));
   }
 
-  evaluate(fen: string, depth: number, onUpdate?: (e: PositionEval) => void): Promise<PositionEval> {
+  /**
+   * Evaluate one position. With `latest` set, older waiting requests of that kind are dropped (their promise
+   * resolves with no lines). A search that already started is never interrupted: the single-threaded engine only
+   * handles new commands once it is done, so the caller just ignores results it no longer needs.
+   */
+  evaluate(fen: string, depth: number, onUpdate?: (e: PositionEval) => void, latest = false): Promise<PositionEval> {
     // Mate/stalemate: no engine needed.
     const mated = getWhoIsCheckmated(fen);
     if (mated) {
@@ -94,7 +95,12 @@ export class EnginePool {
       return Promise.resolve({ lines: [{ pv: [], depth: 0, multiPv: 1, cp: 0 }] });
     }
     return new Promise((resolve) => {
-      this.queue.push({ fen, depth, resolve, onUpdate });
+      if (latest) {
+        const stale = this.queue.filter((j) => j.latest);
+        this.queue = this.queue.filter((j) => !j.latest);
+        stale.forEach((j) => j.resolve({ lines: [] }));
+      }
+      this.queue.push({ fen, depth, resolve, onUpdate, latest });
       this.pump();
     });
   }
@@ -118,20 +124,6 @@ export class EnginePool {
         this.pump();
       });
     }
-  }
-
-  /** Abort running and queued jobs. */
-  async cancelAll() {
-    const pending = this.queue;
-    this.queue = [];
-    pending.forEach((j) => j.resolve({ lines: [] }));
-    for (const w of this.workers) {
-      if (w.busy) {
-        w.stop();
-        w.busy = false;
-      }
-    }
-    await Promise.all(this.workers.map((w) => w.run(["isready"], "readyok")));
   }
 
   async setMultiPv(n: number) {

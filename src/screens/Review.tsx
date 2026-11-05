@@ -12,7 +12,7 @@ import { commentFor, lineComment } from "@/lib/commentary";
 import { t } from "@/lib/i18n";
 import { getEvaluationBar, getLineEvalLabel, moveLineUciToSan, uciToSan } from "@/lib/chess";
 import { isGoodMove, practiceAt } from "@/lib/practice";
-import { Variation, classifyTried, lineText, replay } from "@/lib/variation";
+import { Variation, classifyTried, lineText, replay, withTurn } from "@/lib/variation";
 import { EnginePool } from "@/engine/pool";
 import { PositionEval } from "@/types/eval";
 import { MoveClassification as MC } from "@/types/enums";
@@ -78,10 +78,15 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
     setLive(undefined);
     (async () => {
       const pool = await getPool();
-      await pool.cancelAll();
-      const res = await pool.evaluate(vfen, a.depth, (e) => {
-        if (!stale && e.lines.length) setLive(e);
-      });
+      if (stale) return;
+      const res = await pool.evaluate(
+        vfen,
+        a.depth,
+        (e) => {
+          if (!stale && e.lines.length) setLive(e);
+        },
+        true
+      );
       if (stale || !res.lines.length) return;
       cache.current.set(vfen, res);
       setLive(res);
@@ -125,8 +130,10 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const vIdx = variation?.idx ?? 0;
   const prevEval = variation && vdata ? cache.current.get(vdata.fens[vIdx - 1]) : undefined;
   const nowEval = variation && vfen ? cache.current.get(vfen) ?? live : undefined;
-  const moverWhite = variation && vdata ? vdata.fens[vIdx - 1]?.split(" ")[1] === "w" : true;
-  const vcls = variation && vIdx > 0 && prevEval && nowEval ? classifyTried(prevEval, nowEval, vdata!.ucis[vIdx - 1], moverWhite) : undefined;
+  const moverWhite = variation && vdata ? vdata.movers[vIdx - 1] === "w" : true;
+  // A move made out of turn has no engine verdict: the engine evaluated the other side to move.
+  const outOfTurn = !!(variation && vdata && vIdx > 0 && vdata.fens[vIdx - 1].split(" ")[1] !== vdata.movers[vIdx - 1]);
+  const vcls = variation && vIdx > 0 && prevEval && nowEval && !outOfTurn ? classifyTried(prevEval, nowEval, vdata!.ucis[vIdx - 1], moverWhite) : undefined;
 
   const shownCls = variation ? vcls : cls;
   const uci = variation ? (vIdx > 0 ? vdata?.ucis[vIdx - 1] : undefined) : pos > 0 ? a.uciMoves[pos - 1] : undefined;
@@ -135,7 +142,14 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const playFen = variation && vfen ? vfen : a.fens[pos];
   const exploreChess = useMemo(() => new Chess(retry && practice ? practice.fen : playFen), [playFen, retry !== null, practice?.fen]);
   const activeSel = retry ? retry.selected : selected;
-  const targets: string[] = activeSel ? exploreChess.moves({ square: activeSel as Square, verbose: true }).map((m) => m.to) : [];
+  // Practice follows the real turn. Your own lines are free: any piece can move, also twice in a row.
+  const legalFrom = (sq: string) => {
+    const piece = exploreChess.get(sq as Square);
+    if (!piece) return [];
+    if (retry || piece.color === exploreChess.turn()) return exploreChess.moves({ square: sq as Square, verbose: true });
+    return withTurn(playFen, piece.color).moves({ square: sq as Square, verbose: true });
+  };
+  const targets: string[] = activeSel ? legalFrom(activeSel).map((m) => m.to) : [];
 
   const submitRetry = (tried: string) => {
     if (practice) setRetry({ selected: undefined, result: isGoodMove(practice, tried) ? "right" : "wrong" });
@@ -143,9 +157,12 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
 
   // A move from the board: while practicing it is answered, otherwise it starts or extends your own line.
   const playMove = (from: string, to: string) => {
-    const hit = exploreChess.moves({ square: from as Square, verbose: true }).find((m) => m.to === to);
+    const hit = legalFrom(from).find((m) => m.to === to);
     if (!hit) return;
-    const move = toUci(hit);
+    commit(toUci(hit));
+  };
+
+  const commit = (move: string) => {
     if (retry) return submitRetry(move);
     setSelected(undefined);
     if (!variation) {
@@ -163,7 +180,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
     const sel = activeSel;
     if (sel && targets.includes(sq)) return playMove(sel, sq);
     const piece = exploreChess.get(sq as Square);
-    const pick = piece && piece.color === exploreChess.turn() ? sq : undefined;
+    const pick = piece && (!retry || piece.color === exploreChess.turn()) ? sq : undefined;
     if (retry) setRetry({ selected: pick });
     else setSelected(pick);
   };
@@ -171,7 +188,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const canDrag = (sq: string) => {
     if (retry?.result) return false;
     const piece = exploreChess.get(sq as Square);
-    return !!piece && piece.color === exploreChess.turn();
+    return !!piece && (!retry || piece.color === exploreChess.turn());
   };
   const onDragStart = (sq: string) => (retry ? setRetry({ selected: sq }) : setSelected(sq));
   const onDragMove = (from: string, to: string) => playMove(from, to);
@@ -198,6 +215,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
 
   const mood: Mood = retry?.result === "right" ? "cheer" : retry?.result === "wrong" ? "worried" : variation ? (vcls ? CLASS_META[vcls].mood : "thinking") : cls ? (mine ? CLASS_META[cls].mood : "idle") : "happy";
 
+  const engineMove = variation && !thinking ? nowEval?.lines[0]?.pv[0] ?? nowEval?.bestMove : undefined;
   const lastSan = variation && vdata && vIdx > 0 ? vdata.sans[vIdx - 1] : undefined;
   const betterSan = vcls && vcls !== MC.Best && prevEval?.bestMove && variation && vdata ? uciToSan(vdata.fens[vIdx - 1], prevEval.bestMove) : undefined;
 
@@ -252,7 +270,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
                   {vcls ? <><ClassBadge cls={vcls} size={22} /> {classLabel(vcls)}</> : t("explore.title")}
                 </div>
                 <p>{vcls && lastSan ? lineComment(vcls, lastSan, betterSan) : thinking ? t("explore.thinking") : t("explore.hint")}</p>
-                {vdata && <p className="var-line" title={lineText(variation.base, vdata.sans)}>{lineText(variation.base, vdata.sans)}</p>}
+                {vdata && <p className="var-line" title={lineText(vdata.fens, vdata.sans, vdata.movers)}>{lineText(vdata.fens, vdata.sans, vdata.movers)}</p>}
               </>
             ) : pos === 0 ? (
               <p>{t("review.start")}</p>
@@ -276,6 +294,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
             {variation && !retry && (
               <div className="row">
                 <button className="btn ghost small" onClick={undo}>{t("explore.undo")}</button>
+                <button className="btn ghost small" disabled={!engineMove} onClick={() => engineMove && commit(engineMove)}>{t("explore.engine")}</button>
                 <button className="btn primary small" onClick={() => goto(variation.base)}>{t("explore.exit")}</button>
               </div>
             )}
