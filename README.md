@@ -37,4 +37,6 @@ Open `chrome://extensions`, enable Developer mode, choose "Load unpacked" and se
 
 ## Credits and license
 
+Fonts: [Fredoka](https://fonts.google.com/specimen/Fredoka) and [Nunito](https://fonts.google.com/specimen/Nunito), both SIL Open Font License, bundled via Fontsource. Puzzles come from the [Lichess puzzle database](https://database.lichess.org/#puzzles) (CC0).
+
 Built on [Chesskit](https://github.com/GuillaumeSD/Chesskit) by GuillaumeSD (engine helpers, move classification, accuracy and rating estimation, openings data, Stockfish builds, piece sets). Licensed under AGPL-3.0, see `LICENSE` and `CHESSKIT-COPYING.md` for third-party piece set licenses.

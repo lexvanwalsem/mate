@@ -16,6 +16,7 @@ import Learn from "./screens/Learn";
 import Puzzles from "./screens/Puzzles";
 import Train from "./screens/Train";
 import Mascot from "./ui/Mascot";
+import LangMenu from "./ui/LangMenu";
 
 type Tab = "analyze" | "lessons" | "puzzles" | "train";
 
@@ -119,13 +120,7 @@ export default function App() {
           </button>
         ))}
         <span className="grow" />
-        <div className="lang">
-          {(["nl", "en"] as const).map((l) => (
-            <button key={l} className={settings.lang === l ? "on" : ""} onClick={() => updateSettings({ ...settings, lang: l })}>
-              {l.toUpperCase()}
-            </button>
-          ))}
-        </div>
+        <LangMenu value={settings.lang} onChange={(lang) => updateSettings({ ...settings, lang })} />
         {progress.streak > 0 && <span className="pill-xp">{t("nav.streak", { n: progress.streak })}</span>}
         <span className="pill-xp">{t("nav.level", { n: levelOf(progress.xp) })} · {t("nav.xp", { n: progress.xp })}</span>
       </nav>

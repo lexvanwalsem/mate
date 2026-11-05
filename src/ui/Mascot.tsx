@@ -115,7 +115,12 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
           <rect className="m-cheek" x="136" y="124" width="20" height="12" rx="6" fill="#ff8fa3" opacity="0.8" />
           <Eyes mood={mood} />
           {mood === "worried" && <path d="M54 76 L88 84 M146 76 L112 84" stroke={INK} strokeWidth="6" strokeLinecap="round" />}
-          {mood === "thinking" && <path className="m-brow" d="M108 78 L142 72" stroke={INK} strokeWidth="6" strokeLinecap="round" />}
+          {mood === "thinking" && (
+            <g className="m-brow" stroke={INK} strokeWidth="6" strokeLinecap="round">
+              <path d="M58 82 L90 82" />
+              <path d="M110 76 L142 66" />
+            </g>
+          )}
           {mood === "shocked" && <path className="m-drop" d="M164 70 Q170 84 164 90 Q158 84 164 70Z" fill="#7fd6ff" />}
           <g className="m-mouth">
             <Mouth mood={mood} />

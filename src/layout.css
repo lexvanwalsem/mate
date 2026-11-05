@@ -163,3 +163,34 @@ body {
 /* the row itself never clips; the move text inside truncates with an ellipsis */
 .review .lines .line { overflow: visible; white-space: normal; }
 .review .lines .line span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---------- fonts: Fredoka for display, Nunito for reading (both bundled, soft and rounded) ---------- */
+:root {
+  --font-display: "Fredoka Variable", "Nunito Variable", system-ui, sans-serif;
+  --font-body: "Nunito Variable", "Segoe UI", system-ui, sans-serif;
+}
+body { font-family: var(--font-body); font-weight: 500; letter-spacing: 0.1px; }
+h1, h2, h3, .nav .brand, .nav button.tab, .btn, .stat-num, .class-count, .class-name, .lesson-btn, .chip, .pill, .pill-xp,
+.you-tag, .bubble-title, .hero h2, .player-name, .player-acc, .lang-btn, .lang-pop button, .controls button, .move-no, .evalbar-label {
+  font-family: var(--font-display);
+}
+h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
+.nav .brand { font-weight: 600; letter-spacing: 0; font-size: 22px; }
+.nav button.tab { font-weight: 500; font-size: 15px; }
+.nav button.tab.on { font-weight: 600; }
+.btn, .lesson-btn, .chip, .controls button { font-weight: 500; letter-spacing: 0.1px; }
+.btn.primary { font-weight: 600; }
+.stat-num, .class-count { font-weight: 600; }
+.player-name { font-weight: 500; }
+.hero h2 { font-weight: 600; }
+.move { font-family: var(--font-body); font-weight: 600; }
+.muted, .bubble p, .line, .phase { font-family: var(--font-body); }
+
+/* ---------- language menu ---------- */
+.lang-menu { position: relative; }
+.lang-btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 12px; border: 0; border-radius: 14px 14px 14px 5px; background: transparent; color: var(--muted); font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.lang-btn:hover, .lang-btn[aria-expanded="true"] { background: var(--violet-soft); color: var(--violet-dark); }
+.lang-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; min-width: 168px; padding: 6px; background: #fff; border-radius: 16px 16px 16px 6px; box-shadow: 0 0 0 1px rgba(76, 52, 170, 0.08), 0 18px 36px -12px rgba(52, 34, 130, 0.35); display: grid; gap: 2px; }
+.lang-pop button { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 38px; padding: 0 12px; border: 0; border-radius: 11px; background: transparent; font-size: 15px; font-weight: 500; color: var(--ink); cursor: pointer; text-align: left; }
+.lang-pop button:hover { background: var(--violet-soft); }
+.lang-pop button.on { color: var(--violet-dark); font-weight: 600; }
