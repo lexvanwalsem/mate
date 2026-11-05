@@ -44,7 +44,7 @@ export default function App() {
     setError(undefined);
     try {
       setScreen({ name: "loading", text: t("loading.fetch") });
-      const game: LoadedGame = await loadGame(input, sideHint);
+      const game: LoadedGame = await loadGame(input, sideHint, settings.usernames.split(","));
 
       setScreen({ name: "loading", text: t("loading.engine"), progress: 0 });
       pool.current ??= EnginePool.create(EnginePool.recommendedSize(), 3);

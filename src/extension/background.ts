@@ -18,12 +18,34 @@ chrome.contextMenus.onClicked.addListener((info) => {
   if (info.menuItemId === "zetje-selection" && info.selectionText) openAnalysis({ pgn: info.selectionText });
 });
 
-// Toolbar button: ask the page for its game, fall back to the tab URL, else just open Zetje.
+// Runs inside any page (no content script there): look for a selected or visible PGN, or a game link.
+function scanPage(): { pgn?: string; url?: string } {
+  const looksLikePgn = (s: string) => /\[(Event|White|Black)\s+"/.test(s) && /\b1\.\s*\S+/.test(s);
+  const selected = String(getSelection() ?? "");
+  if (looksLikePgn(selected)) return { pgn: selected };
+  for (const el of Array.from(document.querySelectorAll("pre, textarea, code"))) {
+    const text = (el as HTMLElement).innerText || (el as HTMLTextAreaElement).value || "";
+    if (looksLikePgn(text)) return { pgn: text };
+  }
+  const link = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]")).find((a) =>
+    /lichess\.org\/[a-zA-Z0-9]{8}|chess\.com\/(?:[a-z]{2}\/)?(?:analysis\/)?game\/(?:live|daily)\/\d+/.test(a.href)
+  );
+  return link ? { url: link.href } : {};
+}
+
+// Toolbar button: ask the content script (chess.com, lichess); on other sites scan the page; else just open Zetje.
 chrome.action.onClicked.addListener((tab) => {
-  const fallback = () => openAnalysis({ url: tab.url && isGameUrl(tab.url) ? tab.url : undefined });
-  if (tab.id === undefined) return fallback();
+  const scanOrOpen = async () => {
+    try {
+      const [res] = await chrome.scripting.executeScript({ target: { tabId: tab.id! }, func: scanPage });
+      openAnalysis((res?.result as { pgn?: string; url?: string }) ?? {});
+    } catch {
+      openAnalysis({ url: tab.url && isGameUrl(tab.url) ? tab.url : undefined });
+    }
+  };
+  if (tab.id === undefined) return openAnalysis({});
   chrome.tabs.sendMessage(tab.id, { type: "get-game" }, (res) => {
-    if (chrome.runtime.lastError || !res?.url) return fallback();
+    if (chrome.runtime.lastError || !res?.url) return void scanOrOpen();
     openAnalysis({ url: res.url, side: res.side });
   });
 });

@@ -6,7 +6,7 @@
   "default_locale": "en",
   "action": { "default_title": "__MSG_actionTitle__" },
   "background": { "service_worker": "background.js" },
-  "permissions": ["contextMenus"],
+  "permissions": ["contextMenus", "scripting", "activeTab"],
   "host_permissions": ["https://lichess.org/*", "https://www.chess.com/*", "https://api.chess.com/*"],
   "content_scripts": [
     {

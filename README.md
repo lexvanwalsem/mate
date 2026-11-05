@@ -2,7 +2,7 @@
 
 Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-shaped rook mascot who reviews your games.
 
-- Works on chess.com and lichess: a floating Zetje button appears on game pages (it pulses when the game is over) and the toolbar button does the same. Either one opens a new tab that analyzes that game, plus any site via PGN: paste it, drop a file, or right-click a selected PGN.
+- Works on chess.com and lichess: a floating Zetje button is on every page of those sites (it pulses when a game is over). On a game page it analyzes that game, anywhere else it analyzes your latest game (it reads your username from the page, or from the start page settings). The toolbar button does the same, and on other sites it scans the page for a visible or selected PGN or a game link. Everything opens in a new tab
 - Everything runs locally with Stockfish 18 (lite, WebAssembly). No server, no account.
 - Review is told from your side of the board (your color is at the bottom).
 - Move classes: Brilliant, Great, Best, Excellent, Good, Book, Forced, Inaccuracy, Mistake, Miss, Blunder.

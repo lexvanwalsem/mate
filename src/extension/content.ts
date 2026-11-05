@@ -9,6 +9,20 @@ function detectSide(): "white" | "black" | undefined {
   return document.querySelector(".orientation-white, wc-chess-board, chess-board") ? "white" : undefined;
 }
 
+const platform = location.hostname.includes("lichess") ? "lichess" : "chesscom";
+
+/** Best effort: the logged-in user, or the player at the bottom of the board. */
+function detectUser(): string | undefined {
+  const sel = platform === "lichess"
+    ? "#user_tag"
+    : ".board-layout-bottom .user-username-component, .player-bottom .user-username-component, [data-test-element=\"user-tagline-username\"]";
+  const text = document.body.dataset.user || document.querySelector(sel)?.textContent;
+  return text?.trim().replace(/^\W+/, "") || undefined;
+}
+
+/** What to analyze: the open game, or else the latest game of this user on this site. */
+const target = () => findGameUrl() ?? `latest:${platform}:${detectUser() ?? ""}`;
+
 /** The page URL when it is a game, else a game link in the page (e.g. the Game Review button after a chess.com game). */
 function findGameUrl(): string | undefined {
   if (isGameUrl(location.href)) return location.href;
@@ -40,18 +54,17 @@ root.innerHTML = `
   </button>`;
 const button = root.querySelector("button")!;
 button.addEventListener("click", () => {
-  chrome.runtime.sendMessage({ type: "analyze", url: findGameUrl() ?? location.href, side: detectSide() });
+  chrome.runtime.sendMessage({ type: "analyze", url: target(), side: detectSide() });
 });
 document.documentElement.appendChild(host);
 
 // The toolbar button asks the page which game is open.
 chrome.runtime.onMessage.addListener((msg, _sender, reply) => {
-  if (msg?.type === "get-game") reply({ url: findGameUrl(), side: detectSide() });
+  if (msg?.type === "get-game") reply({ url: target(), side: detectSide() });
 });
 
 // These sites are single-page apps, so re-check regularly.
 setInterval(() => {
-  const url = findGameUrl();
-  host.style.display = url ? "block" : "none";
-  button.classList.toggle("over", !!url && gameIsOver());
+  host.style.display = "block";
+  button.classList.toggle("over", !!findGameUrl() && gameIsOver());
 }, 1000);

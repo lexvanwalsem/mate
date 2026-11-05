@@ -96,6 +96,8 @@ const en = {
   "err.lichess": "Lichess returned an error ({status}). Does this game exist?",
   "err.chesscom": "Chess.com returned an error ({status}). Is the game public?",
   "err.chesscomPgn": "Could not find the PGN of this Chess.com game. Paste the PGN manually (Share, PGN).",
+  "err.noUser": "I could not tell who you are on this site. Fill in your username on the start page and try again.",
+  "err.noLatest": "No recent game found for your username.",
   "err.unknown": "I do not recognize this site yet. Paste the PGN (most sites have a Share, PGN button).",
   "nav.analyze": "Analyze",
   "nav.lessons": "Lessons",
@@ -248,6 +250,8 @@ const nl: Record<Key, string> = {
   "err.lichess": "Lichess gaf een fout ({status}). Bestaat deze partij?",
   "err.chesscom": "Chess.com gaf een fout ({status}). Is de partij openbaar?",
   "err.chesscomPgn": "Kon de PGN van deze Chess.com-partij niet vinden. Plak de PGN handmatig (Delen, PGN).",
+  "err.noUser": "Ik kon niet zien wie je bent op deze site. Vul je gebruikersnaam in op de startpagina en probeer opnieuw.",
+  "err.noLatest": "Geen recente partij gevonden voor je gebruikersnaam.",
   "err.unknown": "Dit platform herken ik nog niet. Plak de PGN (de meeste sites hebben een Delen, PGN-knop).",
 
   "nav.analyze": "Analyseer",

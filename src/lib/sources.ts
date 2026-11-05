@@ -63,10 +63,55 @@ async function fetchChessCom(kind: "live" | "daily", id: string, side?: "white" 
   throw new Error(t("err.chesscomPgn"));
 }
 
-/** Turn a URL or PGN text into a game. */
-export async function loadGame(input: string, sideHint?: "white" | "black"): Promise<LoadedGame> {
+/** Which side did `user` play in this PGN? */
+function sideOf(pgn: string, user: string): "white" | "black" | undefined {
+  const name = user.toLowerCase();
+  if (new RegExp(`\[White "${name}"\]`, "i").test(pgn)) return "white";
+  if (new RegExp(`\[Black "${name}"\]`, "i").test(pgn)) return "black";
+  return undefined;
+}
+
+async function latestLichess(user: string): Promise<LoadedGame | undefined> {
+  const res = await fetch(`https://lichess.org/api/games/user/${encodeURIComponent(user)}?max=1&clocks=true&opening=true`, {
+    headers: { Accept: "application/x-chess-pgn" },
+  });
+  const pgn = res.ok ? (await res.text()).trim() : "";
+  return pgn ? { pgn, source: "lichess", side: sideOf(pgn, user) } : undefined;
+}
+
+async function latestChessCom(user: string): Promise<LoadedGame | undefined> {
+  const base = `https://api.chess.com/pub/player/${encodeURIComponent(user.toLowerCase())}/games`;
+  const list = await fetch(`${base}/archives`);
+  if (!list.ok) return undefined;
+  const archives: string[] = (await list.json()).archives ?? [];
+  // Newest month first; a new month can still be empty.
+  for (const url of archives.slice(-3).reverse()) {
+    const r = await fetch(url);
+    if (!r.ok) continue;
+    const games: ChessComArchiveGame[] = (await r.json()).games ?? [];
+    const last = [...games].reverse().find((g) => g.pgn);
+    if (last?.pgn) return { pgn: last.pgn, source: "chesscom", url: last.url, side: sideOf(last.pgn, user) };
+  }
+  return undefined;
+}
+
+/** "latest:lichess:name" or "latest:chesscom:name": your most recent game. Tries each known username. */
+async function loadLatest(spec: string, extraUsers: string[]): Promise<LoadedGame> {
+  const [, platform, detected] = spec.split(":");
+  const users = [detected, ...extraUsers].map((u) => u?.trim()).filter((u): u is string => !!u);
+  if (!users.length) throw new Error(t("err.noUser"));
+  for (const user of users) {
+    const game = platform === "lichess" ? await latestLichess(user) : await latestChessCom(user);
+    if (game) return { ...game, pgn: validatePgn(game.pgn) };
+  }
+  throw new Error(t("err.noLatest"));
+}
+
+/** Turn a URL, PGN text or "latest:..." request into a game. */
+export async function loadGame(input: string, sideHint?: "white" | "black", usernames: string[] = []): Promise<LoadedGame> {
   const text = input.trim();
   if (!text) throw new Error(t("err.empty"));
+  if (text.startsWith("latest:")) return loadLatest(text, usernames);
 
   if (looksLikePgn(text) && !/^https?:\/\//i.test(text)) {
     return { pgn: validatePgn(text), source: "pgn", side: sideHint };
