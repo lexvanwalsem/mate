@@ -117,7 +117,7 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
 
       <div className="side-col">
         <div className="card coach">
-          <Mascot mood={mood} size={96} />
+          <Mascot mood={mood} size={80} />
           <div className="bubble">
             {retry ? (
               <p>
@@ -137,7 +137,11 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
                 <p>{commentFor(a, pos, side)}</p>
               </>
             )}
-            {canRetry && !retry && <button className="btn primary small" onClick={() => setRetry({})}>{t("review.retry")}</button>}
+            {canRetry && !retry && (
+              <div className="row">
+                <button className="btn primary small" onClick={() => setRetry({})}>{t("review.retry")}</button>
+              </div>
+            )}
             {retry && (
               <div className="row">
                 {retry.result === "wrong" && <button className="btn ghost small" onClick={() => setRetry({})}>{t("review.again")}</button>}
@@ -157,7 +161,7 @@ export default function Review({ a, side, pieceSet, start, onBack }: Props) {
             {lines.map((l) => (
               <div key={l.multiPv} className="line">
                 <b>{getLineEvalLabel(l)}</b>
-                <span>{lineToSan(a.fens[pos], l.pv.slice(0, 6))}</span>
+                <span>{lineToSan(a.fens[pos], l.pv.slice(0, 5))}</span>
               </div>
             ))}
           </div>

@@ -161,7 +161,7 @@ export const UNITS: Unit[] = [
     lessons: [
       {
         id: "opening",
-        title: { en: "Opening principles", nl: "Openingsprincipes" },
+        title: { en: "Opening basics", nl: "Openingsregels" },
         steps: [
           move("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", ["e2e4", "d2d4"], "Rule one: take the center. Move a center pawn.", "Regel een: neem het centrum. Zet een centrumpion.", "e4 or d4.", "e4 of d4."),
           move("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2", ["g1f3", "b1c3"], "Rule two: develop your knights.", "Regel twee: ontwikkel je paarden.", "Knights belong toward the center.", "Paarden horen richting het centrum."),

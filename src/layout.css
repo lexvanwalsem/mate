@@ -110,3 +110,56 @@ input[type="range"] { accent-color: var(--violet); }
 .player-bar.clickable:hover { transform: translateY(-2px); background: #fff; box-shadow: inset 0 0 0 2px #cbbdff; }
 .player-bar.clickable.you:hover { box-shadow: inset 0 0 0 2px var(--violet); }
 .player-bar.clickable:active { transform: translateY(0); }
+
+/* ---------- text can never spill: clamp or wrap inside fixed boxes ---------- */
+.coach .mascot { width: 80px; height: 80px; }
+.bubble { gap: 6px; padding: 12px 14px; overflow: hidden; }
+.bubble p { margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.bubble .bubble-title { flex: none; }
+.bubble .row { flex: none; margin-top: auto; }
+.review .coach { height: 176px; }
+.review .lines { height: 100px; padding: 12px 18px; }
+.review .lines .line { height: 20px; font-size: 13px; }
+.review .lines h3 { margin-bottom: 4px; }
+
+/* lessons, puzzles, train have room, so their coach grows with the text instead of clamping */
+.player .coach { height: auto; min-height: 170px; }
+.player .bubble { height: auto; }
+.player .bubble p { display: block; -webkit-line-clamp: unset; overflow: visible; }
+
+/* lesson buttons: wide enough for long Dutch words, wrap if needed */
+.main .path { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+.lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); gap: 10px; }
+.lesson-btn { width: auto; height: 72px; overflow-wrap: anywhere; hyphens: auto; line-height: 1.2; }
+
+/* ---------- premium: layered background, calmer cards, refined buttons ---------- */
+body {
+  background:
+    radial-gradient(900px 520px at 6% -10%, #e4dbff 0%, rgba(228, 219, 255, 0) 62%),
+    radial-gradient(800px 480px at 100% 0%, #ffe9d8 0%, rgba(255, 233, 216, 0) 58%),
+    #f4f1fa;
+  background-attachment: fixed;
+}
+.card, .nav { box-shadow: 0 0 0 1px rgba(76, 52, 170, 0.07), 0 14px 30px -16px rgba(52, 34, 130, 0.3); }
+.player-bar { box-shadow: 0 0 0 1px rgba(76, 52, 170, 0.07), 0 8px 18px -12px rgba(52, 34, 130, 0.3); }
+.board { box-shadow: 0 0 0 1px rgba(76, 52, 170, 0.14), 0 22px 40px -20px rgba(52, 34, 130, 0.5); }
+.stat.accent { background: linear-gradient(145deg, #7b5cff, #5a3df0); box-shadow: 0 16px 30px -14px rgba(90, 61, 240, 0.7); }
+.btn.primary { background: linear-gradient(180deg, #7b5cff, #6340f2); box-shadow: 0 10px 20px -10px rgba(90, 61, 240, 0.8), inset 0 -2px 0 rgba(0, 0, 0, 0.14); }
+.btn.ghost { background: #efeaff; box-shadow: inset 0 -2px 0 rgba(108, 76, 245, 0.14); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.controls button { box-shadow: inset 0 -2px 0 rgba(108, 76, 245, 0.14); }
+.controls button:active { transform: translateY(1px); }
+.lesson-btn { box-shadow: inset 0 -3px 0 rgba(108, 76, 245, 0.14); }
+.lesson-btn.done { box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18); }
+.class-tile { box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.14); }
+.moments button { background: #f3efff; }
+.class-badge { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18); }
+.pill-xp { box-shadow: inset 0 0 0 1px rgba(138, 90, 0, 0.12); }
+
+/* best-lines card: title + three rows fit without clipping */
+.review .lines { height: 118px; }
+.review .lines .line { height: 22px; line-height: 22px; }
+
+/* the row itself never clips; the move text inside truncates with an ellipsis */
+.review .lines .line { overflow: visible; white-space: normal; }
+.review .lines .line span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
