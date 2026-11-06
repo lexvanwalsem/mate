@@ -18,7 +18,8 @@ function check(label: string, fen: string, expected: Record<string, string>, cap
 
 check("start position: nobody worries", "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", {});
 check("a free knight worries, the attacker does not", "4k3/8/8/3n4/4P3/8/8/4K3 w - - 0 1", { d5: "worried" });
-check("a defended pawn attacked by a pawn is calm, the loose one worries", "4k3/8/2p5/3p4/4P3/8/8/4K3 w - - 0 1", { e4: "worried" });
+check("pawns stay calm, even a loose one", "4k3/8/2p5/3p4/4P3/8/8/4K3 w - - 0 1", {});
+check("a rook attacked by a pawn worries", "4k3/8/8/2p5/3R4/8/8/4K3 w - - 0 1", { d4: "worried" });
 check("a king in check is shocked", "4k3/8/8/8/8/8/8/4K2r w - - 0 1", { e1: "shocked" });
 check("the capturing piece is happy", "4k3/8/8/3N4/8/8/8/4K3 b - - 0 1", { d5: "happy" }, "d5");
 check("off for other piece sets", "4k3/8/8/3n4/4P3/8/8/4K3 w - - 0 1", {}, undefined, "cburnett");

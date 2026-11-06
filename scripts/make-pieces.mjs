@@ -1,6 +1,6 @@
 // Draws the "Blokje" piece set in the mascot's own style: one soft shape per piece on his flared base,
-// gradient body, gloss, his eyes and cheeks. The rook is Blokje himself. Pawns stay plain until they react.
-// Writes public/pieces/blokje/<color><TYPE>.svg plus -happy, -worried and -shocked variants for the reactions.
+// gradient body, gloss, his eyes and cheeks. The rook is Blokje himself. Pawns stay plain.
+// Writes public/pieces/blokje/<color><TYPE>.svg plus -happy, -worried and -shocked variants for the reactions (not for pawns).
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const INK = "#1f1b3a";
@@ -21,7 +21,8 @@ const foot = `<path d="M60 146 C56 158 32 158 32 170 V174 Q32 186 44 186 H156 Q1
 
 // Shapes in a 200x200 box; overlapping parts share one fill and one soft edge.
 const SHAPES = {
-  p: `${body(30, 104)}<circle cx="100" cy="82" r="36"/>`,
+  // pawn: round head on a little collar, a waist that flows into a smaller base, so it reads smaller than the rest
+  p: `<circle cx="100" cy="66" r="28"/><rect x="64" y="90" width="72" height="17" rx="8.5"/><path d="M80 102 H120 C120 124 128 140 140 150 C152 156 158 162 158 172 Q158 186 146 186 H54 Q42 186 42 172 C42 162 48 156 60 150 C72 140 80 124 80 102Z"/>`,
   r: `<path d="${TOWER}"/>`,
   n: `${foot}<path d="M52 160 C56 132 72 116 80 96 C64 104 48 120 32 116 C16 112 16 92 24 84 C36 72 52 60 64 44 C72 32 80 28 88 24 L96 6 L112 22 C140 32 160 76 156 116 C155 136 152 148 150 160Z"/>`,
   b: `${body(36, 104)}<circle cx="100" cy="20" r="11"/><ellipse cx="100" cy="74" rx="40" ry="48"/>`,
@@ -30,7 +31,7 @@ const SHAPES = {
 };
 
 // Where the face sits: eye height, half the distance between the eyes.
-const FACE_AT = { p: [80, 14], r: [102, 18], b: [78, 15], q: [114, 19], k: [118, 19] };
+const FACE_AT = { r: [102, 18], b: [78, 15], q: [114, 19], k: [118, 19] };
 
 // Blokje's eye. Dark side: a white block with a pupil. White side: a dark block with a shine.
 // `look` moves the pupil, `big` makes the eye taller for a fright.
@@ -49,7 +50,7 @@ const line = (d, w = 5) => `<path d="${d}" fill="none" stroke="${INK}" stroke-wi
 
 function face(s, type, mood) {
   if (type === "n") return knightFace(s, mood);
-  if (type === "p" && mood === "idle") return "";
+  if (type === "p") return ""; // pawns stay plain
   const [y, gap] = FACE_AT[type];
   const l = 100 - gap;
   const r = 100 + gap;
@@ -104,7 +105,7 @@ function piece(color, type, mood) {
 mkdirSync("public/pieces/blokje", { recursive: true });
 for (const color of ["w", "b"]) {
   for (const type of ["p", "n", "b", "r", "q", "k"]) {
-    for (const mood of MOODS) {
+    for (const mood of type === "p" ? ["idle"] : MOODS) {
       const name = `${color}${type.toUpperCase()}${mood === "idle" ? "" : `-${mood}`}`;
       writeFileSync(`public/pieces/blokje/${name}.svg`, piece(color, type, mood));
     }

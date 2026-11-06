@@ -15,7 +15,7 @@ const VALUE: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 100 };
 
 /**
  * How each piece feels about the position: a king in check is shocked, a piece that can be taken
- * for free or by something cheaper is worried, and the piece that just captured is happy.
+ * for free or by something cheaper is worried, and the piece that just captured is happy. Pawns stay calm.
  */
 export function pieceMoods(pieces: BoardPiece[], pieceSet: string, capturedOn?: string): Map<string, PieceMood> {
   const moods = new Map<string, PieceMood>();
@@ -26,6 +26,7 @@ export function pieceMoods(pieces: BoardPiece[], pieceSet: string, capturedOn?: 
   for (const p of pieces) board.put({ type: p.type as PieceSymbol, color: p.color }, p.square as Square);
 
   for (const p of pieces) {
+    if (p.type === "p") continue; // pawns stay calm, a board full of worried pawns is noise
     const square = p.square as Square;
     const enemy = p.color === "w" ? "b" : "w";
     const attackers = board.attackers(square, enemy);
@@ -40,7 +41,7 @@ export function pieceMoods(pieces: BoardPiece[], pieceSet: string, capturedOn?: 
 
   if (capturedOn) {
     const hero = pieces.find((p) => p.square === capturedOn);
-    if (hero && !moods.has(hero.id)) moods.set(hero.id, "happy");
+    if (hero && hero.type !== "p" && !moods.has(hero.id)) moods.set(hero.id, "happy");
   }
   return moods;
 }
