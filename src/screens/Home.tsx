@@ -123,6 +123,7 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
             ))}
           </div>
         </div>
+        <p className="version">{t("home.version", { v: globalThis.chrome?.runtime?.getManifest?.().version ?? "dev" })}</p>
       </div>
     </div>
   );

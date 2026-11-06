@@ -348,3 +348,5 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 .style-pop .piece-opt { font-size: 12px; }
 .style-pop .piece-opt img { width: 36px; height: 36px; }
 .style-pop .board-opt { width: 40px; height: 40px; }
+
+.settings .version { margin: 0; font-size: 12px; color: var(--muted); text-align: right; }
