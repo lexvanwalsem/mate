@@ -13,12 +13,16 @@ import { lineText, stepsFrom } from "@/lib/followUp";
 import { uciMoveParams, uciToSan } from "@/lib/chess";
 import { Progress, addXp } from "@/lib/progress";
 import { Side } from "@/lib/stats";
+import { MoveClassification as MC } from "@/types/enums";
 
 const XP_PER_PUZZLE = 10;
-const REPLY_MS = 1200; // the opponent answers calmly, so you can follow what happens
+const REPLY_MS = 1100; // the opponent answers calmly, so you can follow what happens
+const INTRO_MS = 900; // a puzzle starts one move earlier: you first see the move your opponent just played
 
-// play: your turn. wait: your move was right, the reply is coming. wrong: your move stays on the board.
-type Status = "loading" | "play" | "wait" | "wrong" | "solved" | "error";
+// intro: the opponent plays the move that sets up the puzzle. play: your turn. wait: your move was right, the reply is coming.
+// wrong: your move stays on the board until you try again.
+type Status = "loading" | "intro" | "play" | "wait" | "wrong" | "solved" | "error";
+type Sign = { square: string; cls: MC; effect: "great" | "good" | "bad" };
 
 export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: string; onProgress: (p: Progress) => void; getPool: () => Promise<EnginePool> }) {
   const fb = useMoveFeedback(getPool);
@@ -31,6 +35,8 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
   const [lastMove, setLastMove] = useState<{ from: string; to: string }>();
   const [wrongFen, setWrongFen] = useState<string>(); // the board after a wrong try
   const [replySan, setReplySan] = useState<string>();
+  const [openedSan, setOpenedSan] = useState<string>(); // the opponent move that started the puzzle
+  const [sign, setSign] = useState<Sign>(); // the mark on the board after your move
   const timer = useRef<number>(undefined);
   // Session score: a puzzle counts for the streak only when solved without a wrong try or the answer shown.
   const [score, setScore] = useState({ solved: 0, streak: 0, best: 0 });
@@ -44,13 +50,28 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
     setLastMove(undefined);
     setWrongFen(undefined);
     setReplySan(undefined);
+    setOpenedSan(undefined);
+    setSign(undefined);
     clean.current = true;
     try {
       const p = await fetchPuzzle(th);
       setPuzzle(p);
-      setFen(p.fen);
       setPly(0);
-      setStatus("play");
+      if (!p.before) {
+        setFen(p.fen);
+        setStatus("play");
+        return;
+      }
+      const before = p.before;
+      setFen(before.fen);
+      setStatus("intro");
+      timer.current = window.setTimeout(() => {
+        setFen(p.fen);
+        setLastMove({ from: before.from, to: before.to });
+        setOpenedSan(uciToSan(before.fen, before.from + before.to));
+        play("move");
+        setStatus("play");
+      }, INTRO_MS);
     } catch {
       setStatus("error");
     }
@@ -78,9 +99,11 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
     setLastMove({ from: m.from, to: m.to });
     setShowAnswer(false);
     setReplySan(undefined);
+    setOpenedSan(undefined);
     // Any checkmate also counts, Lichess accepts alternative mates too.
     if (uci !== puzzle.solution[ply] && !game.isCheckmate()) {
       setStatus("wrong");
+      setSign({ square: m.to, cls: MC.Miss, effect: "bad" });
       setWrongFen(game.fen());
       clean.current = false;
       fb.check(fen, uci, false);
@@ -88,7 +111,9 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
     }
     fb.check(fen, uci, true);
     setFen(game.fen());
-    if (game.isCheckmate() || ply + 1 >= puzzle.solution.length) return solved();
+    const done = game.isCheckmate() || ply + 1 >= puzzle.solution.length;
+    setSign({ square: m.to, cls: done ? MC.Perfect : MC.Best, effect: done ? "great" : "good" });
+    if (done) return solved();
 
     setStatus("wait");
     const reply = puzzle.solution[ply + 1];
@@ -96,6 +121,7 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
       const r = game.move(uciMoveParams(reply));
       play(r.captured ? "capture" : "move");
       fb.clear();
+      setSign(undefined);
       setLastMove({ from: r.from, to: r.to });
       setReplySan(r.san);
       setFen(game.fen());
@@ -106,6 +132,7 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
 
   const tryAgain = () => {
     fb.clear();
+    setSign(undefined);
     setWrongFen(undefined);
     setLastMove(undefined);
     setStatus("play");
@@ -115,7 +142,7 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
   const other = t(side === "white" ? "puzzle.black" : "puzzle.white");
   const expected = puzzle?.solution[ply];
   const arrows = [...(showAnswer && expected && status === "play" ? [{ from: expected.slice(0, 2), to: expected.slice(2, 4), color: "#22c58b" }] : []), ...(fb.fb?.arrows ?? [])];
-  const mood: Mood = status === "solved" ? "cheer" : status === "wrong" ? "worried" : status === "loading" ? "thinking" : status === "wait" ? "happy" : "idle";
+  const mood: Mood = status === "solved" ? "cheer" : status === "wrong" ? "worried" : status === "loading" || status === "intro" ? "thinking" : status === "wait" ? "happy" : "idle";
   const stage: TaskStage = status === "wrong" ? "wrong" : status === "solved" ? "right" : "task";
   const myMoves = puzzle ? Math.ceil(puzzle.solution.length / 2) : 1;
   const moveNo = Math.min(myMoves, ply / 2 + 1);
@@ -128,6 +155,8 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
   let message: ReactNode;
   if (status === "wrong") message = <><b>{t("task.notIt")}</b> {fb.fb?.text}</>;
   if (status === "wait") message = <><b>{t("task.good")}</b> {fb.fb?.text} {t("task.watch")}</>;
+  if (status === "intro") message = t("task.watchFirst", { side: other });
+  if (status === "play" && openedSan) message = t("task.opened", { side: other, san: openedSan });
   if (status === "play" && replySan) message = t("task.replied", { side: other, san: replySan });
   if (status === "play" && showAnswer && expected) message = t("task.answer", { san: uciToSan(fen, expected) ?? expected });
   if (status === "solved" && puzzle) {
@@ -155,6 +184,8 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
               arrows={arrows}
               marks={fb.fb?.marks}
               lastMove={lastMove}
+              badge={sign ? { square: sign.square, cls: sign.cls } : undefined}
+              effect={sign?.effect}
             />
           )}
         </div>

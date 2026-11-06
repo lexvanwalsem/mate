@@ -14,6 +14,7 @@ import { PlayedStep, engineLine, lineText, stepsFrom } from "@/lib/followUp";
 import { uciMoveParams } from "@/lib/chess";
 import { Progress, addXp } from "@/lib/progress";
 import { Side } from "@/lib/stats";
+import { MoveClassification as MC } from "@/types/enums";
 
 const XP_PER_FIX = 10;
 const STEP_MS = 1000; // pause between moves of the follow-up line
@@ -26,7 +27,7 @@ export default function Train({ pieceSet, onProgress, getPool }: { pieceSet: str
   const [stage, setStage] = useState<TaskStage>("task");
   const [showAnswer, setShowAnswer] = useState(false);
   // Your move stays on the board until you choose what to do next.
-  const [shown, setShown] = useState<{ fen: string; last: { from: string; to: string } }>();
+  const [shown, setShown] = useState<{ fen: string; last: { from: string; to: string }; right: boolean }>();
   const [follow, setFollow] = useState<{ steps: PlayedStep[]; at: number; loading: boolean }>();
   const timer = useRef<number>(undefined);
 
@@ -65,8 +66,9 @@ export default function Train({ pieceSet, onProgress, getPool }: { pieceSet: str
   const onMove = (uci: string) => {
     const game = new Chess(item.fen);
     const m = game.move(uciMoveParams(uci));
-    setShown({ fen: game.fen(), last: { from: m.from, to: m.to } });
-    if (item.accepted.includes(uci)) {
+    const right = item.accepted.includes(uci);
+    setShown({ fen: game.fen(), last: { from: m.from, to: m.to }, right });
+    if (right) {
       setStage("right");
       window.setTimeout(() => play("success"), 250);
       fb.check(item.fen, uci, true);
@@ -142,6 +144,8 @@ export default function Train({ pieceSet, onProgress, getPool }: { pieceSet: str
             arrows={arrows}
             marks={playing ? undefined : fb.fb?.marks}
             lastMove={boardLast}
+            badge={shown && !playing ? { square: shown.last.to, cls: shown.right ? MC.Best : MC.Miss } : undefined}
+            effect={shown && !playing ? (shown.right ? "great" : "bad") : undefined}
           />
         </div>
         <div className="side-col">

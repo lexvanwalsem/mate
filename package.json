@@ -1,6 +1,6 @@
 {
   "name": "zetje",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "description": "Zetje — gratis, lokale schaakanalyse met Blokje de mascotte. Chrome-extensie voor chess.com, lichess en meer.",
   "private": true,
   "license": "AGPL-3.0-or-later",
@@ -24,7 +24,8 @@
     "render:mascot": "tsx scripts/render-mascot.tsx mascot-sheet.html",
     "test:style": "node scripts/test-style.mjs",
     "check:reactions": "tsx scripts/check-reactions.ts",
-    "test:train": "node scripts/test-train.mjs"
+    "test:train": "node scripts/test-train.mjs",
+    "test:puzzle": "node scripts/test-puzzle.mjs"
   },
   "dependencies": {
     "@fontsource-variable/fredoka": "^5.3.0",

@@ -14,6 +14,7 @@ import { Key, t } from "@/lib/i18n";
 import { ALL_LESSONS, Lesson, UNITS, XP_PER_LESSON, XP_PER_STEP, lt } from "@/lib/lessons";
 import { Progress, addXp } from "@/lib/progress";
 import { Side } from "@/lib/stats";
+import { MoveClassification as MC } from "@/types/enums";
 
 interface Props {
   pieceSet: string;
@@ -71,7 +72,7 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, getPool, onEx
   const [showHint, setShowHint] = useState(false);
   const [earned, setEarned] = useState<number>();
   // Your move stays on the board until you go on.
-  const [shown, setShown] = useState<{ fen: string; last: { from: string; to: string } }>();
+  const [shown, setShown] = useState<{ fen: string; last: { from: string; to: string }; right: boolean }>();
 
   const step = lesson.steps[idx];
   const orientation: Side = step?.fen.split(" ")[1] === "b" ? "black" : "white";
@@ -121,8 +122,9 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, getPool, onEx
     if (step.kind !== "move") return;
     const game = new Chess(step.fen);
     const m = game.move(uciMoveParams(uci));
-    setShown({ fen: game.fen(), last: { from: m.from, to: m.to } });
-    if (step.accept.includes(uci)) {
+    const right = step.accept.includes(uci);
+    setShown({ fen: game.fen(), last: { from: m.from, to: m.to }, right });
+    if (right) {
       setFeedback("right");
       fb.check(step.fen, uci, true);
     } else {
@@ -155,7 +157,7 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, getPool, onEx
         {step.kind === "info" ? (
           <Board pieces={piecesFromFen(step.fen)} orientation={orientation} pieceSet={pieceSet} arrows={arrows} />
         ) : (
-          <PlayBoard key={idx} fen={shown?.fen ?? step.fen} orientation={orientation} pieceSet={pieceSet} onMove={onMove} disabled={feedback !== "none"} arrows={arrows} marks={fb.fb?.marks} lastMove={shown?.last} />
+          <PlayBoard key={idx} fen={shown?.fen ?? step.fen} orientation={orientation} pieceSet={pieceSet} onMove={onMove} disabled={feedback !== "none"} arrows={arrows} marks={fb.fb?.marks} lastMove={shown?.last} badge={shown ? { square: shown.last.to, cls: shown.right ? MC.Best : MC.Miss } : undefined} effect={shown ? (shown.right ? "great" : "bad") : undefined} />
         )}
       </div>
 

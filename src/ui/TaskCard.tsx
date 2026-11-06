@@ -53,7 +53,8 @@ export default function TaskCard({ stage, mood, title, side, context, goal, mess
           <p className="task-goal">{goal}</p>
         </div>
       </div>
-      {message && <div className={`task-msg ${stage}`} key={stage}>{message}</div>}
+      {/* the message area keeps its place, so the card does not jump when feedback arrives */}
+      <div className={`task-msg ${stage} ${message ? "" : "empty"}`} key={stage}>{message}</div>
       {children && <div className="task-actions">{children}</div>}
     </div>
   );
