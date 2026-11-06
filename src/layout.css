@@ -446,3 +446,19 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 .task-msg { min-height: 66px; }
 .task-msg.empty { visibility: hidden; animation: none; }
 .task-msg { transition: background 0.3s, color 0.3s; }
+
+/* your latest online games on the home screen */
+.home .online { display: grid; gap: 6px; }
+.home .online h3 { margin: 0 0 4px; }
+.home .online p { margin: 0; }
+.online-game { display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 12px; border: 0; border-radius: 12px 12px 12px 5px; background: var(--violet-soft); color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; text-align: left; transition: transform 0.15s, background 0.15s; }
+.online-game:hover { transform: translateY(-1px); background: #e2d9ff; }
+.online-opp { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.online-meta { font-size: 12px; white-space: nowrap; }
+.result-pill { flex: none; min-width: 58px; padding: 3px 8px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 700; text-align: center; background: #8f93a8; }
+.result-pill.win { background: #22c58b; }
+.result-pill.loss { background: #ff6b6b; }
+.field-note { font-size: 12px; color: var(--muted); }
+.field-note.bad { color: #d6455a; }
+[data-theme="dark"] .online-game { color: var(--ink); }
+[data-theme="dark"] .online-game:hover { background: #3a3480; }

@@ -1,5 +1,6 @@
 import { HistoryItem } from "@/lib/history";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { RecentLookup, lookupRecent } from "@/lib/recentGames";
 import { BOARD_THEMES, MASCOT_THEMES, PIECE_SETS, Settings } from "@/lib/settings";
 import { REACTING_SETS } from "@/lib/reactions";
 
@@ -16,6 +17,32 @@ interface Props {
 
 export default function Home({ settings, history, level, onChangeSettings, onAnalyze, error }: Props) {
   const [input, setInput] = useState("");
+  // Your latest online games, looked up shortly after you stop typing your names.
+  const [online, setOnline] = useState<RecentLookup & { loading: boolean }>();
+  const names = settings.usernames.split(",").map((n) => n.trim()).filter(Boolean);
+  const namesKey = names.join(",");
+  useEffect(() => {
+    if (!names.length) {
+      setOnline(undefined);
+      return;
+    }
+    let live = true;
+    setOnline((o) => ({ games: o?.games ?? [], found: o?.found ?? {}, loading: true }));
+    const timer = window.setTimeout(async () => {
+      const res = await lookupRecent(names);
+      if (live) setOnline({ ...res, loading: false });
+    }, 700);
+    return () => {
+      live = false;
+      window.clearTimeout(timer);
+    };
+  }, [namesKey]);
+  const site = (p: string) => (p === "lichess" ? "lichess" : "chess.com");
+  const foundText = online && !online.loading
+    ? names
+        .map((n) => (online.found[n]?.length ? t("home.foundOn", { name: n, sites: online.found[n].map(site).join(" + ") }) : t("home.notFound", { name: n })))
+        .join(" · ")
+    : undefined;
 
   const onFile = async (file?: File) => {
     if (file) onAnalyze(await file.text());
@@ -50,7 +77,24 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
         {error && <p className="error">{error}</p>}
       </div>
 
-      {history.length > 0 && (
+      {online && (
+        <div className="card online">
+          <h3>{t("home.online")}</h3>
+          {online.loading && !online.games.length && <p className="muted">{t("home.onlineLoading")}</p>}
+          {!online.loading && !online.games.length && <p className="muted">{t("home.onlineEmpty")}</p>}
+          {online.games.map((g) => (
+            <button key={g.key} className="online-game" onClick={() => onAnalyze(g.pgn)}>
+              <span className={`result-pill ${g.result}`}>{g.result === "unknown" ? "?" : t(`summary.${g.result}` as Key)}</span>
+              <span className={`chip-color ${g.you}`} />
+              <span className="online-opp">{t("home.vs", { name: g.opponent })}{g.opponentRating && <span className="muted"> {g.opponentRating}</span>}</span>
+              <span className="grow" />
+              <span className="muted online-meta">{[g.speed, site(g.platform), g.date ? new Date(g.date).toLocaleDateString(undefined, { day: "numeric", month: "short" }) : ""].filter(Boolean).join(" · ")}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {history.length > 0 && !online?.games.length && (
         <div className="card history">
           <h3>{t("home.recent")}</h3>
           {history.map((h) => (
@@ -68,6 +112,9 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
             placeholder={t("home.usernamesHint")}
             onChange={(e) => onChangeSettings({ ...settings, usernames: e.target.value })}
           />
+          <span className={`field-note ${foundText && names.some((n) => !online?.found[n]?.length) ? "bad" : ""}`}>
+            {online?.loading ? t("home.onlineLoading") : foundText ?? t("home.usernamesUse")}
+          </span>
         </label>
         <label>
           {t("home.depth", { n: settings.depth })}
