@@ -19,6 +19,14 @@ interface Props {
   getPool: () => Promise<EnginePool>;
 }
 
+// The piece that stands for each lesson on its button.
+const LESSON_PIECE: Record<string, string> = {
+  rook: "R", bishop: "B", queen: "Q", knight: "N", pawn: "P", king: "K",
+  "back-rank": "R", "queen-mate": "Q", "two-rooks": "R", scholars: "Q",
+  fork: "N", pin: "B", skewer: "R", "pawn-fork": "P", "free-piece": "N",
+  opening: "P", promotion: "Q",
+};
+
 export default function Learn({ pieceSet, progress, onProgress, getPool }: Props) {
   const [lessonId, setLessonId] = useState<string>();
   const lesson = ALL_LESSONS.find((l) => l.id === lessonId);
@@ -29,11 +37,15 @@ export default function Learn({ pieceSet, progress, onProgress, getPool }: Props
         <p className="muted">{t("learn.intro")}</p>
         {UNITS.map((u) => (
           <div key={u.id} className="unit card">
-            <h3>{t(`unit.${u.id}` as Key)}</h3>
+            <h3>
+              {t(`unit.${u.id}` as Key)}
+              <span className="unit-count">{u.lessons.filter((l) => progress.done.includes(l.id)).length}/{u.lessons.length}</span>
+            </h3>
             <div className="lessons">
               {u.lessons.map((l) => (
                 <button key={l.id} className={`lesson-btn ${progress.done.includes(l.id) ? "done" : ""}`} onClick={() => setLessonId(l.id)}>
-                  {lt(l.title)}
+                  <img alt="" src={`pieces/${pieceSet}/w${LESSON_PIECE[l.id] ?? "P"}.svg`} />
+                  <span>{lt(l.title)}</span>
                 </button>
               ))}
             </div>

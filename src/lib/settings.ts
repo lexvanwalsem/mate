@@ -8,6 +8,8 @@ export interface Settings {
   boardTheme: string;
   sound: boolean;
   dark: boolean;
+  /** Blokje pieces pull faces at what happens on the board. */
+  reactions: boolean;
 }
 
 export interface MascotTheme { id: string; unlockLevel: number; swatch: string; vars: Record<string, string> }
@@ -54,7 +56,7 @@ export function applyBoardTheme(id: string) {
 }
 
 const KEY = "zetje-settings";
-const DEFAULTS: Settings = { lang: detectLang(), depth: 14, usernames: "", pieceSet: "blokje", mascot: "violet", boardTheme: "violet", sound: true, dark: window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false };
+const DEFAULTS: Settings = { lang: detectLang(), depth: 14, usernames: "", pieceSet: "blokje", mascot: "violet", boardTheme: "violet", sound: true, reactions: true, dark: window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false };
 
 export function loadSettings(): Settings {
   try {

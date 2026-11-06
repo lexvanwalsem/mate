@@ -37,6 +37,8 @@ try {
 
   for (let i = 0; i < 120; i++) { if (/accuracy/i.test((await ev("document.body.innerText.slice(0,400)")) ?? "")) break; await sleep(1000); }
 
+  // DARK=1 takes the same screenshots in dark mode.
+  if (process.env.DARK) await ev("document.querySelector('.theme-btn').click()");
   const sizes = [[1366, 768], [1920, 1080]];
   const measure = `(() => { const m = document.querySelector('.main'); const s = document.querySelector('.main .screen');
     const overflow = m.scrollHeight - m.clientHeight; const bodyOverflow = document.documentElement.scrollHeight - innerHeight;
@@ -51,7 +53,7 @@ try {
       ["lessons", async () => { await click("Lessons"); }],
       ["lesson", async () => { await ev("document.querySelector('.lesson-btn')?.click()"); await click("Next"); }],
       ["puzzles", async () => { await click("Puzzles"); await sleep(2500); }],
-      ["mistakes", async () => { await click("My mistakes"); }],
+      ["training", async () => { await click("Training"); await sleep(800); }],
       ["home", async () => { await click("Analyze"); await click("Back to summary"); await click("Another game"); }],
     ];
     for (const [name, act] of steps) {

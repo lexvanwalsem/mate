@@ -27,12 +27,16 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
   const [showAnswer, setShowAnswer] = useState(false);
   const [lastMove, setLastMove] = useState<{ from: string; to: string }>();
   const timer = useRef<number>(undefined);
+  // Session score: a puzzle counts for the streak only when solved without a wrong try or the answer shown.
+  const [score, setScore] = useState({ solved: 0, streak: 0, best: 0 });
+  const clean = useRef(true);
 
   const load = async (th: PuzzleTheme) => {
     fb.clear();
     setStatus("loading");
     setShowAnswer(false);
     setLastMove(undefined);
+    clean.current = true;
     try {
       const p = await fetchPuzzle(th);
       setPuzzle(p);
@@ -52,6 +56,10 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
   const solved = () => {
     setStatus("solved");
     play("success");
+    setScore((s) => {
+      const streak = clean.current ? s.streak + 1 : 0;
+      return { solved: s.solved + 1, streak, best: Math.max(s.best, streak) };
+    });
     onProgress(addXp(XP_PER_PUZZLE));
   };
 
@@ -63,6 +71,7 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
     // Any checkmate also counts, Lichess accepts alternative mates too.
     if (uci !== puzzle.solution[ply] && !trial.isCheckmate()) {
       setStatus("wrong");
+      clean.current = false;
       fb.check(fen, uci, false);
       return;
     }
@@ -128,7 +137,7 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
               {puzzle && status !== "loading" && status !== "error" && (
                 <>
                   <div className="bubble-title">{t("puzzle.toMove", { side: t(orientation === "white" ? "puzzle.white" : "puzzle.black") })}</div>
-                  <p className="muted">{t("puzzle.rating", { n: puzzle.rating })}</p>
+                  {status === "play" && !fb.fb && <p className="muted">{t("puzzle.find")}</p>}
                 </>
               )}
               {status === "wrong" && <p><b>{fb.fb?.text ?? t("puzzle.wrong")}</b></p>}
@@ -138,9 +147,22 @@ export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: s
                 {status === "solved" || status === "error" ? (
                   <button className="btn primary small" onClick={() => load(theme)}>{t("puzzle.next")}</button>
                 ) : (
-                  status !== "loading" && <button className="btn ghost small" onClick={() => setShowAnswer(true)}>{t("puzzle.show")}</button>
+                  status !== "loading" && (
+                    <>
+                      <button className="btn ghost small" onClick={() => { clean.current = false; setShowAnswer(true); }}>{t("puzzle.show")}</button>
+                      <button className="btn ghost small" onClick={() => load(theme)}>{t("puzzle.skip")}</button>
+                    </>
+                  )
                 )}
               </div>
+            </div>
+          </div>
+          <div className="card score-card">
+            <h3>{t("puzzle.session")}</h3>
+            <div className="score-row">
+              <div><b>{score.solved}</b><span>{t("puzzle.solvedCount")}</span></div>
+              <div><b>{score.streak}</b><span>{t("puzzle.streak")}</span></div>
+              <div><b>{score.best}</b><span>{t("puzzle.best")}</span></div>
             </div>
           </div>
         </div>

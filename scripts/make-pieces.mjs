@@ -1,5 +1,6 @@
 // Draws the "Blokje" piece set in the mascot's own style: one soft shape per piece on his flared base,
-// gradient body, gloss, his eyes and cheeks. The rook is Blokje himself. Writes public/pieces/blokje/*.svg
+// gradient body, gloss, his eyes and cheeks. The rook is Blokje himself. Pawns stay plain until they react.
+// Writes public/pieces/blokje/<color><TYPE>.svg plus -happy, -worried and -shocked variants for the reactions.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const INK = "#1f1b3a";
@@ -7,6 +8,7 @@ const SIDES = {
   w: { top: "#ffffff", bottom: "#ddd3fa", edge: "#7a66d4", gloss: 0.6, eyeWhite: false },
   b: { top: "#8263ff", bottom: "#3a24b4", edge: "#1d1458", gloss: 0.34, eyeWhite: true },
 };
+const MOODS = ["idle", "happy", "worried", "shocked"];
 
 // Blokje's tower, shared with the app (src/ui/blokjeShape.ts).
 const src = readFileSync("src/ui/blokjeShape.ts", "utf8");
@@ -27,25 +29,60 @@ const SHAPES = {
   k: `${body(42, 84)}<rect x="89" y="6" width="22" height="58" rx="11"/><rect x="70" y="20" width="60" height="22" rx="11"/><rect x="54" y="56" width="92" height="44" rx="22"/>`,
 };
 
-// Blokje's eye: a white block with a pupil on the dark side, a plain dark block on the white side.
-const eye = (s, x, y) =>
-  s.eyeWhite
-    ? `<rect x="${x - 10}" y="${y - 13}" width="20" height="26" rx="9" fill="#fff"/><circle cx="${x}" cy="${y + 2}" r="6.5" fill="${INK}"/><circle cx="${x + 2.5}" cy="${y - 1}" r="2.2" fill="#fff"/>`
-    : `<rect x="${x - 7}" y="${y - 9}" width="14" height="18" rx="7" fill="${INK}"/><circle cx="${x + 2}" cy="${y - 3}" r="2.6" fill="#fff"/>`;
+// Where the face sits: eye height, half the distance between the eyes.
+const FACE_AT = { p: [80, 14], r: [102, 18], b: [78, 15], q: [114, 19], k: [118, 19] };
+
+// Blokje's eye. Dark side: a white block with a pupil. White side: a dark block with a shine.
+// `look` moves the pupil, `big` makes the eye taller for a fright.
+function eye(s, x, y, { look = [0, 0], big = false } = {}) {
+  const [lx, ly] = look;
+  if (s.eyeWhite) {
+    const h = big ? 34 : 28;
+    return `<rect x="${x - 11}" y="${y - h / 2}" width="22" height="${h}" rx="10" fill="#fff"/><circle cx="${x + lx}" cy="${y + 2 + ly}" r="${big ? 5 : 7}" fill="${INK}"/><circle cx="${x + 2.5 + lx}" cy="${y - 1 + ly}" r="2.2" fill="#fff"/>`;
+  }
+  const h = big ? 26 : 21;
+  return `<rect x="${x - 8 + lx}" y="${y - h / 2 + ly}" width="16" height="${h}" rx="8" fill="${INK}"/><circle cx="${x + 2.5 + lx}" cy="${y - h / 2 + 6 + ly}" r="2.8" fill="#fff"/>`;
+}
+const arcEye = (x, y) => `<path d="M${x - 10} ${y + 4} Q${x} ${y - 10} ${x + 10} ${y + 4}" fill="none" stroke="${INK}" stroke-width="5.5" stroke-linecap="round"/>`;
 const cheek = (x, y) => `<rect x="${x - 7}" y="${y}" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/>`;
-const smile = (y) => `<path d="M90 ${y} Q100 ${y + 8} 110 ${y}" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
-const face = (s, y, gap) => `${eye(s, 100 - gap, y)}${eye(s, 100 + gap, y)}${cheek(100 - gap - 13, y + 16)}${cheek(100 + gap + 13, y + 16)}${smile(y + 22)}`;
+const line = (d, w = 5) => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
 
-const FACES = {
-  p: (s) => face(s, 80, 15),
-  r: (s) => face(s, 104, 18),
-  n: (s) => `${eye(s, 72, 62)}<ellipse cx="30" cy="96" rx="4" ry="5" fill="${INK}"/>${cheek(88, 88)}`,
-  b: (s) => face(s, 76, 15),
-  q: (s) => face(s, 112, 18),
-  k: (s) => face(s, 116, 18),
-};
+function face(s, type, mood) {
+  if (type === "n") return knightFace(s, mood);
+  if (type === "p" && mood === "idle") return "";
+  const [y, gap] = FACE_AT[type];
+  const l = 100 - gap;
+  const r = 100 + gap;
+  const cheeks = `${cheek(l - 12, y + 15)}${cheek(r + 12, y + 15)}`;
+  const m = y + 22; // mouth height
+  switch (mood) {
+    case "happy":
+      return `${arcEye(l, y)}${arcEye(r, y)}${cheeks}<path d="M87 ${m - 4} Q100 ${m + 18} 113 ${m - 4}Z" fill="${INK}"/>`;
+    case "worried":
+      return `${eye(s, l, y, { look: [-2, 3] })}${eye(s, r, y, { look: [-2, 3] })}${line(`M${l - 9} ${y - 15} L${l + 7} ${y - 21} M${r + 9} ${y - 15} L${r - 7} ${y - 21}`, 4.5)}${line(`M90 ${m + 2} Q95 ${m - 3} 100 ${m + 2} Q105 ${m + 7} 110 ${m + 2}`, 4.5)}`;
+    case "shocked":
+      return `${eye(s, l, y, { big: true })}${eye(s, r, y, { big: true })}<ellipse cx="100" cy="${m + 4}" rx="7" ry="9" fill="${INK}"/>`;
+    default:
+      return `${eye(s, l, y)}${eye(s, r, y)}${cheeks}${line(`M91 ${m} Q100 ${m + 7} 109 ${m}`)}`;
+  }
+}
 
-function piece(color, type) {
+function knightFace(s, mood) {
+  const nostril = `<ellipse cx="30" cy="96" rx="4" ry="5" fill="${INK}"/>`;
+  const blush = cheek(86, 86);
+  switch (mood) {
+    case "happy":
+      return `${arcEye(72, 64)}${nostril}${blush}`;
+    case "worried":
+      return `${eye(s, 72, 62, { look: [-2, 3] })}${line("M62 48 L80 40", 4.5)}${nostril}`;
+    case "shocked":
+      return `${eye(s, 72, 62, { big: true })}${nostril}`;
+    default:
+      return `${eye(s, 72, 62)}${nostril}${blush}`;
+  }
+}
+
+function piece(color, type, mood) {
   const s = SIDES[color];
   const id = `${color}${type}`;
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="100" height="100">
@@ -59,7 +96,7 @@ function piece(color, type) {
   <use xlink:href="#s${id}" fill="${s.edge}" stroke="${s.edge}" stroke-width="7" stroke-linejoin="round"/>
   <use xlink:href="#s${id}" fill="url(#g${id})"/>
   <g clip-path="url(#c${id})"><rect width="200" height="200" fill="url(#l${id})"/><rect y="140" width="200" height="60" fill="url(#d${id})"/></g>
-  ${FACES[type](s)}
+  ${face(s, type, mood)}
 </svg>
 `;
 }
@@ -67,7 +104,10 @@ function piece(color, type) {
 mkdirSync("public/pieces/blokje", { recursive: true });
 for (const color of ["w", "b"]) {
   for (const type of ["p", "n", "b", "r", "q", "k"]) {
-    writeFileSync(`public/pieces/blokje/${color}${type.toUpperCase()}.svg`, piece(color, type));
+    for (const mood of MOODS) {
+      const name = `${color}${type.toUpperCase()}${mood === "idle" ? "" : `-${mood}`}`;
+      writeFileSync(`public/pieces/blokje/${name}.svg`, piece(color, type, mood));
+    }
   }
 }
 console.log("blokje pieces written");

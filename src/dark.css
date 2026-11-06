@@ -56,7 +56,8 @@
 [data-theme="dark"] .movelist::after { background: linear-gradient(rgba(29, 25, 64, 0), #1d1940); }
 [data-theme="dark"] .move.current { background: var(--violet); color: #fff; }
 [data-theme="dark"] .phase-bar, [data-theme="dark"] .progress { background: var(--violet-soft); }
-[data-theme="dark"] .coord { color: #fff; opacity: 0.55; }
+[data-theme="dark"] .chip-color.black { box-shadow: 0 0 0 2px #8a80c0; }
+[data-theme="dark"] .chip-color.white { box-shadow: none; }
 [data-theme="dark"] .player-clock { background: var(--violet-soft); color: var(--ink); }
 [data-theme="dark"] .evalbar { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2); }
 [data-theme="dark"] .pill-xp { box-shadow: none; }

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="100" height="100">
+  <defs>
+    <g id="swk"><path d="M58 96 Q58 84 70 84 H130 Q142 84 142 96 V136 C142 152 168 154 168 170 V174 Q168 186 156 186 H44 Q32 186 32 174 V170 C32 154 58 152 58 136Z"/><rect x="89" y="6" width="22" height="58" rx="11"/><rect x="70" y="20" width="60" height="22" rx="11"/><rect x="54" y="56" width="92" height="44" rx="22"/></g>
+    <linearGradient id="gwk" gradientUnits="userSpaceOnUse" x1="0" y1="10" x2="0" y2="186"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ddd3fa"/></linearGradient>
+    <radialGradient id="lwk" cx="0.32" cy="0.2" r="0.62"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="dwk" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="186"><stop offset="0" stop-color="#1f1b3a" stop-opacity="0"/><stop offset="1" stop-color="#1f1b3a" stop-opacity="0.16"/></linearGradient>
+    <clipPath id="cwk"><use xlink:href="#swk"/></clipPath>
+  </defs>
+  <use xlink:href="#swk" fill="#7a66d4" stroke="#7a66d4" stroke-width="7" stroke-linejoin="round"/>
+  <use xlink:href="#swk" fill="url(#gwk)"/>
+  <g clip-path="url(#cwk)"><rect width="200" height="200" fill="url(#lwk)"/><rect y="140" width="200" height="60" fill="url(#dwk)"/></g>
+  <rect x="71" y="110.5" width="16" height="21" rx="8" fill="#1f1b3a"/><circle cx="81.5" cy="116.5" r="2.8" fill="#fff"/><rect x="109" y="110.5" width="16" height="21" rx="8" fill="#1f1b3a"/><circle cx="119.5" cy="116.5" r="2.8" fill="#fff"/><path d="M72 103 L88 97 M128 103 L112 97" fill="none" stroke="#1f1b3a" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M90 142 Q95 137 100 142 Q105 147 110 142" fill="none" stroke="#1f1b3a" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

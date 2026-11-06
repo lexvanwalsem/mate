@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { pieceMoods, pieceSrc, reactionsEnabled } from "@/lib/reactions";
 import { Side } from "@/lib/stats";
 import { MoveClassification } from "@/types/enums";
 import ClassBadge from "./ClassBadge";
@@ -105,6 +106,8 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, highlig
   const [drawn, setDrawn] = useState<{ arrows: Arrow[]; squares: SquareMark[] }>({ arrows: [], squares: [] });
   const rightStart = useRef<{ sq: string; color: string } | null>(null);
   const signature = pieces.map((p) => p.id + p.square).join(",");
+  // Blokje pieces react to the position (see lib/reactions).
+  const moods = useMemo(() => pieceMoods(pieces, pieceSet, captured && lastMove ? lastMove.to : undefined), [signature, pieceSet, captured, lastMove?.to, reactionsEnabled()]);
   useEffect(() => setDrawn({ arrows: [], squares: [] }), [signature]);
   const drawColor = (e: React.PointerEvent) => (e.shiftKey ? "#e5384f" : e.altKey ? "#f5c120" : e.ctrlKey || e.metaKey ? "#22c58b" : "#3f7bf2");
 
@@ -235,9 +238,11 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, highlig
         if (p.square === selected) cls.push("lifted");
         if (lastMove && p.square === lastMove.to) cls.push("moved");
         if (drag?.from === p.square) cls.push("dragging");
+        const mood = moods.get(p.id);
+        if (mood) cls.push(`react-${mood}`);
         return (
           <div key={p.id} className={cls.join(" ")} style={{ transform: `translate(${x * 100}%, ${y * 100}%)`, ["--hl" as string]: highlight }}>
-            <img key={cls.includes("moved") ? `moved-${animKey}` : "static"} alt="" draggable={false} src={`pieces/${pieceSet}/${p.color}${p.type.toUpperCase()}.svg`} />
+            <img key={cls.includes("moved") ? `moved-${animKey}` : "static"} alt="" draggable={false} src={pieceSrc(pieceSet, p, mood)} />
           </div>
         );
       })}

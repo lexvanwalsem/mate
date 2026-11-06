@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="100" height="100">
+  <defs>
+    <g id="swq"><path d="M58 96 Q58 84 70 84 H130 Q142 84 142 96 V136 C142 152 168 154 168 170 V174 Q168 186 156 186 H44 Q32 186 32 174 V170 C32 154 58 152 58 136Z"/><circle cx="56" cy="44" r="15"/><circle cx="100" cy="30" r="16"/><circle cx="144" cy="44" r="15"/><path d="M50 52 Q100 72 150 52 L142 96 H58Z"/></g>
+    <linearGradient id="gwq" gradientUnits="userSpaceOnUse" x1="0" y1="10" x2="0" y2="186"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ddd3fa"/></linearGradient>
+    <radialGradient id="lwq" cx="0.32" cy="0.2" r="0.62"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="dwq" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="186"><stop offset="0" stop-color="#1f1b3a" stop-opacity="0"/><stop offset="1" stop-color="#1f1b3a" stop-opacity="0.16"/></linearGradient>
+    <clipPath id="cwq"><use xlink:href="#swq"/></clipPath>
+  </defs>
+  <use xlink:href="#swq" fill="#7a66d4" stroke="#7a66d4" stroke-width="7" stroke-linejoin="round"/>
+  <use xlink:href="#swq" fill="url(#gwq)"/>
+  <g clip-path="url(#cwq)"><rect width="200" height="200" fill="url(#lwq)"/><rect y="140" width="200" height="60" fill="url(#dwq)"/></g>
+  <rect x="73" y="101" width="16" height="26" rx="8" fill="#1f1b3a"/><circle cx="83.5" cy="107" r="2.8" fill="#fff"/><rect x="111" y="101" width="16" height="26" rx="8" fill="#1f1b3a"/><circle cx="121.5" cy="107" r="2.8" fill="#fff"/><ellipse cx="100" cy="140" rx="7" ry="9" fill="#1f1b3a"/>
+</svg>

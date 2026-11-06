@@ -19,6 +19,7 @@ import Train from "./screens/Train";
 import Mascot from "./ui/Mascot";
 import LangMenu from "./ui/LangMenu";
 import StyleMenu from "./ui/StyleMenu";
+import { setReactionsEnabled } from "./lib/reactions";
 
 type Tab = "analyze" | "lessons" | "puzzles" | "train";
 
@@ -38,6 +39,7 @@ export default function App() {
   document.title = t("app.name");
   document.documentElement.lang = settings.lang;
   setSoundEnabled(settings.sound);
+  setReactionsEnabled(settings.reactions);
   document.documentElement.dataset.theme = settings.dark ? "dark" : "light";
   applyMascotTheme(settings.mascot);
   applyBoardTheme(settings.boardTheme);

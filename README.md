@@ -21,7 +21,8 @@ Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-sh
 - **Draw on the board**: right-drag an arrow, right-click a square (blue; shift red, alt yellow, ctrl green). A left click clears them.
 - **Instant explanation**: in puzzles, lessons, training and review practice a wrong move shows your move, the engine's reply as arrows, the dangerous square marked, and a sentence on what it costs.
 - **Time per move** from the PGN clocks, **sound effects** (Lichess sounds, with a switch), **daily goal** ring in the header, **daily puzzle**, **annotated PGN export**, a **summary image**, and a **dark mode**.
-- **Blokje piece set**: twelve hand-drawn SVG pieces (`npm run make-pieces` regenerates them).
+- **Blokje piece set**: pieces drawn in the mascot's style, the rook is Blokje himself (`npm run make-pieces` regenerates them). With "Pieces react to the board" on, a king in check is shocked, a loose or cheaply attacked piece worries and the piece that just captured is happy (`npm run check:reactions` tests the rules). Piece set, board colors and reactions are in the knight menu in the header on every screen.
+- **Puzzles** keep a session score (solved, in a row, best streak) and can be skipped, like training positions.
 
 ## Build and install
 

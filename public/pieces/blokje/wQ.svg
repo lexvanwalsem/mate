@@ -9,5 +9,5 @@
   <use xlink:href="#swq" fill="#7a66d4" stroke="#7a66d4" stroke-width="7" stroke-linejoin="round"/>
   <use xlink:href="#swq" fill="url(#gwq)"/>
   <g clip-path="url(#cwq)"><rect width="200" height="200" fill="url(#lwq)"/><rect y="140" width="200" height="60" fill="url(#dwq)"/></g>
-  <rect x="75" y="103" width="14" height="18" rx="7" fill="#1f1b3a"/><circle cx="84" cy="109" r="2.6" fill="#fff"/><rect x="111" y="103" width="14" height="18" rx="7" fill="#1f1b3a"/><circle cx="120" cy="109" r="2.6" fill="#fff"/><rect x="62" y="128" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/><rect x="124" y="128" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/><path d="M90 134 Q100 142 110 134" fill="none" stroke="#1f1b3a" stroke-width="5" stroke-linecap="round"/>
+  <rect x="73" y="103.5" width="16" height="21" rx="8" fill="#1f1b3a"/><circle cx="83.5" cy="109.5" r="2.8" fill="#fff"/><rect x="111" y="103.5" width="16" height="21" rx="8" fill="#1f1b3a"/><circle cx="121.5" cy="109.5" r="2.8" fill="#fff"/><rect x="62" y="129" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/><rect x="124" y="129" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/><path d="M91 136 Q100 143 109 136" fill="none" stroke="#1f1b3a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

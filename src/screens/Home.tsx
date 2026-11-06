@@ -1,6 +1,7 @@
 import { HistoryItem } from "@/lib/history";
 import { useState } from "react";
 import { BOARD_THEMES, MASCOT_THEMES, PIECE_SETS, Settings } from "@/lib/settings";
+import { REACTING_SETS } from "@/lib/reactions";
 
 import { Key, t } from "@/lib/i18n";
 
@@ -109,6 +110,13 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
             ))}
           </div>
         </div>
+        {REACTING_SETS.includes(settings.pieceSet) && (
+        <label className="switch-row">
+          <span className="picker-label">{t("home.reactions")}</span>
+          <input type="checkbox" checked={settings.reactions} onChange={(e) => onChangeSettings({ ...settings, reactions: e.target.checked })} />
+          <span className="switch" aria-hidden />
+        </label>
+        )}
         <div className="swatches">
           <span className="picker-label">{t("home.board")}</span>
           <div className="board-opts">

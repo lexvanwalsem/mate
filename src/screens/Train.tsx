@@ -53,6 +53,14 @@ export default function Train({ pieceSet, onProgress, getPool }: { pieceSet: str
     setShowAnswer(false);
   };
 
+  // Put this one at the back of the queue for now.
+  const skip = () => {
+    fb.clear();
+    setItems([...items.slice(1), item]);
+    setStatus("play");
+    setShowAnswer(false);
+  };
+
   return (
     <div className="screen">
       <div className="player">
@@ -87,7 +95,10 @@ export default function Train({ pieceSet, onProgress, getPool }: { pieceSet: str
                 {status === "right" ? (
                   <button className="btn primary small" onClick={next}>{t("train.next")}</button>
                 ) : (
-                  <button className="btn ghost small" onClick={() => setShowAnswer(true)}>{t("train.show")}</button>
+                  <>
+                    <button className="btn ghost small" onClick={() => setShowAnswer(true)}>{t("train.show")}</button>
+                    {items.length > 1 && <button className="btn ghost small" onClick={skip}>{t("puzzle.skip")}</button>}
+                  </>
                 )}
               </div>
             </div>

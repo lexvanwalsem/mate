@@ -43,6 +43,20 @@ try {
   for (let i = 0; i < 120; i++) { if (await ev(`!!document.querySelector(".summary")`)) break; await sleep(1000); }
   await ev(`[...document.querySelectorAll("button")].find((b) => b.innerText.includes("Start review")).click()`);
   await sleep(600);
+  // 6. ...Bb4+ (index 11): the white king is in check and pulls a shocked face.
+  await ev(`document.querySelectorAll(".move")[11].click()`);
+  await sleep(400);
+  const faces = `[...document.querySelectorAll(".board .piece img")].map((i) => i.getAttribute("src")).filter((s) => s.includes("-"))`;
+  const inCheck = await ev(faces);
+  expect("a king in check looks shocked", inCheck.includes("pieces/blokje/wK-shocked.svg"), JSON.stringify(inCheck));
+  await ev(`document.querySelector(".style-btn").click()`);
+  await sleep(200);
+  await ev(`document.querySelector(".style-pop .switch-row input").click()`);
+  await sleep(300);
+  expect("reactions can be switched off", (await ev(faces)).length === 0);
+  await ev(`document.querySelector(".style-pop .switch-row input").click()`);
+  await ev(`document.querySelector(".style-btn").click()`);
+  await sleep(200);
   const src = `document.querySelector(".board img")?.getAttribute("src") ?? ""`;
   const before = await ev(src);
   await ev(`document.querySelector(".style-btn").click()`);

@@ -9,5 +9,5 @@
   <use xlink:href="#swp" fill="#7a66d4" stroke="#7a66d4" stroke-width="7" stroke-linejoin="round"/>
   <use xlink:href="#swp" fill="url(#gwp)"/>
   <g clip-path="url(#cwp)"><rect width="200" height="200" fill="url(#lwp)"/><rect y="140" width="200" height="60" fill="url(#dwp)"/></g>
-  <rect x="78" y="71" width="14" height="18" rx="7" fill="#1f1b3a"/><circle cx="87" cy="77" r="2.6" fill="#fff"/><rect x="108" y="71" width="14" height="18" rx="7" fill="#1f1b3a"/><circle cx="117" cy="77" r="2.6" fill="#fff"/><rect x="65" y="96" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/><rect x="121" y="96" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/><path d="M90 102 Q100 110 110 102" fill="none" stroke="#1f1b3a" stroke-width="5" stroke-linecap="round"/>
+  
 </svg>
