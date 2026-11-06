@@ -124,7 +124,7 @@ export default function App() {
         {progress.streak > 0 && <span className="pill-xp">{t("nav.streak", { n: progress.streak })}</span>}
         <span className="pill-xp">{t("nav.level", { n: levelOf(progress.xp) })} · {t("nav.xp", { n: progress.xp })}</span>
       </nav>
-      <main className="main">{content}</main>
+      <main className="main" key={`${tab}-${screen.name}`}>{content}</main>
     </div>
   );
 }

@@ -57,6 +57,8 @@ try {
   });
   const ev = async (expression) => (await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true })).result?.result?.value;
   await send("Runtime.enable");
+  // Entrance animations move things a few pixels while they play; measure the settled layout instead.
+  await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
   const click = (text) => ev(`(() => { const b = [...document.querySelectorAll("button")].find(x => x.innerText.trim().startsWith(${JSON.stringify(text)})); if (b) b.click(); return !!b; })()`);
 
   const problems = [];

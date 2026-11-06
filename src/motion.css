@@ -1,0 +1,55 @@
+/* Small motion: screens ease in, cards rise one after another, controls respond to every click. */
+
+:root { --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1); --ease-spring: cubic-bezier(0.3, 1.5, 0.5, 1); }
+
+/* a new screen fades and slides up */
+.main { animation: page-in 0.3s var(--ease-out) both; }
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* cards rise in a short cascade */
+.sum-left > *, .sum-right > *, .home > * > *, .path > *, .player .side-col > *, .review .side-col > * { animation: rise 0.45s var(--ease-out) both; }
+.sum-left > :nth-child(2), .sum-right > :nth-child(2), .home > * > :nth-child(2), .path > :nth-child(2), .side-col > :nth-child(2) { animation-delay: 60ms; }
+.sum-left > :nth-child(3), .sum-right > :nth-child(3), .home > * > :nth-child(3), .path > :nth-child(3), .side-col > :nth-child(3) { animation-delay: 120ms; }
+.sum-right > :nth-child(4), .home > * > :nth-child(4), .path > :nth-child(4), .side-col > :nth-child(4) { animation-delay: 180ms; }
+.path > :nth-child(5), .side-col > :nth-child(5) { animation-delay: 240ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* result tiles pop in */
+.class-tile { animation: tile-in 0.45s var(--ease-spring) both; }
+.class-tile:nth-child(2) { animation-delay: 60ms; } .class-tile:nth-child(3) { animation-delay: 110ms; } .class-tile:nth-child(4) { animation-delay: 160ms; }
+.class-tile:nth-child(5) { animation-delay: 210ms; } .class-tile:nth-child(6) { animation-delay: 260ms; } .class-tile:nth-child(n + 7) { animation-delay: 310ms; }
+@keyframes tile-in { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: none; } }
+.phase-bar div { animation: bar-grow 0.8s var(--ease-out) 0.2s both; transform-origin: left; }
+@keyframes bar-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* every clickable thing eases and presses in */
+.btn, .nav button.tab, .chip, .lesson-btn, .controls button, .move, .moments button, .player-bar.clickable, .piece-opt, .swatch, .board-opt, .lang-btn, .lang-pop button, .history button {
+  transition: transform 0.18s var(--ease-out), background-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+}
+.btn:hover:not(:disabled), .lesson-btn:hover, .chip:hover, .moments button:hover, .history button:hover, .piece-opt:hover { transform: translateY(-2px); }
+.controls button:hover { transform: translateY(-2px); }
+.btn:active:not(:disabled), .lesson-btn:active, .chip:active, .controls button:active, .moments button:active, .history button:active, .piece-opt:active, .nav button.tab:active, .swatch:active, .board-opt:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: 0.08s;
+}
+.nav button.tab.on { animation: tab-pop 0.28s var(--ease-spring); }
+@keyframes tab-pop { from { transform: scale(0.88); } to { transform: none; } }
+.swatch.on, .board-opt.on, .piece-opt.on { animation: select-pop 0.3s var(--ease-spring); }
+@keyframes select-pop { from { transform: scale(0.9); } to { transform: none; } }
+.lang-pop { transform-origin: top right; animation: menu-in 0.18s var(--ease-out); }
+@keyframes menu-in { from { opacity: 0; transform: translateY(-6px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+/* coach and key lessons: the mascot hops when clicked */
+.mascot { cursor: pointer; }
+.mascot.hop { animation: m-hop 0.55s var(--ease-spring); }
+@keyframes m-hop { 0% { transform: translateY(0) scale(1, 1); } 30% { transform: translateY(-16px) scale(0.94, 1.08); } 60% { transform: translateY(0) scale(1.06, 0.94); } 100% { transform: none; } }
+
+/* the walkthrough button pulses while it plays */
+.controls .play.on svg { animation: pulse-soft 1.2s ease-in-out infinite; }
+@keyframes pulse-soft { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .main, .sum-left > *, .sum-right > *, .home > * > *, .path > *, .side-col > *, .class-tile, .phase-bar div, .nav button.tab.on, .swatch.on, .board-opt.on, .piece-opt.on,
+  .lang-pop, .mascot.hop, .controls .play.on svg { animation: none !important; }
+  .btn, .nav button.tab, .chip, .lesson-btn, .controls button, .move, .moments button { transition: none !important; transform: none !important; }
+}

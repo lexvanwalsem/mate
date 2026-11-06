@@ -5,5 +5,6 @@ import App from "./App";
 import "./styles.css";
 import "./polish.css";
 import "./layout.css";
+import "./motion.css";
 
 createRoot(document.getElementById("root")!).render(<App />);

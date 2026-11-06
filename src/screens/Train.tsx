@@ -46,11 +46,15 @@ export default function Train({ pieceSet, onProgress }: { pieceSet: string; onPr
   };
 
   return (
-    <div className="screen with-intro">
-      <p className="muted">{t("train.intro")} {t("train.count", { n: items.length })}</p>
+    <div className="screen">
       <div className="player">
         {status === "right" && <Confetti />}
         <div className="board-col">
+          <div className="topbar">
+            <span className="topbar-title">{t("nav.train")}</span>
+            <span className="grow" />
+            <span className="muted">{t("train.count", { n: items.length })}</span>
+          </div>
           <PlayBoard
             key={`${item.id}-${status}`}
             fen={item.fen}
@@ -62,6 +66,7 @@ export default function Train({ pieceSet, onProgress }: { pieceSet: string; onPr
           />
         </div>
         <div className="side-col">
+          <p className="muted side-note">{t("train.intro")}</p>
           <div className="card coach">
             <Mascot mood={mood} size={96} />
             <div className="bubble">

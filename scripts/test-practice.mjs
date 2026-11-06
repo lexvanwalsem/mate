@@ -79,6 +79,20 @@ try {
   await click(5, 7); // takes f7
   const verdict = await bubble();
   expect("the punishing move is accepted", /strong move/i.test(verdict), JSON.stringify(verdict.slice(0, 60)));
+
+  // Walkthrough: plays through the key moments by itself.
+  await ev(`document.querySelectorAll(".controls button")[4].click()`);
+  await sleep(900);
+  const first = await bubble();
+  const m = first.match(/Key moment (\d+) of (\d+)/);
+  expect("the walkthrough starts at a key moment", !!m, JSON.stringify(first.slice(0, 90)));
+  if (m && Number(m[2]) > 1) {
+    await sleep(6500);
+    expect("and moves on to the next one by itself", /Key moment 2 of/.test(await bubble()));
+  }
+  await ev(`document.querySelectorAll(".controls button")[4].click()`);
+  await sleep(300);
+  expect("the walkthrough can be stopped", !/Key moment/.test(await bubble()));
 } finally {
   proc.kill();
 }

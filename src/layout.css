@@ -245,3 +245,46 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 .graph.side-black .graph-area { fill: #2b2650; opacity: 1; }
 .graph.side-black .graph-mid { stroke: #f5b82e; }
 .graph-line { stroke: #8d6bff; }
+
+/* ---------- one rhythm: 12px gaps, bottoms aligned, the same board size and position on every game screen ---------- */
+.main .review, .main .player {
+  --board: min(calc(var(--avail) - 164px), calc(100vw - 32px - 16px - 400px - 46px));
+  grid-template-columns: calc(var(--board) + 46px) 400px;
+  justify-content: center;
+  align-items: start;
+}
+.review .board-col, .player .board-col { width: calc(var(--board) + 46px); max-width: none; display: grid; gap: 12px; align-content: start; }
+.review .board-col { height: var(--avail); }
+.player .board-col { padding-left: 46px; }
+.review .board, .player .board { flex: none; width: var(--board); height: var(--board); }
+.review .side-col, .player .side-col { gap: 12px; }
+.player .side-col { display: grid; align-content: start; }
+.controls { gap: 10px; }
+.controls button { height: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.controls .play { flex: 0 0 52px; }
+.controls .play.on { background: var(--violet); color: #fff; }
+.review .side-col > .btn { height: 40px; min-height: 40px; padding-top: 0; padding-bottom: 0; }
+
+.topbar { height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 14px; background: #fff; border-radius: 14px; box-shadow: 0 0 0 1px rgba(76, 52, 170, 0.07), 0 8px 18px -12px rgba(52, 34, 130, 0.3); min-width: 0; overflow: hidden; }
+.topbar-title { font-family: var(--font-display); font-weight: 500; white-space: nowrap; }
+.topbar .grow { flex: 1; }
+.topbar .progress { height: 10px; min-width: 40px; }
+.topbar.chips-row { gap: 6px; padding: 0 8px; overflow-x: auto; scrollbar-width: none; }
+.topbar.chips-row::-webkit-scrollbar { display: none; }
+.topbar .chip { flex: none; padding: 6px 12px; font-size: 13px; }
+.side-note { margin: 0 4px; font-size: 13px; line-height: 1.4; }
+
+/* soft fade where the move list continues below */
+.movelist { position: relative; }
+.movelist::after { content: ""; position: sticky; bottom: -12px; display: block; height: 28px; margin: -28px -12px -12px; background: linear-gradient(rgba(255, 255, 255, 0), #fff); pointer-events: none; }
+
+/* the eval bar column is 36px wide (26 + 10 gap): the board sits at the same spot on every game screen */
+.main .review, .main .player {
+  --board: min(calc(var(--avail) - 164px), calc(100vw - 32px - 16px - 400px - 36px));
+  grid-template-columns: calc(var(--board) + 36px) 400px;
+}
+.review .board-col, .player .board-col { width: calc(var(--board) + 36px); }
+.player .board-col { padding-left: 36px; }
+
+.player .side-col .chips { margin: 0 4px; gap: 6px; }
+.player .side-col .chip { padding: 7px 12px; font-size: 13px; }

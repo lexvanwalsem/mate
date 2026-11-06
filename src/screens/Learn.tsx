@@ -102,7 +102,11 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, onExit }: { l
   return (
     <div className="screen player">
       <div className="board-col">
-        <div className="progress"><div className="progress-fill" style={{ width: `${(idx / lesson.steps.length) * 100}%` }} /></div>
+        <div className="topbar">
+          <span className="topbar-title">{lt(lesson.title)}</span>
+          <div className="progress grow"><div className="progress-fill" style={{ width: `${(idx / lesson.steps.length) * 100}%` }} /></div>
+          <span className="muted">{idx + 1}/{lesson.steps.length}</span>
+        </div>
         {step.kind === "info" ? (
           <Board pieces={piecesFromFen(step.fen)} orientation={orientation} pieceSet={pieceSet} arrows={arrows} />
         ) : (

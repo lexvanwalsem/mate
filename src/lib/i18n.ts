@@ -59,6 +59,9 @@ const en = {
   "review.wrong": "Not quite. Try another move or follow the arrow.",
   "review.ask": "Find a better move: click a piece, then a square.",
   "review.flip": "Flip board",
+  "review.tour": "Play walkthrough",
+  "review.tourStop": "Stop walkthrough",
+  "review.tourStep": "Key moment {i} of {n}",
   "review.lines": "Best lines",
   "review.back": "Back to summary",
 
@@ -224,6 +227,9 @@ const nl: Record<Key, string> = {
   "review.wrong": "Niet helemaal. Probeer een andere zet of volg de pijl.",
   "review.ask": "Vind een betere zet: klik een stuk, dan een veld.",
   "review.flip": "Draai bord",
+  "review.tour": "Speel rondleiding af",
+  "review.tourStop": "Stop rondleiding",
+  "review.tourStep": "Hoogtepunt {i} van {n}",
   "review.lines": "Beste lijnen",
   "review.back": "Terug naar samenvatting",
 

@@ -7,7 +7,7 @@ import PlayerBar from "@/ui/PlayerBar";
 import Mascot from "@/ui/Mascot";
 import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
-import { Side, sideOfPosition } from "@/lib/stats";
+import { Side, sideOfPosition, winPctFor } from "@/lib/stats";
 import { commentFor, lineComment } from "@/lib/commentary";
 import { t } from "@/lib/i18n";
 import { getEvaluationBar, getLineEvalLabel, moveLineUciToSan, uciToSan } from "@/lib/chess";
@@ -32,6 +32,9 @@ const SHOW_BEST = [MC.Okay, MC.Inaccuracy, MC.Mistake, MC.Miss, MC.Blunder];
 const effectFor = (cls?: MC): "great" | "good" | "bad" | undefined =>
   cls === MC.Splendid || cls === MC.Perfect ? "great" : cls === MC.Best || cls === MC.Excellent ? "good" : cls === MC.Mistake || cls === MC.Blunder || cls === MC.Miss ? "bad" : undefined;
 
+const TOUR_MS = 5500;
+const TOUR_MAX = 8;
+
 const toUci = (m: { from: string; to: string; promotion?: string }) => m.from + m.to + (m.promotion ?? "");
 
 export default function Review({ a, side, pieceSet, start, getPool, onBack }: Props) {
@@ -41,6 +44,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const [variation, setVariation] = useState<Variation | null>(null);
   const [selected, setSelected] = useState<string>();
   const [live, setLive] = useState<PositionEval>();
+  const [tour, setTour] = useState<{ list: number[]; i: number } | null>(null);
 
   // Every position of the game already has an engine evaluation; tries from the board add to this cache.
   const cache = useRef(new Map<string, PositionEval>());
@@ -52,12 +56,50 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const last = a.positions.length - 1;
   const orientation: Side = flipped ? (side === "white" ? "black" : "white") : side;
 
-  const goto = (p: number) => {
+  const showPos = (p: number) => {
     setRetry(null);
     setVariation(null);
     setSelected(undefined);
     setPos(Math.max(0, Math.min(last, p)));
   };
+  const goto = (p: number) => {
+    setTour(null);
+    showPos(p);
+  };
+
+  // ---- walkthrough: plays through the biggest moments of the game, one every few seconds ----
+  const startTour = () => {
+    const moments: { p: number; swing: number }[] = [];
+    for (let p = 1; p <= last; p++) {
+      const c = a.positions[p].moveClassification;
+      if (c !== MC.Splendid && c !== MC.Perfect && c !== MC.Blunder && c !== MC.Mistake && c !== MC.Miss) continue;
+      const mover = sideOfPosition(p);
+      moments.push({ p, swing: Math.abs(winPctFor(a, p, mover) - winPctFor(a, p - 1, mover)) });
+    }
+    const list = moments.sort((x, y) => y.swing - x.swing).slice(0, TOUR_MAX).map((m) => m.p).sort((x, y) => x - y);
+    if (!list.length) return;
+    setTour({ list, i: 0 });
+    showPos(list[0]);
+  };
+  useEffect(() => {
+    if (!tour) return;
+    const id = window.setTimeout(() => {
+      if (tour.i + 1 < tour.list.length) {
+        setTour({ ...tour, i: tour.i + 1 });
+        showPos(tour.list[tour.i + 1]);
+      } else {
+        setTour(null);
+      }
+    }, TOUR_MS);
+    return () => window.clearTimeout(id);
+  }, [tour]);
+
+  // keep the current move in view in the move list
+  useEffect(() => {
+    const el = document.querySelector<HTMLElement>(".movelist .move.current");
+    const box = el?.closest<HTMLElement>(".movelist");
+    if (el && box) box.scrollTo({ top: el.offsetTop - box.clientHeight / 2, behavior: "smooth" });
+  }, [pos, variation?.base]);
 
   // ---- your own line ----
   const vdata = useMemo(() => (variation ? replay(a.fens[variation.base], variation.moves) : null), [variation?.base, variation?.moves, a]);
@@ -250,6 +292,11 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
           <button onClick={() => (variation ? stepBack() : goto(pos - 1))} aria-label="Previous">&lt;</button>
           <button onClick={() => (variation ? stepForward() : goto(pos + 1))} aria-label="Next">&gt;</button>
           <button onClick={() => goto(variation ? variation.base : last)} aria-label="Last">&gt;|</button>
+          <button className={`play ${tour ? "on" : ""}`} onClick={() => (tour ? setTour(null) : startTour())} aria-label={t(tour ? "review.tourStop" : "review.tour")} title={t(tour ? "review.tourStop" : "review.tour")}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
+              {tour ? <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /> : <path d="M8 5.5v13l11-6.5z" />}
+            </svg>
+          </button>
           <button onClick={() => setFlipped(!flipped)}>{t("review.flip")}</button>
         </div>
       </div>
@@ -282,6 +329,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
                   </div>
                 )}
                 <p>{commentFor(a, pos, side)}</p>
+                {tour && <p className="var-line">{t("review.tourStep", { i: tour.i + 1, n: tour.list.length })}</p>}
               </>
             )}
             {practice && !retry && (

@@ -81,18 +81,15 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
   const mood: Mood = status === "solved" ? "cheer" : status === "wrong" ? "worried" : status === "loading" ? "thinking" : "happy";
 
   return (
-    <div className="screen with-chips">
-      <p className="muted">{t("puzzle.intro")}</p>
-      <div className="chips">
-        {PUZZLE_THEMES.map((th) => (
-          <button key={th} className={`chip ${th === theme ? "on" : ""}`} onClick={() => setTheme(th)}>
-            {t(`theme.${th}` as Key)}
-          </button>
-        ))}
-      </div>
+    <div className="screen">
       <div className="player">
         {status === "solved" && <Confetti />}
         <div className="board-col">
+          <div className="topbar">
+            <span className="topbar-title">{t(`theme.${theme}` as Key)}</span>
+            <span className="grow" />
+            {puzzle && <span className="muted">{t("puzzle.rating", { n: puzzle.rating })}</span>}
+          </div>
           {fen && (
             <PlayBoard
               fen={fen}
@@ -106,6 +103,14 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
           )}
         </div>
         <div className="side-col">
+          <p className="muted side-note">{t("puzzle.intro")}</p>
+          <div className="chips">
+      {PUZZLE_THEMES.map((th) => (
+        <button key={th} className={`chip ${th === theme ? "on" : ""}`} onClick={() => setTheme(th)}>
+          {t(`theme.${th}` as Key)}
+        </button>
+      ))}
+          </div>
           <div className="card coach">
             <Mascot mood={mood} size={96} />
             <div className="bubble">

@@ -1,6 +1,7 @@
 import Mascot from "@/ui/Mascot";
 import ClassBadge from "@/ui/ClassBadge";
 import PlayerBar from "@/ui/PlayerBar";
+import CountUp from "@/ui/CountUp";
 import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
 import { CLASS_ORDER, Side, countClasses, keyMoments, openingName, phaseAccuracy, resultFor } from "@/lib/stats";
@@ -51,16 +52,16 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
 
       <div className="stats">
         <div className="card stat accent">
-          <div className="stat-num">{mine.toFixed(1)}%</div>
+          <div className="stat-num"><CountUp value={mine} decimals={1} suffix="%" /></div>
           <div className="stat-label">{t("summary.accuracy")}</div>
         </div>
         <div className="card stat">
-          <div className="stat-num">{opp.toFixed(1)}%</div>
+          <div className="stat-num"><CountUp value={opp} decimals={1} suffix="%" /></div>
           <div className="stat-label">{t("summary.opponent")}</div>
         </div>
         {elo && (
           <div className="card stat">
-            <div className="stat-num">~{Math.round(elo)}</div>
+            <div className="stat-num"><CountUp value={Math.round(elo)} prefix="~" /></div>
             <div className="stat-label">{t("summary.elo")}</div>
           </div>
         )}

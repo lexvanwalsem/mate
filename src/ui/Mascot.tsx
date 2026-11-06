@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Mood } from "./classes";
 
 interface Props {
@@ -91,8 +92,9 @@ function Mouth({ mood }: { mood: Mood }) {
 
 /** Blokje. Every part has its own class so CSS can animate them independently. */
 export default function Mascot({ mood = "idle", size = 140 }: Props) {
+  const [hop, setHop] = useState(0);
   return (
-    <svg className={`mascot mascot-${mood}`} width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="Blokje">
+    <svg className={`mascot mascot-${mood} ${hop ? "hop" : ""}`} key={hop} onClick={() => setHop(hop + 1)} width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="Blokje">
       <defs>
         <linearGradient id="mascot-body" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" style={{ stopColor: "var(--m-top)" }} />
