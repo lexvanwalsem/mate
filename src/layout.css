@@ -438,3 +438,8 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 @keyframes p-knockout { 0% { transform: none; opacity: 1; } 22% { transform: scale(1.12) rotate(-10deg); opacity: 1; } 100% { transform: translate(18%, -40%) scale(0.3) rotate(42deg); opacity: 0; } }
 @keyframes p-hover { from { transform: translateY(-6%) scale(1.14); } to { transform: translateY(-11%) scale(1.16); } }
 @media (prefers-reduced-motion: reduce) { .piece.moved::after { display: none; } .piece { transition: none; } }
+
+/* loading and empty screens sit in the middle of the page */
+.main .screen.loading, .main .screen.empty-state { height: var(--avail); justify-content: center; margin: 0 auto; }
+.main .screen.loading { width: min(520px, 100%); max-width: 520px; gap: 14px; }
+.main .screen.loading h2, .main .screen.loading p { margin: 0; }

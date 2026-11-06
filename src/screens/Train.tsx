@@ -34,7 +34,7 @@ export default function Train({ pieceSet, onProgress, getPool }: { pieceSet: str
 
   if (!items.length) {
     return (
-      <div className="screen home">
+      <div className="screen home empty-state">
         <Mascot mood="sleepy" size={150} />
         <p className="tagline">{t("train.empty")}</p>
       </div>
