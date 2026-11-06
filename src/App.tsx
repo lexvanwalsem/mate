@@ -36,6 +36,7 @@ export default function App() {
   const [progress, setProgress] = useState(loadProgress);
   setLang(settings.lang);
   document.title = t("app.name");
+  document.documentElement.lang = settings.lang;
   setSoundEnabled(settings.sound);
   document.documentElement.dataset.theme = settings.dark ? "dark" : "light";
   applyMascotTheme(settings.mascot);
