@@ -304,7 +304,6 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 @keyframes m-mark { from { transform: scale(0.7); opacity: 0; } to { transform: none; opacity: 1; } }
 
 /* ---------- Blokje looks at your mouse; now and then he winks or hops ---------- */
-.m-pupils { animation: none; }
 .m-pupil { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform 0.12s ease-out; }
 .mascot.fun-wink .m-eye:last-child { transform-origin: 50% 50%; animation: m-wink 0.7s ease-in-out; }
 /* one eye after the other */

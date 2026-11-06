@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Mood } from "./classes";
 import { BLOKJE_BODY } from "./blokjeShape";
 
@@ -22,8 +22,9 @@ const Star = ({ cx, cy }: { cx: number; cy: number }) => (
   </g>
 );
 
-/** Eyes: white blocks, pupils drift on their own, the whole eye blinks on its own. */
+/** Eyes: white blocks; the pupils follow the mouse but are clipped to the eye, so they never leave it. */
 function Eyes({ mood }: { mood: Mood }) {
+  const id = useId().replace(/:/g, "");
   if (mood === "wow") {
     return (
       <g>
@@ -49,7 +50,7 @@ function Eyes({ mood }: { mood: Mood }) {
     );
   }
   const big = mood === "shocked";
-  const look: Partial<Record<Mood, [number, number]>> = { thinking: [5, -5], oops: [0, 6], worried: [0, 3] };
+  const look: Partial<Record<Mood, [number, number]>> = { thinking: [5, -5], oops: [0, 3], worried: [0, 2] };
   const [dx, dy] = look[mood] ?? [0, 0];
   const h = big ? 40 : 34;
   const pupil = big ? 6 : 9;
@@ -57,10 +58,15 @@ function Eyes({ mood }: { mood: Mood }) {
     <g className="m-eyes">
       {[82, 118].map((cx) => (
         <g key={cx} className="m-eye">
+          <clipPath id={`${id}-${cx}`}>
+            <rect x={cx - 14} y={104 - h / 2} width="28" height={h} rx="13" />
+          </clipPath>
           <rect x={cx - 14} y={104 - h / 2} width="28" height={h} rx="13" fill="#fff" />
+          <g clipPath={`url(#${id}-${cx})`}>
           <g className="m-pupil">
             <circle cx={cx + dx} cy={106 + dy} r={pupil} fill={INK} />
             <circle cx={cx + 3 + dx} cy={102 + dy} r="2.8" fill="#fff" />
+          </g>
           </g>
         </g>
       ))}
@@ -116,7 +122,7 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
       const dist = Math.hypot(dx, dy) || 1;
       const reach = Math.min(1, dist / 260);
       svg.style.setProperty("--px", `${(dx / dist) * reach * 5}px`);
-      svg.style.setProperty("--py", `${(dy / dist) * reach * 4}px`);
+      svg.style.setProperty("--py", `${(dy / dist) * reach * 6}px`);
     };
     const onMove = (e: PointerEvent) => {
       mx = e.clientX;

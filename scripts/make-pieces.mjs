@@ -1,56 +1,65 @@
-// Draws the "Blokje" piece set: chunky rounded blocks in the mascot's style. Writes public/pieces/blokje/*.svg
-import { mkdirSync, writeFileSync } from "node:fs";
+// Draws the "Blokje" piece set in the mascot's own style: one soft shape per piece on his flared base,
+// gradient body, gloss, his eyes and cheeks. The rook is Blokje himself. Writes public/pieces/blokje/*.svg
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const INK = "#1f1b3a";
 const SIDES = {
-  w: { top: "#fffdf6", bottom: "#e9ddc6", accent: "#8d6bff", eye: INK, pupil: null, gloss: 0.75, smile: INK },
-  b: { top: "#6a5bd0", bottom: "#2a2270", accent: "#cbbfff", eye: "#ffffff", pupil: INK, gloss: 0.3, smile: "#ffffff" },
+  w: { top: "#ffffff", bottom: "#ddd3fa", edge: "#7a66d4", gloss: 0.6, eyeWhite: false },
+  b: { top: "#8263ff", bottom: "#3a24b4", edge: "#1d1458", gloss: 0.34, eyeWhite: true },
 };
 
-// One flowing silhouette per piece (100x100). Overlapping parts share one fill and one outline, so they read as a single block.
-const base = `<rect x="16" y="78" width="68" height="13" rx="6.5"/>`;
+// Blokje's tower, shared with the app (src/ui/blokjeShape.ts).
+const src = readFileSync("src/ui/blokjeShape.ts", "utf8");
+const TOWER = [...src.matchAll(/"([^"]+)"/g)].map((m) => m[1]).join("");
+
+// Body from `top` down, half width `w`, ending in the same flared base as Blokje.
+const body = (w, top) =>
+  `<path d="M${100 - w} ${top + 12} Q${100 - w} ${top} ${100 - w + 12} ${top} H${100 + w - 12} Q${100 + w} ${top} ${100 + w} ${top + 12} V136 C${100 + w} 152 168 154 168 170 V174 Q168 186 156 186 H44 Q32 186 32 174 V170 C32 154 ${100 - w} 152 ${100 - w} 136Z"/>`;
+const foot = `<path d="M60 146 C56 158 32 158 32 170 V174 Q32 186 44 186 H156 Q168 186 168 174 V170 C168 158 144 158 140 146Z"/>`;
+
+// Shapes in a 200x200 box; overlapping parts share one fill and one soft edge.
 const SHAPES = {
-  p: `${base}<circle cx="50" cy="34" r="16"/><path d="M38 44 Q44 58 32 82 H68 Q56 58 62 44Z"/>`,
-  r: `${base}<path d="M27 82 Q33 62 31 38 H69 Q67 62 73 82Z"/><rect x="22" y="14" width="15" height="28" rx="6"/><rect x="42.5" y="14" width="15" height="28" rx="6"/><rect x="63" y="14" width="15" height="28" rx="6"/>`,
-  n: `${base}<path d="M26 82 C28 66 36 58 40 48 C32 52 24 60 16 58 C8 56 8 46 12 42 C18 36 26 30 32 22 C36 16 40 14 44 12 L48 3 L56 11 C70 16 80 38 78 58 C77 68 76 74 76 82Z"/>`,
-  b: `${base}<circle cx="50" cy="9" r="5.5"/><ellipse cx="50" cy="26" rx="13" ry="18"/><path d="M37 36 Q41 54 24 82 H76 Q59 54 63 36Z"/>`,
-  q: `${base}<circle cx="27" cy="22" r="7.5"/><circle cx="50" cy="15" r="8.5"/><circle cx="73" cy="22" r="7.5"/><path d="M24 26 Q50 32 76 26 L70 46 Q74 62 76 82 H24 Q26 62 30 46Z"/>`,
-  k: `${base}<rect x="43" y="2" width="14" height="32" rx="7"/><rect x="31" y="9" width="38" height="15" rx="7.5"/><path d="M34 32 Q50 24 66 32 Q66 62 76 82 H24 Q34 62 34 34Z"/>`,
+  p: `${body(30, 104)}<circle cx="100" cy="82" r="36"/>`,
+  r: `<path d="${TOWER}"/>`,
+  n: `${foot}<path d="M52 160 C56 132 72 116 80 96 C64 104 48 120 32 116 C16 112 16 92 24 84 C36 72 52 60 64 44 C72 32 80 28 88 24 L96 6 L112 22 C140 32 160 76 156 116 C155 136 152 148 150 160Z"/>`,
+  b: `${body(36, 104)}<circle cx="100" cy="20" r="11"/><ellipse cx="100" cy="74" rx="40" ry="48"/>`,
+  q: `${body(42, 84)}<circle cx="56" cy="44" r="15"/><circle cx="100" cy="30" r="16"/><circle cx="144" cy="44" r="15"/><path d="M50 52 Q100 72 150 52 L142 96 H58Z"/>`,
+  k: `${body(42, 84)}<rect x="89" y="6" width="22" height="58" rx="11"/><rect x="70" y="20" width="60" height="22" rx="11"/><rect x="54" y="56" width="92" height="44" rx="22"/>`,
 };
 
+// Blokje's eye: a white block with a pupil on the dark side, a plain dark block on the white side.
 const eye = (s, x, y) =>
-  s.pupil
-    ? `<circle cx="${x}" cy="${y}" r="4.9" fill="${s.eye}"/><circle cx="${x}" cy="${y + 0.4}" r="2.9" fill="${s.pupil}"/><circle cx="${x + 1.1}" cy="${y - 1}" r="1" fill="#fff"/>`
-    : `<circle cx="${x}" cy="${y}" r="4.6" fill="${s.eye}"/><circle cx="${x + 1.5}" cy="${y - 1.6}" r="1.5" fill="#fff"/>`;
-const cheeks = (x1, x2, y) => `<ellipse cx="${x1}" cy="${y}" rx="4.4" ry="2.8" fill="#ff9bb0" opacity="0.75"/><ellipse cx="${x2}" cy="${y}" rx="4.4" ry="2.8" fill="#ff9bb0" opacity="0.75"/>`;
-const smile = (s, y, w = 4.5) => `<path d="M${50 - w} ${y} Q50 ${y + 4} ${50 + w} ${y}" stroke="${s.smile}" stroke-width="2.4" stroke-linecap="round" fill="none"/>`;
-const face = (s, y, gap = 8) => `${eye(s, 50 - gap, y)}${eye(s, 50 + gap, y)}${cheeks(50 - gap - 6, 50 + gap + 6, y + 6)}${smile(s, y + 6)}`;
+  s.eyeWhite
+    ? `<rect x="${x - 10}" y="${y - 13}" width="20" height="26" rx="9" fill="#fff"/><circle cx="${x}" cy="${y + 2}" r="6.5" fill="${INK}"/><circle cx="${x + 2.5}" cy="${y - 1}" r="2.2" fill="#fff"/>`
+    : `<rect x="${x - 7}" y="${y - 9}" width="14" height="18" rx="7" fill="${INK}"/><circle cx="${x + 2}" cy="${y - 3}" r="2.6" fill="#fff"/>`;
+const cheek = (x, y) => `<rect x="${x - 7}" y="${y}" width="14" height="8" rx="4" fill="#ff8fa3" opacity="0.8"/>`;
+const smile = (y) => `<path d="M90 ${y} Q100 ${y + 8} 110 ${y}" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
+const face = (s, y, gap) => `${eye(s, 100 - gap, y)}${eye(s, 100 + gap, y)}${cheek(100 - gap - 13, y + 16)}${cheek(100 + gap + 13, y + 16)}${smile(y + 22)}`;
 
-// Only a face: no bands, stripes or ornaments.
-const DETAILS = {
-  p: (s) => face(s, 33, 7),
-  r: (s) => face(s, 55, 9),
-  n: (s) => `${eye(s, 33, 36)}<ellipse cx="15" cy="49" rx="2.4" ry="3" fill="${INK}"/><ellipse cx="42" cy="46" rx="4.4" ry="2.8" fill="#ff9bb0" opacity="0.75"/>`,
-  b: (s) => face(s, 56, 7),
-  q: (s) => face(s, 60, 9),
-  k: (s) => face(s, 58, 9),
+const FACES = {
+  p: (s) => face(s, 80, 15),
+  r: (s) => face(s, 104, 18),
+  n: (s) => `${eye(s, 72, 62)}<ellipse cx="30" cy="96" rx="4" ry="5" fill="${INK}"/>${cheek(88, 88)}`,
+  b: (s) => face(s, 76, 15),
+  q: (s) => face(s, 112, 18),
+  k: (s) => face(s, 116, 18),
 };
 
 function piece(color, type) {
   const s = SIDES[color];
   const id = `${color}${type}`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" width="100" height="100">
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="100" height="100">
   <defs>
     <g id="s${id}">${SHAPES[type]}</g>
-    <linearGradient id="g${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.top}"/><stop offset="1" stop-color="${s.bottom}"/></linearGradient>
+    <linearGradient id="g${id}" gradientUnits="userSpaceOnUse" x1="0" y1="10" x2="0" y2="186"><stop offset="0" stop-color="${s.top}"/><stop offset="1" stop-color="${s.bottom}"/></linearGradient>
+    <radialGradient id="l${id}" cx="0.32" cy="0.2" r="0.62"><stop offset="0" stop-color="#fff" stop-opacity="${s.gloss}"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="d${id}" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="186"><stop offset="0" stop-color="${INK}" stop-opacity="0"/><stop offset="1" stop-color="${INK}" stop-opacity="0.16"/></linearGradient>
     <clipPath id="c${id}"><use xlink:href="#s${id}"/></clipPath>
   </defs>
-  <use xlink:href="#s${id}" fill="${INK}" stroke="${INK}" stroke-width="6.5" stroke-linejoin="round"/>
+  <use xlink:href="#s${id}" fill="${s.edge}" stroke="${s.edge}" stroke-width="7" stroke-linejoin="round"/>
   <use xlink:href="#s${id}" fill="url(#g${id})"/>
-  <g clip-path="url(#c${id})">
-    <ellipse cx="36" cy="36" rx="16" ry="32" transform="rotate(-18 36 36)" fill="#fff" opacity="${s.gloss * 0.32}"/>
-  </g>
-  ${DETAILS[type](s)}
+  <g clip-path="url(#c${id})"><rect width="200" height="200" fill="url(#l${id})"/><rect y="140" width="200" height="60" fill="url(#d${id})"/></g>
+  ${FACES[type](s)}
 </svg>
 `;
 }

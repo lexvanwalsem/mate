@@ -50,6 +50,8 @@
 .mascot-sleepy .m-root { animation: m-sleep 5s ease-in-out infinite; }
 .mascot-sleepy .m-face, .mascot-sleepy .m-arm-l, .mascot-sleepy .m-arm-r { animation-duration: 5s; }
 .mascot-sleepy .m-eyes { animation: none; }
+/* thinking keeps his own look up and to the side instead of following the mouse */
+.mascot-thinking .m-pupil { transform: none; }
 
 @keyframes m-breathe { 0%, 100% { transform: none; } 50% { transform: scale(1.012, 0.986); } }
 @keyframes m-shadow { 0%, 100% { transform: none; } 50% { transform: scaleX(1.03); } }
