@@ -147,23 +147,22 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
   return (
     <svg ref={ref} className={`mascot mascot-${mood} ${hop ? "hop" : ""} ${fun ? `fun-${fun}` : ""}`} key={hop} onClick={() => setHop(hop + 1)} width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="Blokje">
       <defs>
-        <linearGradient id="mascot-body" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="mascot-body" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="186">
           <stop offset="0" style={{ stopColor: "var(--m-top)" }} />
           <stop offset="1" style={{ stopColor: "var(--m-bottom)" }} />
         </linearGradient>
       </defs>
       <ellipse className="m-shadow" cx="100" cy="190" rx="58" ry="8" fill={INK} opacity="0.14" />
       <g className="m-root">
-        <rect className="m-merlon m-merlon-1" x="36" y="22" width="30" height="44" rx="12" style={{ fill: "var(--m-mid)" }} />
-        <rect className="m-merlon m-merlon-2" x="85" y="14" width="30" height="52" rx="12" style={{ fill: "var(--m-light)" }} />
-        <rect className="m-merlon m-merlon-3" x="134" y="22" width="30" height="44" rx="12" style={{ fill: "var(--m-mid)" }} />
-        <rect className="m-foot m-foot-l" x="52" y="160" width="32" height="26" rx="12" style={{ fill: "var(--m-dark)" }} />
-        <rect className="m-foot m-foot-r" x="116" y="160" width="32" height="26" rx="12" style={{ fill: "var(--m-dark)" }} />
-        <rect className="m-arm m-arm-l" x="14" y="104" width="30" height="42" rx="14" style={{ fill: "var(--m-mid)" }} />
-        <rect className="m-arm m-arm-r" x="156" y="104" width="30" height="42" rx="14" style={{ fill: "var(--m-mid)" }} />
+        <rect className="m-merlon m-merlon-1" x="36" y="22" width="30" height="44" rx="12" fill="url(#mascot-body)" />
+        <rect className="m-merlon m-merlon-2" x="85" y="14" width="30" height="52" rx="12" fill="url(#mascot-body)" />
+        <rect className="m-merlon m-merlon-3" x="134" y="22" width="30" height="44" rx="12" fill="url(#mascot-body)" />
+        <rect className="m-foot m-foot-l" x="52" y="160" width="32" height="26" rx="12" fill="url(#mascot-body)" />
+        <rect className="m-foot m-foot-r" x="116" y="160" width="32" height="26" rx="12" fill="url(#mascot-body)" />
+        <rect className="m-arm m-arm-l" x="14" y="104" width="30" height="42" rx="14" fill="url(#mascot-body)" />
+        <rect className="m-arm m-arm-r" x="156" y="104" width="30" height="42" rx="14" fill="url(#mascot-body)" />
         <g className="m-body">
           <rect x="28" y="48" width="144" height="124" rx="46" fill="url(#mascot-body)" />
-          <rect x="44" y="140" width="112" height="22" rx="11" fill="#fff" opacity="0.12" />
           <rect className="m-cheek" x="44" y="124" width="20" height="12" rx="6" fill="#ff8fa3" opacity="0.8" />
           <rect className="m-cheek" x="136" y="124" width="20" height="12" rx="6" fill="#ff8fa3" opacity="0.8" />
           <Eyes mood={mood} />
