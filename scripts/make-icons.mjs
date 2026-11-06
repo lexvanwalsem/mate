@@ -24,6 +24,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
 
 mkdirSync("public/icons", { recursive: true });
 for (const size of [16, 32, 48, 128]) {
-  await sharp(Buffer.from(svg)).resize(size, size).png().toFile(`public/icons/icon-${size}.png`);
+  await sharp(Buffer.from(svg)).resize(size, size).png().toFile(`public/icons/tower-${size}.png`);
 }
 console.log("icons written");

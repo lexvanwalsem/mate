@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "action": { "default_title": "__MSG_actionTitle__" },
@@ -15,7 +15,7 @@
       "run_at": "document_idle"
     }
   ],
-  "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
+  "icons": { "16": "icons/tower-16.png", "32": "icons/tower-32.png", "48": "icons/tower-48.png", "128": "icons/tower-128.png" },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   }
