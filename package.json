@@ -20,7 +20,8 @@
     "test:practice": "node scripts/test-practice.mjs",
     "test:audit": "node scripts/test-audit.mjs",
     "preview": "vite preview --port 4173",
-    "make-pieces": "node scripts/make-pieces.mjs"
+    "make-pieces": "node scripts/make-pieces.mjs",
+    "render:mascot": "tsx scripts/render-mascot.tsx mascot-sheet.html"
   },
   "dependencies": {
     "@fontsource-variable/fredoka": "^5.3.0",

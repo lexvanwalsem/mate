@@ -5,6 +5,7 @@ import { commentFor } from "./commentary";
 import { classLabel } from "@/ui/classes";
 import { CLASS_META } from "@/ui/classes";
 import { t } from "./i18n";
+import { BLOKJE_BODY } from "@/ui/blokjeShape";
 
 function download(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
@@ -60,24 +61,27 @@ export async function saveSummaryImage(a: GameAnalysis, side: Side) {
   ctx.fill();
 
   // Blokje, drawn from rounded blocks
-  const bx = 110, by = 120;
-  ctx.fillStyle = "#6a49f5";
-  [[18, 0], [58, -8], [98, 0]].forEach(([dx, dy]) => { roundRect(ctx, bx + dx, by + dy, 28, 50, 12); ctx.fill(); });
-  const body2 = ctx.createLinearGradient(0, by + 20, 0, by + 160);
+  // Blokje, the same tower as in the app (drawn in its 200x200 box, scaled down)
+  ctx.save();
+  ctx.translate(90, 90);
+  ctx.scale(0.85, 0.85);
+  const body2 = ctx.createLinearGradient(0, 26, 0, 186);
   body2.addColorStop(0, "#8d6bff");
   body2.addColorStop(1, "#5b3df0");
   ctx.fillStyle = body2;
-  roundRect(ctx, bx, by + 24, 144, 126, 46);
-  ctx.fill();
+  roundRect(ctx, 38, 94, 24, 38, 12); ctx.fill();
+  roundRect(ctx, 138, 94, 24, 38, 12); ctx.fill();
+  ctx.fill(new Path2D(BLOKJE_BODY));
   ctx.fillStyle = "#fff";
-  roundRect(ctx, bx + 28, by + 62, 34, 40, 13); ctx.fill();
-  roundRect(ctx, bx + 82, by + 62, 34, 40, 13); ctx.fill();
+  roundRect(ctx, 68, 87, 28, 34, 13); ctx.fill();
+  roundRect(ctx, 104, 87, 28, 34, 13); ctx.fill();
   ctx.fillStyle = "#1f1b3a";
-  ctx.beginPath(); ctx.arc(bx + 45, by + 84, 9, 0, 7); ctx.arc(bx + 99, by + 84, 9, 0, 7); ctx.fill();
+  ctx.beginPath(); ctx.arc(82, 106, 9, 0, 7); ctx.arc(118, 106, 9, 0, 7); ctx.fill();
   ctx.strokeStyle = "#1f1b3a";
   ctx.lineWidth = 6;
   ctx.lineCap = "round";
-  ctx.beginPath(); ctx.moveTo(bx + 56, by + 118); ctx.quadraticCurveTo(bx + 72, by + 134, bx + 88, by + 118); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(88, 132); ctx.quadraticCurveTo(100, 142, 112, 132); ctx.stroke();
+  ctx.restore();
 
   ctx.fillStyle = "#6c4cf5";
   ctx.font = `600 64px ${display}`;

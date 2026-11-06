@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Mood } from "./classes";
+import { BLOKJE_BODY } from "./blokjeShape";
 
 interface Props {
   mood?: Mood;
@@ -9,15 +10,16 @@ interface Props {
 const INK = "#1f1b3a";
 
 const Star = ({ cx, cy }: { cx: number; cy: number }) => (
+  <g transform={`translate(${cx} ${cy})`}>
   <polygon
     className="m-star"
-    transform={`translate(${cx} ${cy})`}
     points="0,-15 4.5,-5 15,-4.5 7,3 9,14 0,8 -9,14 -7,3 -15,-4.5 -4.5,-5"
     fill="#ffd23f"
     stroke="#c98a00"
     strokeWidth="2"
     strokeLinejoin="round"
   />
+  </g>
 );
 
 /** Eyes: white blocks, pupils drift on their own, the whole eye blinks on its own. */
@@ -25,40 +27,40 @@ function Eyes({ mood }: { mood: Mood }) {
   if (mood === "wow") {
     return (
       <g>
-        <Star cx={78} cy={104} />
-        <Star cx={122} cy={104} />
+        <Star cx={82} cy={104} />
+        <Star cx={118} cy={104} />
       </g>
     );
   }
   if (mood === "proud" || mood === "cheer") {
     return (
       <g fill="none" stroke={INK} strokeWidth="7" strokeLinecap="round">
-        <path d="M64 108 Q78 90 92 108" />
-        <path d="M108 108 Q122 90 136 108" />
+        <path d="M70 108 Q82 94 94 108" />
+        <path d="M106 108 Q118 94 130 108" />
       </g>
     );
   }
   if (mood === "sleepy") {
     return (
       <g fill="none" stroke={INK} strokeWidth="7" strokeLinecap="round">
-        <path d="M64 108 L92 108" />
-        <path d="M108 108 L136 108" />
+        <path d="M70 108 Q82 114 94 108" />
+        <path d="M106 108 Q118 114 130 108" />
       </g>
     );
   }
   const big = mood === "shocked";
   const look: Partial<Record<Mood, [number, number]>> = { thinking: [5, -5], oops: [0, 6], worried: [0, 3] };
   const [dx, dy] = look[mood] ?? [0, 0];
-  const h = big ? 46 : 38;
-  const pupil = big ? 6 : 10;
+  const h = big ? 40 : 34;
+  const pupil = big ? 6 : 9;
   return (
     <g className="m-eyes">
-      {[78, 122].map((cx) => (
+      {[82, 118].map((cx) => (
         <g key={cx} className="m-eye">
-          <rect x={cx - 18} y={104 - h / 2} width="36" height={h} rx="14" fill="#fff" />
+          <rect x={cx - 14} y={104 - h / 2} width="28" height={h} rx="13" fill="#fff" />
           <g className="m-pupil">
             <circle cx={cx + dx} cy={106 + dy} r={pupil} fill={INK} />
-            <circle cx={cx + 3 + dx} cy={102 + dy} r="3" fill="#fff" />
+            <circle cx={cx + 3 + dx} cy={102 + dy} r="2.8" fill="#fff" />
           </g>
         </g>
       ))}
@@ -147,39 +149,53 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
   return (
     <svg ref={ref} className={`mascot mascot-${mood} ${hop ? "hop" : ""} ${fun ? `fun-${fun}` : ""}`} key={hop} onClick={() => setHop(hop + 1)} width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="Blokje">
       <defs>
-        <linearGradient id="mascot-body" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="186">
+        <linearGradient id="mascot-body" gradientUnits="userSpaceOnUse" x1="0" y1="26" x2="0" y2="186">
           <stop offset="0" style={{ stopColor: "var(--m-top)" }} />
           <stop offset="1" style={{ stopColor: "var(--m-bottom)" }} />
         </linearGradient>
+        <radialGradient id="mascot-gloss" cx="0.3" cy="0.22" r="0.6">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.34" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="mascot-shade" gradientUnits="userSpaceOnUse" x1="0" y1="138" x2="0" y2="186">
+          <stop offset="0" stopColor="#1f1b3a" stopOpacity="0" />
+          <stop offset="1" stopColor="#1f1b3a" stopOpacity="0.16" />
+        </linearGradient>
+        <clipPath id="mascot-clip">
+          <path d={BLOKJE_BODY} />
+        </clipPath>
       </defs>
-      <ellipse className="m-shadow" cx="100" cy="190" rx="58" ry="8" fill={INK} opacity="0.14" />
+      <ellipse className="m-shadow" cx="100" cy="191" rx="62" ry="7" fill={INK} opacity="0.13" />
       <g className="m-root">
-        <rect className="m-merlon m-merlon-1" x="36" y="22" width="30" height="44" rx="12" fill="url(#mascot-body)" />
-        <rect className="m-merlon m-merlon-2" x="85" y="14" width="30" height="52" rx="12" fill="url(#mascot-body)" />
-        <rect className="m-merlon m-merlon-3" x="134" y="22" width="30" height="44" rx="12" fill="url(#mascot-body)" />
-        <rect className="m-foot m-foot-l" x="52" y="160" width="32" height="26" rx="12" fill="url(#mascot-body)" />
-        <rect className="m-foot m-foot-r" x="116" y="160" width="32" height="26" rx="12" fill="url(#mascot-body)" />
-        <rect className="m-arm m-arm-l" x="14" y="104" width="30" height="42" rx="14" fill="url(#mascot-body)" />
-        <rect className="m-arm m-arm-r" x="156" y="104" width="30" height="42" rx="14" fill="url(#mascot-body)" />
+        <rect className="m-arm m-arm-l" x="38" y="94" width="24" height="38" rx="12" fill="url(#mascot-body)" />
+        <rect className="m-arm m-arm-r" x="138" y="94" width="24" height="38" rx="12" fill="url(#mascot-body)" />
         <g className="m-body">
-          <rect x="28" y="48" width="144" height="124" rx="46" fill="url(#mascot-body)" />
-          <rect className="m-cheek" x="44" y="124" width="20" height="12" rx="6" fill="#ff8fa3" opacity="0.8" />
-          <rect className="m-cheek" x="136" y="124" width="20" height="12" rx="6" fill="#ff8fa3" opacity="0.8" />
-          <Eyes mood={mood} />
-          {mood === "worried" && <path d="M54 76 L88 84 M146 76 L112 84" stroke={INK} strokeWidth="6" strokeLinecap="round" />}
-          {mood === "thinking" && (
-            <g className="m-brow" stroke={INK} strokeWidth="6" strokeLinecap="round">
-              <path d="M58 82 L90 82" />
-              <path d="M110 76 L142 66" />
-            </g>
-          )}
-          {mood === "shocked" && <path className="m-drop" d="M164 70 Q170 84 164 90 Q158 84 164 70Z" fill="#7fd6ff" />}
-          <g className="m-mouth">
-            <Mouth mood={mood} />
+          <path d={BLOKJE_BODY} fill="url(#mascot-body)" />
+          <g clipPath="url(#mascot-clip)">
+            <rect x="0" y="0" width="200" height="200" fill="url(#mascot-gloss)" />
+            <rect x="0" y="138" width="200" height="62" fill="url(#mascot-shade)" />
           </g>
+          <rect className="m-cheek" x="56" y="122" width="16" height="10" rx="5" fill="#ff8fa3" opacity="0.8" />
+          <rect className="m-cheek" x="128" y="122" width="16" height="10" rx="5" fill="#ff8fa3" opacity="0.8" />
+          <g className="m-face">
+            <Eyes mood={mood} />
+            {mood === "worried" && <path d="M66 80 L92 86 M134 80 L108 86" stroke={INK} strokeWidth="5" strokeLinecap="round" />}
+            {mood === "thinking" && (
+              <g className="m-brow" stroke={INK} strokeWidth="5" strokeLinecap="round">
+                <path d="M70 84 L94 84" />
+                <path d="M106 80 L130 72" />
+              </g>
+            )}
+            <g className="m-mouth">
+              <g transform="translate(0 -8)">
+                <Mouth mood={mood} />
+              </g>
+            </g>
+          </g>
+          {mood === "shocked" && <path className="m-drop" d="M150 52 Q156 66 150 72 Q144 66 150 52Z" fill="#7fd6ff" />}
         </g>
         {mood === "sleepy" && (
-          <text className="m-zzz" x="150" y="60" fontSize="26" fontWeight="700" fill="#7a76a0">
+          <text className="m-zzz" x="160" y="34" fontSize="26" fontWeight="700" fill="#7a76a0">
             z
           </text>
         )}
