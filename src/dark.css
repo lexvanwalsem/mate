@@ -20,7 +20,8 @@
 [data-theme="dark"] .card,
 [data-theme="dark"] .player-bar,
 [data-theme="dark"] .topbar,
-[data-theme="dark"] .lang-pop { background: #1d1940; box-shadow: 0 0 0 1px rgba(160, 140, 255, 0.12), 0 14px 30px -16px rgba(0, 0, 0, 0.6); }
+[data-theme="dark"] .lang-pop,
+[data-theme="dark"] .style-pop { background: #1d1940; box-shadow: 0 0 0 1px rgba(160, 140, 255, 0.12), 0 14px 30px -16px rgba(0, 0, 0, 0.6); }
 [data-theme="dark"] .hero .player-bar { background: #262150; box-shadow: none; }
 [data-theme="dark"] .hero .player-bar.you { background: #1d1940; box-shadow: inset 0 0 0 2px var(--violet); }
 [data-theme="dark"] .player-bar.you { box-shadow: 0 3px 0 var(--violet); }

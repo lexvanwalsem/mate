@@ -3,6 +3,7 @@ export type Lang = "nl" | "en";
 const en = {
   "app.name": "Mate",
   "nav.theme": "Light or dark",
+  "nav.style": "Pieces and board",
   "nav.goal": "Daily goal: {n} of {goal} XP",
   "theme.daily": "Daily puzzle",
   "summary.exportPgn": "Export PGN with notes",
@@ -199,6 +200,7 @@ export type Key = keyof typeof en;
 const nl: Record<Key, string> = {
   "app.name": "Zetje",
   "nav.theme": "Licht of donker",
+  "nav.style": "Stukken en bord",
   "nav.goal": "Dagdoel: {n} van {goal} XP",
   "theme.daily": "Dagpuzzel",
   "summary.exportPgn": "Exporteer PGN met uitleg",

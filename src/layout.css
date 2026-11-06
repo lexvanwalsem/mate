@@ -307,9 +307,12 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 .m-pupils { animation: none; }
 .m-pupil { transform: translate(var(--px, 0px), var(--py, 0px)); transition: transform 0.12s ease-out; }
 .mascot.fun-wink .m-eye:last-child { transform-origin: 50% 50%; animation: m-wink 0.7s ease-in-out; }
+/* one eye after the other */
+.mascot.fun-blink .m-eye { transform-origin: 50% 50%; animation: m-wink 0.32s ease-in-out; }
+.mascot.fun-blink .m-eye:last-child { animation-delay: 0.14s; }
 .mascot.fun-hop { animation: m-hop 0.6s var(--ease-spring, ease-out); }
 @keyframes m-wink { 0%, 100% { transform: scaleY(1); } 35%, 65% { transform: scaleY(0.08); } }
-@media (prefers-reduced-motion: reduce) { .mascot.fun-wink .m-eye:last-child, .mascot.fun-hop { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .mascot.fun-wink .m-eye:last-child, .mascot.fun-blink .m-eye, .mascot.fun-hop { animation: none !important; } }
 
 /* switch */
 .switch-row { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
@@ -336,3 +339,12 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 /* the real checkbox sits invisibly on top of the switch, inside its own row */
 .switch-row { position: relative; }
 .switch-row input { inset: 0; width: 100%; height: 100%; margin: 0; }
+
+/* header menu for pieces and board */
+.style-btn { padding: 0 8px; }
+.style-btn img { width: 26px; height: 26px; }
+.style-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; width: 340px; padding: 14px; display: grid; gap: 10px; background: #fff; border-radius: 18px 18px 18px 6px; box-shadow: 0 0 0 1px rgba(76, 52, 170, 0.08), 0 18px 36px -12px rgba(52, 34, 130, 0.35); transform-origin: top right; animation: menu-in 0.18s var(--ease-out); }
+.style-pop .piece-grid { grid-template-columns: repeat(4, 1fr); }
+.style-pop .piece-opt { font-size: 12px; }
+.style-pop .piece-opt img { width: 36px; height: 36px; }
+.style-pop .board-opt { width: 40px; height: 40px; }

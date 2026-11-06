@@ -96,7 +96,7 @@ function Mouth({ mood }: { mood: Mood }) {
 /** Blokje. Every part has its own class so CSS can animate them independently. */
 export default function Mascot({ mood = "idle", size = 140 }: Props) {
   const [hop, setHop] = useState(0);
-  const [fun, setFun] = useState<"" | "wink" | "hop">("");
+  const [fun, setFun] = useState<"" | "wink" | "blink" | "hop">("");
   const ref = useRef<SVGSVGElement>(null);
   const moodRef = useRef(mood);
   moodRef.current = mood;
@@ -137,7 +137,8 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
     const schedule = () => {
       timer = window.setTimeout(() => {
         if (["idle", "happy", "thinking", "proud"].includes(moodRef.current)) {
-          setFun(Math.random() < 0.55 ? "wink" : "hop");
+          const r = Math.random();
+          setFun(r < 0.35 ? "wink" : r < 0.7 ? "blink" : "hop");
           window.setTimeout(() => setFun(""), 900);
         }
         schedule();
