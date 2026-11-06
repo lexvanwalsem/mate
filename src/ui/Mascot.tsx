@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Mood } from "./classes";
 
 interface Props {
@@ -53,14 +53,15 @@ function Eyes({ mood }: { mood: Mood }) {
   const pupil = big ? 6 : 10;
   return (
     <g className="m-eyes">
-      <rect x="60" y={104 - h / 2} width="36" height={h} rx="14" fill="#fff" />
-      <rect x="104" y={104 - h / 2} width="36" height={h} rx="14" fill="#fff" />
-      <g className="m-pupils">
-        <circle cx={78 + dx} cy={106 + dy} r={pupil} fill={INK} />
-        <circle cx={122 + dx} cy={106 + dy} r={pupil} fill={INK} />
-        <circle cx={81 + dx} cy={102 + dy} r="3" fill="#fff" />
-        <circle cx={125 + dx} cy={102 + dy} r="3" fill="#fff" />
-      </g>
+      {[78, 122].map((cx) => (
+        <g key={cx} className="m-eye">
+          <rect x={cx - 18} y={104 - h / 2} width="36" height={h} rx="14" fill="#fff" />
+          <g className="m-pupil">
+            <circle cx={cx + dx} cy={106 + dy} r={pupil} fill={INK} />
+            <circle cx={cx + 3 + dx} cy={102 + dy} r="3" fill="#fff" />
+          </g>
+        </g>
+      ))}
     </g>
   );
 }
@@ -93,8 +94,58 @@ function Mouth({ mood }: { mood: Mood }) {
 /** Blokje. Every part has its own class so CSS can animate them independently. */
 export default function Mascot({ mood = "idle", size = 140 }: Props) {
   const [hop, setHop] = useState(0);
+  const [fun, setFun] = useState<"" | "wink" | "hop">("");
+  const ref = useRef<SVGSVGElement>(null);
+  const moodRef = useRef(mood);
+  moodRef.current = mood;
+
+  // The pupils follow the mouse (the CSS reads --px and --py).
+  useEffect(() => {
+    const svg = ref.current;
+    if (!svg) return;
+    let frame = 0;
+    let mx = 0;
+    let my = 0;
+    const apply = () => {
+      frame = 0;
+      const r = svg.getBoundingClientRect();
+      const dx = mx - (r.left + r.width * 0.5);
+      const dy = my - (r.top + r.height * 0.53);
+      const dist = Math.hypot(dx, dy) || 1;
+      const reach = Math.min(1, dist / 260);
+      svg.style.setProperty("--px", `${(dx / dist) * reach * 5}px`);
+      svg.style.setProperty("--py", `${(dy / dist) * reach * 4}px`);
+    };
+    const onMove = (e: PointerEvent) => {
+      mx = e.clientX;
+      my = e.clientY;
+      if (!frame) frame = requestAnimationFrame(apply);
+    };
+    window.addEventListener("pointermove", onMove);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // Every 7 to 14 seconds a calm Blokje winks or hops.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let timer = 0;
+    const schedule = () => {
+      timer = window.setTimeout(() => {
+        if (["idle", "happy", "thinking", "proud"].includes(moodRef.current)) {
+          setFun(Math.random() < 0.55 ? "wink" : "hop");
+          window.setTimeout(() => setFun(""), 900);
+        }
+        schedule();
+      }, 7000 + Math.random() * 7000);
+    };
+    schedule();
+    return () => window.clearTimeout(timer);
+  }, []);
   return (
-    <svg className={`mascot mascot-${mood} ${hop ? "hop" : ""}`} key={hop} onClick={() => setHop(hop + 1)} width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="Blokje">
+    <svg ref={ref} className={`mascot mascot-${mood} ${hop ? "hop" : ""} ${fun ? `fun-${fun}` : ""}`} key={hop} onClick={() => setHop(hop + 1)} width={size} height={size} viewBox="0 0 200 200" role="img" aria-label="Blokje">
       <defs>
         <linearGradient id="mascot-body" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" style={{ stopColor: "var(--m-top)" }} />

@@ -15,16 +15,23 @@ export interface GameAnalysis {
   sans: string[];
   positions: PositionEval[];
   moveAccuracy: number[]; // per move
+  clocks: (number | undefined)[]; // seconds left on the mover's clock after each move, when the PGN has [%clk]
   accuracy: Accuracy;
   estimatedElo?: EstimatedElo;
   depth: number;
   multiPv: number;
 }
 
+const parseClock = (comment?: string): number | undefined => {
+  const m = comment?.match(/\[%clk\s+(\d+):(\d+):(\d+(?:\.\d+)?)\]/);
+  return m ? Number(m[1]) * 3600 + Number(m[2]) * 60 + Number(m[3]) : undefined;
+};
+
 export function parseGame(pgn: string) {
   const chess = new Chess();
   chess.loadPgn(pgn);
   const history = chess.history({ verbose: true });
+  const commentByFen = new Map(chess.getComments().map((c) => [c.fen, c.comment]));
   const fens = history.map((m) => m.before);
   fens.push(history[history.length - 1].after);
   return {
@@ -32,6 +39,7 @@ export function parseGame(pgn: string) {
     fens,
     uciMoves: history.map((m) => m.from + m.to + (m.promotion || "")),
     sans: history.map((m) => m.san),
+    clocks: history.map((m) => parseClock(commentByFen.get(m.after))),
   };
 }
 
@@ -79,6 +87,7 @@ export async function analyzeGame(
     sans: parsed.sans,
     positions,
     moveAccuracy: getMovesAccuracy(wp),
+    clocks: parsed.clocks,
     accuracy: computeAccuracy(positions),
     estimatedElo: computeEstimatedElo(
       positions,

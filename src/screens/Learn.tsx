@@ -2,6 +2,9 @@ import { useState } from "react";
 import Mascot from "@/ui/Mascot";
 import Confetti from "@/ui/Confetti";
 import PlayBoard from "@/ui/PlayBoard";
+import { useMoveFeedback } from "@/lib/useMoveFeedback";
+import { play } from "@/lib/sound";
+import { EnginePool } from "@/engine/pool";
 import Board, { piecesFromFen } from "@/ui/Board";
 import { Mood } from "@/ui/classes";
 import { Key, t } from "@/lib/i18n";
@@ -13,9 +16,10 @@ interface Props {
   pieceSet: string;
   progress: Progress;
   onProgress: (p: Progress) => void;
+  getPool: () => Promise<EnginePool>;
 }
 
-export default function Learn({ pieceSet, progress, onProgress }: Props) {
+export default function Learn({ pieceSet, progress, onProgress, getPool }: Props) {
   const [lessonId, setLessonId] = useState<string>();
   const lesson = ALL_LESSONS.find((l) => l.id === lessonId);
 
@@ -39,12 +43,13 @@ export default function Learn({ pieceSet, progress, onProgress }: Props) {
     );
   }
 
-  return <LessonPlayer key={lesson.id} lesson={lesson} pieceSet={pieceSet} alreadyDone={progress.done.includes(lesson.id)} onProgress={onProgress} onExit={() => setLessonId(undefined)} />;
+  return <LessonPlayer key={lesson.id} lesson={lesson} pieceSet={pieceSet} alreadyDone={progress.done.includes(lesson.id)} onProgress={onProgress} getPool={getPool} onExit={() => setLessonId(undefined)} />;
 }
 
 type Feedback = "none" | "right" | "wrong";
 
-function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, onExit }: { lesson: Lesson; pieceSet: string; alreadyDone: boolean; onProgress: (p: Progress) => void; onExit: () => void }) {
+function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, getPool, onExit }: { lesson: Lesson; pieceSet: string; alreadyDone: boolean; onProgress: (p: Progress) => void; getPool: () => Promise<EnginePool>; onExit: () => void }) {
+  const fb = useMoveFeedback(getPool);
   const [idx, setIdx] = useState(0);
   const [feedback, setFeedback] = useState<Feedback>("none");
   const [wrongs, setWrongs] = useState(0);
@@ -56,6 +61,7 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, onExit }: { l
 
   const next = () => {
     setFeedback("none");
+    fb.clear();
     setWrongs(0);
     setShowHint(false);
     if (idx + 1 < lesson.steps.length) {
@@ -65,6 +71,7 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, onExit }: { l
     const gain = alreadyDone ? 0 : XP_PER_LESSON + lesson.steps.length * XP_PER_STEP;
     onProgress(addXp(gain, lesson.id));
     setEarned(gain);
+    play("success");
   };
 
   if (earned !== undefined) {
@@ -83,18 +90,24 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, onExit }: { l
 
   const mood: Mood = feedback === "right" ? "cheer" : feedback === "wrong" ? "worried" : "happy";
   const answer = step.kind === "move" ? step.accept[0] : undefined;
-  const arrows =
+  const baseArrows =
     step.kind === "info"
       ? (step.arrows ?? []).map(([from, to]) => ({ from, to, color: "#6c4cf5" }))
       : answer && (showHint || wrongs >= 2) && feedback !== "right"
         ? [{ from: answer.slice(0, 2), to: answer.slice(2, 4), color: "#22c58b" }]
         : [];
 
+  const arrows = [...baseArrows, ...(fb.fb?.arrows ?? [])];
+
   const onMove = (uci: string) => {
     if (step.kind !== "move") return;
-    if (step.accept.includes(uci)) setFeedback("right");
+    if (step.accept.includes(uci)) {
+      setFeedback("right");
+      fb.check(step.fen, uci, true);
+    }
     else {
       setFeedback("wrong");
+      fb.check(step.fen, uci, false);
       setWrongs(wrongs + 1);
     }
   };
@@ -110,7 +123,7 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, onExit }: { l
         {step.kind === "info" ? (
           <Board pieces={piecesFromFen(step.fen)} orientation={orientation} pieceSet={pieceSet} arrows={arrows} />
         ) : (
-          <PlayBoard key={`${idx}-${wrongs}-${feedback}`} fen={step.fen} orientation={orientation} pieceSet={pieceSet} onMove={onMove} disabled={feedback === "right"} arrows={arrows} />
+          <PlayBoard key={`${idx}-${wrongs}-${feedback}`} fen={step.fen} orientation={orientation} pieceSet={pieceSet} onMove={onMove} disabled={feedback === "right"} arrows={arrows} marks={fb.fb?.marks} />
         )}
       </div>
 
@@ -121,7 +134,8 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, onExit }: { l
             <div className="bubble-title">{lt(lesson.title)}</div>
             <p>{lt(step.text)}</p>
             {feedback === "right" && <p><b>{t("learn.correct")}</b></p>}
-            {feedback === "wrong" && <p><b>{t("learn.wrong")}</b></p>}
+            {feedback === "wrong" && <p><b>{fb.fb?.text ?? t("learn.wrong")}</b></p>}
+            {feedback === "right" && fb.fb?.correct && <p>{fb.fb.text}</p>}
             {showHint && step.kind === "move" && <p className="muted">{lt(step.hint)}</p>}
             <div className="row">
               {(step.kind === "info" || feedback === "right") && <button className="btn primary small" onClick={next}>{t("learn.next")}</button>}

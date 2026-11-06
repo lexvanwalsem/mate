@@ -3,6 +3,9 @@ import { Chess } from "chess.js";
 import Mascot from "@/ui/Mascot";
 import Confetti from "@/ui/Confetti";
 import PlayBoard from "@/ui/PlayBoard";
+import { useMoveFeedback } from "@/lib/useMoveFeedback";
+import { play } from "@/lib/sound";
+import { EnginePool } from "@/engine/pool";
 import { Mood } from "@/ui/classes";
 import { Key, t } from "@/lib/i18n";
 import { PUZZLE_THEMES, Puzzle, PuzzleTheme, fetchPuzzle } from "@/lib/puzzles";
@@ -14,8 +17,9 @@ const uciParts = (uci: string) => ({ from: uci.slice(0, 2), to: uci.slice(2, 4),
 
 type Status = "loading" | "play" | "wrong" | "solved" | "error";
 
-export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; onProgress: (p: Progress) => void }) {
-  const [theme, setTheme] = useState<PuzzleTheme>("mateIn1");
+export default function Puzzles({ pieceSet, onProgress, getPool }: { pieceSet: string; onProgress: (p: Progress) => void; getPool: () => Promise<EnginePool> }) {
+  const fb = useMoveFeedback(getPool);
+  const [theme, setTheme] = useState<PuzzleTheme>("daily");
   const [puzzle, setPuzzle] = useState<Puzzle>();
   const [fen, setFen] = useState("");
   const [ply, setPly] = useState(0);
@@ -25,6 +29,7 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
   const timer = useRef<number>(undefined);
 
   const load = async (th: PuzzleTheme) => {
+    fb.clear();
     setStatus("loading");
     setShowAnswer(false);
     setLastMove(undefined);
@@ -46,6 +51,7 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
 
   const solved = () => {
     setStatus("solved");
+    play("success");
     onProgress(addXp(XP_PER_PUZZLE));
   };
 
@@ -57,9 +63,11 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
     // Any checkmate also counts, Lichess accepts alternative mates too.
     if (uci !== puzzle.solution[ply] && !trial.isCheckmate()) {
       setStatus("wrong");
+      fb.check(fen, uci, false);
       return;
     }
     chess.move(uciParts(uci));
+    fb.check(fen, uci, true);
     setLastMove({ from: uci.slice(0, 2), to: uci.slice(2, 4) });
     setFen(chess.fen());
     setStatus("play");
@@ -77,7 +85,7 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
 
   const orientation: Side = puzzle?.fen.split(" ")[1] === "b" ? "black" : "white";
   const expected = puzzle?.solution[ply];
-  const arrows = showAnswer && expected ? [{ from: expected.slice(0, 2), to: expected.slice(2, 4), color: "#22c58b" }] : [];
+  const arrows = [...(showAnswer && expected ? [{ from: expected.slice(0, 2), to: expected.slice(2, 4), color: "#22c58b" }] : []), ...(fb.fb?.arrows ?? [])];
   const mood: Mood = status === "solved" ? "cheer" : status === "wrong" ? "worried" : status === "loading" ? "thinking" : "happy";
 
   return (
@@ -98,6 +106,7 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
               onMove={onMove}
               disabled={status !== "play" && status !== "wrong"}
               arrows={arrows}
+              marks={fb.fb?.marks}
               lastMove={lastMove}
             />
           )}
@@ -122,7 +131,8 @@ export default function Puzzles({ pieceSet, onProgress }: { pieceSet: string; on
                   <p className="muted">{t("puzzle.rating", { n: puzzle.rating })}</p>
                 </>
               )}
-              {status === "wrong" && <p><b>{t("puzzle.wrong")}</b></p>}
+              {status === "wrong" && <p><b>{fb.fb?.text ?? t("puzzle.wrong")}</b></p>}
+              {status !== "wrong" && fb.fb?.correct && status !== "solved" && <p>{fb.fb.text}</p>}
               {status === "solved" && <p><b>{t("puzzle.solved")}</b> +{XP_PER_PUZZLE} XP</p>}
               <div className="row">
                 {status === "solved" || status === "error" ? (

@@ -50,6 +50,28 @@ try {
   };
   const mouse = (type, x, y) => send("Input.dispatchMouseEvent", { type, x, y, button: "left", buttons: type === "mouseReleased" ? 0 : 1, clickCount: 1 });
 
+  // Right-drag draws an arrow, right-click marks a square, a left click clears them.
+  const right = (type, x, y) => send("Input.dispatchMouseEvent", { type, x, y, button: "right", buttons: type === "mouseReleased" ? 0 : 2, clickCount: 1 });
+  const arrowsNow = () => ev(`document.querySelectorAll(".arrows .arrow").length`);
+  const marksNow = () => ev(`document.querySelectorAll(".mark").length`);
+  const a1 = await square(4, 2);
+  const a2 = await square(4, 4);
+  const arrowsBefore = await arrowsNow();
+  await right("mousePressed", a1.x, a1.y);
+  await right("mouseMoved", (a1.x + a2.x) / 2, (a1.y + a2.y) / 2);
+  await right("mouseReleased", a2.x, a2.y);
+  await sleep(150);
+  expect("a right-drag draws an arrow", (await arrowsNow()) === arrowsBefore + 1, `${arrowsBefore} -> ${await arrowsNow()}`);
+  await right("mousePressed", a2.x, a2.y);
+  await right("mouseReleased", a2.x, a2.y);
+  await sleep(150);
+  expect("a right-click marks a square", (await marksNow()) === 1);
+  await mouse("mousePressed", a1.x, a1.y);
+  await mouse("mouseReleased", a1.x, a1.y);
+  await sleep(150);
+  expect("a left click clears your drawing", (await arrowsNow()) === arrowsBefore && (await marksNow()) === 0);
+  await ev(`document.querySelectorAll(".bubble button")`);
+
   // Drag d2 -> d4 (the game continued with e4, so this starts a variation).
   const from = await square(3, 2);
   const to = await square(3, 4);

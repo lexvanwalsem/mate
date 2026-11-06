@@ -10,6 +10,12 @@ export interface BoardPiece {
   color: "w" | "b";
 }
 
+/** A square outlined and tinted in a colour, used for feedback and for squares you mark yourself. */
+export interface SquareMark {
+  square: string;
+  color: string;
+}
+
 export interface Arrow {
   from: string;
   to: string;
@@ -77,6 +83,8 @@ interface Props {
   /** A piece that was just captured, shown fading out where it stood. */
   captured?: BoardPiece;
   arrows?: Arrow[];
+  /** Squares to mark (feedback from the app). You can also mark squares yourself with a right click. */
+  marks?: SquareMark[];
   selected?: string;
   targets?: string[];
   onSquareClick?: (square: string) => void;
@@ -86,12 +94,19 @@ interface Props {
   onDragMove?: (from: string, to: string) => void;
 }
 
-export default function Board({ pieces, orientation, pieceSet, lastMove, highlight = "#f5c120", badge, animKey, effect, captured, arrows = [], selected, targets = [], onSquareClick, canDrag, onDragStart, onDragMove }: Props) {
+export default function Board({ pieces, orientation, pieceSet, lastMove, highlight = "#f5c120", badge, animKey, effect, captured, arrows = [], marks = [], selected, targets = [], onSquareClick, canDrag, onDragStart, onDragMove }: Props) {
   const flipped = orientation === "black";
   const ref = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<{ from: string; px: number; py: number } | null>(null);
   const dragInfo = useRef<{ from: string; startX: number; startY: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
+
+  // Your own drawing: right-drag an arrow, right-click a square. Blue by default, shift red, alt yellow, ctrl green.
+  const [drawn, setDrawn] = useState<{ arrows: Arrow[]; squares: SquareMark[] }>({ arrows: [], squares: [] });
+  const rightStart = useRef<{ sq: string; color: string } | null>(null);
+  const signature = pieces.map((p) => p.id + p.square).join(",");
+  useEffect(() => setDrawn({ arrows: [], squares: [] }), [signature]);
+  const drawColor = (e: React.PointerEvent) => (e.shiftKey ? "#e5384f" : e.altKey ? "#f5c120" : e.ctrlKey || e.metaKey ? "#22c58b" : "#3f7bf2");
 
   // A short shake on mistakes and blunders (skipped for reduced motion).
   useEffect(() => {
@@ -120,6 +135,12 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, highlig
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button === 2) {
+      const start = squareAt(e.clientX, e.clientY);
+      if (start) rightStart.current = { sq: start, color: drawColor(e) };
+      return;
+    }
+    if (e.button === 0 && (drawn.arrows.length || drawn.squares.length)) setDrawn({ arrows: [], squares: [] });
     if (!canDrag || e.button !== 0) return;
     const sq = squareAt(e.clientX, e.clientY);
     if (!sq || !canDrag(sq) || !pieces.some((p) => p.square === sq)) return;
@@ -138,6 +159,23 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, highlig
     setDrag({ from: d.from, px: e.clientX - r.left, py: e.clientY - r.top });
   };
   const onPointerUp = (e: React.PointerEvent) => {
+    if (e.button === 2 && rightStart.current) {
+      const { sq: from, color } = rightStart.current;
+      rightStart.current = null;
+      const to = squareAt(e.clientX, e.clientY);
+      if (!to) return;
+      setDrawn((d) => {
+        if (to === from) {
+          const same = d.squares.find((s) => s.square === to);
+          const rest = d.squares.filter((s) => s.square !== to);
+          return { ...d, squares: same && same.color === color ? rest : [...rest, { square: to, color }] };
+        }
+        const same = d.arrows.find((a) => a.from === from && a.to === to);
+        const rest = d.arrows.filter((a) => !(a.from === from && a.to === to));
+        return { ...d, arrows: same && same.color === color ? rest : [...rest, { from, to, color }] };
+      });
+      return;
+    }
     const d = dragInfo.current;
     dragInfo.current = null;
     if (!d?.moved) return;
@@ -168,8 +206,11 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, highlig
 
   const files = "abcdefgh";
   return (
-    <div className={`board ${canDrag ? "draggable" : ""}`} ref={ref} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={() => { dragInfo.current = null; setDrag(null); }}>
+    <div className={`board ${canDrag ? "draggable" : ""}`} ref={ref} onContextMenu={(e) => e.preventDefault()} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={() => { dragInfo.current = null; setDrag(null); }}>
       {squares}
+      {[...marks, ...drawn.squares].map((m, i) => (
+        <div key={`mark-${m.square}-${i}`} className="mark" style={{ left: pct(pos(m.square).x), top: pct(pos(m.square).y), ["--mc" as string]: m.color }} />
+      ))}
       {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
         <span key={`c${i}`}>
           <span className="coord coord-file" style={{ left: pct(i), top: "calc(100% - 1.1em)" }}>{files[flipped ? 7 - i : i]}</span>
@@ -207,7 +248,8 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, highlig
         ) : null;
       })()}
       <svg className="arrows" viewBox="0 0 8 8">
-        {arrows.map((a, i) => {
+        {[...arrows, ...drawn.arrows].map((a, i) => {
+          if (a.from === a.to) return null;
           const s = pos(a.from);
           const e = pos(a.to);
           const x1 = s.x + 0.5, y1 = s.y + 0.5, x2 = e.x + 0.5, y2 = e.y + 0.5;

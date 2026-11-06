@@ -2,9 +2,10 @@ import Mascot from "@/ui/Mascot";
 import ClassBadge from "@/ui/ClassBadge";
 import PlayerBar from "@/ui/PlayerBar";
 import CountUp from "@/ui/CountUp";
+import { exportAnnotatedPgn, saveSummaryImage } from "@/lib/export";
 import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
-import { CLASS_ORDER, Side, countClasses, keyMoments, openingName, phaseAccuracy, resultFor } from "@/lib/stats";
+import { CLASS_ORDER, Side, countClasses, formatSeconds, keyMoments, openingName, phaseAccuracy, resultFor, timeSummary } from "@/lib/stats";
 import { t, Key } from "@/lib/i18n";
 import { verdictFor } from "@/lib/commentary";
 
@@ -31,6 +32,8 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
   const resultText = result === "unknown" ? "" : t(`summary.${result}` as Key);
   const phases = phaseAccuracy(a, side);
   const opening = openingName(a);
+  const myTime = timeSummary(a, side);
+  const oppTime = timeSummary(a, side === "white" ? "black" : "white");
 
   return (
     <div className="screen summary">
@@ -97,6 +100,19 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
         {opening && <p className="muted">{t("summary.opening")}: {opening}</p>}
       </div>
 
+      {myTime && (
+        <div className="card time-card">
+          <h3>{t("summary.time")}</h3>
+          <div className="time-grid">
+            <div><b>{formatSeconds(myTime.avg)}</b><span>{t("summary.timeYou")}</span></div>
+            {oppTime && <div><b>{formatSeconds(oppTime.avg)}</b><span>{t("summary.timeOpp")}</span></div>}
+            <button onClick={() => onReview(myTime.slowest.position)}>
+              <b>{formatSeconds(myTime.slowest.seconds)}</b><span>{t("summary.slowest", { n: Math.ceil(myTime.slowest.position / 2) })}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {moments.length > 0 && (
         <div className="card moments-card">
           <h3>{t("summary.moments")}</h3>
@@ -118,6 +134,12 @@ export default function Summary({ a, side, sideKnown, onSideChange, onReview, on
 
       <div className="sum-actions">
         <button className="btn primary big" onClick={() => onReview()}>{t("summary.review")}</button>
+        <button className="btn ghost icon" title={t("summary.exportPgn")} aria-label={t("summary.exportPgn")} onClick={() => exportAnnotatedPgn(a, side)}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 4v11M7 11l5 5 5-5M5 20h14" /></svg>
+        </button>
+        <button className="btn ghost icon" title={t("summary.shareImage")} aria-label={t("summary.shareImage")} onClick={() => saveSummaryImage(a, side)}>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="4" y="5" width="16" height="14" rx="3" /><circle cx="9" cy="10" r="1.6" /><path d="M20 16l-5-4-7 7" /></svg>
+        </button>
         <button className="btn ghost" onClick={onBack}>{t("summary.another")}</button>
       </div>
       </div>

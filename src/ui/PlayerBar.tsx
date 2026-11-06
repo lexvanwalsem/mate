@@ -1,11 +1,14 @@
 import { Side } from "@/lib/stats";
 import { t } from "@/lib/i18n";
+import { formatSeconds } from "@/lib/stats";
 
 interface Props {
   headers: Record<string, string>;
   color: Side;
   isYou: boolean;
   accuracy?: number;
+  /** Seconds left on this player's clock. */
+  clock?: number;
   /** When set the whole bar is a button, used to pick which player you are. */
   onClick?: () => void;
 }
@@ -13,7 +16,7 @@ interface Props {
 const clean = (v: string | undefined) => (v && v !== "?" ? v : undefined);
 
 /** One line per player: color chip, name, rating, a "you" tag and optionally accuracy. Fixed height so nothing shifts. */
-export default function PlayerBar({ headers, color, isYou, accuracy, onClick }: Props) {
+export default function PlayerBar({ headers, color, isYou, accuracy, clock, onClick }: Props) {
   const name = clean(headers[color === "white" ? "White" : "Black"]) ?? t(color === "white" ? "puzzle.white" : "puzzle.black");
   const rating = clean(headers[color === "white" ? "WhiteElo" : "BlackElo"]);
   const Tag = onClick ? "button" : "div";
@@ -24,6 +27,7 @@ export default function PlayerBar({ headers, color, isYou, accuracy, onClick }: 
       {rating && <span className="player-rating">{rating}</span>}
       {isYou && <span className="you-tag">{t("player.you")}</span>}
       <span className="grow" />
+      {clock !== undefined && <span className="player-clock">{formatSeconds(clock)}</span>}
       {accuracy !== undefined && <span className="player-acc">{accuracy.toFixed(1)}%</span>}
     </Tag>
   );

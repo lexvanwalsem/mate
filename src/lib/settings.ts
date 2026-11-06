@@ -6,6 +6,8 @@ export interface Settings {
   pieceSet: string;
   mascot: string;
   boardTheme: string;
+  sound: boolean;
+  dark: boolean;
 }
 
 export interface MascotTheme { id: string; unlockLevel: number; swatch: string; vars: Record<string, string> }
@@ -24,6 +26,7 @@ export function applyMascotTheme(id: string) {
 }
 
 export const PIECE_SETS = [
+  { id: "blokje", name: "Blokje" },
   { id: "cburnett", name: "Classic" },
   { id: "merida", name: "Merida" },
   { id: "staunty", name: "Staunty" },
@@ -51,7 +54,7 @@ export function applyBoardTheme(id: string) {
 }
 
 const KEY = "zetje-settings";
-const DEFAULTS: Settings = { lang: detectLang(), depth: 14, usernames: "", pieceSet: "cburnett", mascot: "violet", boardTheme: "violet" };
+const DEFAULTS: Settings = { lang: detectLang(), depth: 14, usernames: "", pieceSet: "blokje", mascot: "violet", boardTheme: "violet", sound: true, dark: window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false };
 
 export function loadSettings(): Settings {
   try {

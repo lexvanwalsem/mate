@@ -6,5 +6,6 @@ import "./styles.css";
 import "./polish.css";
 import "./layout.css";
 import "./motion.css";
+import "./dark.css";
 
 createRoot(document.getElementById("root")!).render(<App />);

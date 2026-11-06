@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <g id="swq"><rect x="16" y="76" width="68" height="15" rx="7.5"/><rect x="24" y="40" width="52" height="42" rx="15"/><circle cx="28" cy="27" r="8"/><circle cx="50" cy="20" r="9"/><circle cx="72" cy="27" r="8"/><rect x="26" y="30" width="48" height="14" rx="6"/></g>
+    <linearGradient id="gwq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffdf6"/><stop offset="1" stop-color="#e9ddc6"/></linearGradient>
+    <clipPath id="cwq"><use xlink:href="#swq"/></clipPath>
+  </defs>
+  <use xlink:href="#swq" fill="#1f1b3a" stroke="#1f1b3a" stroke-width="7.5" stroke-linejoin="round"/>
+  <use xlink:href="#swq" fill="url(#gwq)"/>
+  <g clip-path="url(#cwq)">
+    <ellipse cx="36" cy="36" rx="16" ry="32" transform="rotate(-18 36 36)" fill="#fff" opacity="0.24"/>
+    <rect x="0" y="76" width="100" height="24" fill="#1f1b3a" opacity="0.14"/>
+    <rect x="62" y="0" width="38" height="100" fill="#1f1b3a" opacity="0.07"/>
+  </g>
+  <rect x="24" y="38" width="52" height="7" rx="3.5" fill="#8d6bff" stroke="#1f1b3a" stroke-width="2.2"/><circle cx="50" cy="46" r="0.1"/><circle cx="50" cy="30" r="4.2" fill="#8d6bff" stroke="#1f1b3a" stroke-width="2"/><path d="M48 11 L49.6 14.4 L53 16 L49.6 17.6 L48 21 L46.4 17.6 L43 16 L46.4 14.4Z" fill="#fff" opacity="0.9"/><circle cx="41" cy="62" r="4.6" fill="#1f1b3a"/><circle cx="42.5" cy="60.4" r="1.5" fill="#fff"/><circle cx="59" cy="62" r="4.6" fill="#1f1b3a"/><circle cx="60.5" cy="60.4" r="1.5" fill="#fff"/><ellipse cx="34" cy="68" rx="4.6" ry="3" fill="#ff9bb0" opacity="0.8"/><ellipse cx="66" cy="68" rx="4.6" ry="3" fill="#ff9bb0" opacity="0.8"/><path d="M45 68 Q50 72.5 55 68" stroke="#1f1b3a" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+</svg>

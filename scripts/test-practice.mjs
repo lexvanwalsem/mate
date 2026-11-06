@@ -72,7 +72,13 @@ try {
   // Wrong try first: a quiet pawn move.
   await click(0, 2);
   await click(0, 3);
-  expect("a wrong try is refused", /Not quite/.test(await bubble()), JSON.stringify((await bubble()).slice(0, 60)));
+  const arrowCount = () => ev(`document.querySelectorAll(".arrows .arrow").length`);
+  expect("your wrong move is drawn as an arrow at once", (await arrowCount()) >= 1, String(await arrowCount()));
+  let why = "";
+  for (let i = 0; i < 60; i++) { why = await bubble(); if (!/Checking/.test(why)) break; await sleep(500); }
+  expect("the wrong try is explained", /loses|gives away|not the best|allows mate/i.test(why), JSON.stringify(why.slice(0, 90)));
+  expect("the engine reply is drawn too", (await arrowCount()) >= 2, String(await arrowCount()));
+  expect("the dangerous square is marked", (await ev(`document.querySelectorAll(".mark").length`)) >= 1);
   await ev(`[...document.querySelectorAll(".bubble button")].find(b => b.innerText.trim() === "Once more")?.click()`);
   await sleep(200);
   await click(6, 5); // g5 knight

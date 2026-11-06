@@ -7,13 +7,15 @@ import PlayerBar from "@/ui/PlayerBar";
 import Mascot from "@/ui/Mascot";
 import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
-import { Side, sideOfPosition, winPctFor } from "@/lib/stats";
+import { Side, clockAt, formatSeconds, moveTimes, sideOfPosition, winPctFor } from "@/lib/stats";
 import { commentFor, lineComment } from "@/lib/commentary";
 import { t } from "@/lib/i18n";
 import { getEvaluationBar, getLineEvalLabel, moveLineUciToSan, uciToSan } from "@/lib/chess";
 import { isGoodMove, practiceAt } from "@/lib/practice";
 import { Variation, classifyTried, lineText, replay, withTurn } from "@/lib/variation";
 import { EnginePool } from "@/engine/pool";
+import { useMoveFeedback } from "@/lib/useMoveFeedback";
+import { play } from "@/lib/sound";
 import { PositionEval } from "@/types/eval";
 import { MoveClassification as MC } from "@/types/enums";
 
@@ -44,6 +46,11 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const [variation, setVariation] = useState<Variation | null>(null);
   const [selected, setSelected] = useState<string>();
   const [live, setLive] = useState<PositionEval>();
+  const times = useMemo(() => moveTimes(a), [a]);
+  const firstRender = useRef(true);
+  const lastMoveRef = useRef(false);
+  const capturedRef = useRef(false);
+  const fb = useMoveFeedback(getPool);
   const [tour, setTour] = useState<{ list: number[]; i: number } | null>(null);
 
   // Every position of the game already has an engine evaluation; tries from the board add to this cache.
@@ -93,6 +100,20 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
     }, TOUR_MS);
     return () => window.clearTimeout(id);
   }, [tour]);
+
+  // feedback belongs to one attempt: drop it when a new attempt starts or practice ends
+  useEffect(() => {
+    if (!retry?.result) fb.clear();
+  }, [retry?.result]);
+
+  // a sound for every move you step to (not on the first render)
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    if (!retry && lastMoveRef.current) play(capturedRef.current ? "capture" : "move");
+  }, [pos, variation?.idx, variation?.moves.length]);
 
   // keep the current move in view in the move list
   useEffect(() => {
@@ -194,7 +215,11 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const targets: string[] = activeSel ? legalFrom(activeSel).map((m) => m.to) : [];
 
   const submitRetry = (tried: string) => {
-    if (practice) setRetry({ selected: undefined, result: isGoodMove(practice, tried) ? "right" : "wrong" });
+    if (!practice) return;
+    const correct = isGoodMove(practice, tried);
+    setRetry({ selected: undefined, result: correct ? "right" : "wrong" });
+    if (correct) window.setTimeout(() => play("success"), 250);
+    fb.check(practice.fen, tried, correct);
   };
 
   // A move from the board: while practicing it is answered, otherwise it starts or extends your own line.
@@ -244,6 +269,8 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
     if (best && best !== uci && cls && SHOW_BEST.includes(cls)) arrows.push({ from: best.slice(0, 2), to: best.slice(2, 4), color: "#22c58b" });
   }
 
+  if (retry && fb.fb) arrows.push(...fb.fb.arrows);
+
   const frame: BoardPiece[] = variation && vframes ? vframes[Math.min(vIdx, vframes.length - 1)] : frames[pos];
   const pieces: BoardPiece[] = retry && practice ? piecesFromFen(practice.fen) : frame;
   const framePrev = variation ? vframes?.[Math.min(vIdx, vframes.length - 1) - 1] : pos > 0 ? frames[pos - 1] : undefined;
@@ -258,13 +285,15 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const mood: Mood = retry?.result === "right" ? "cheer" : retry?.result === "wrong" ? "worried" : variation ? (vcls ? CLASS_META[vcls].mood : "thinking") : cls ? (mine ? CLASS_META[cls].mood : "idle") : "happy";
 
   const engineMove = variation && !thinking ? nowEval?.lines[0]?.pv[0] ?? nowEval?.bestMove : undefined;
+  lastMoveRef.current = !!lastMove;
+  capturedRef.current = !!captured;
   const lastSan = variation && vdata && vIdx > 0 ? vdata.sans[vIdx - 1] : undefined;
   const betterSan = vcls && vcls !== MC.Best && prevEval?.bestMove && variation && vdata ? uciToSan(vdata.fens[vIdx - 1], prevEval.bestMove) : undefined;
 
   return (
     <div className="screen review">
       <div className="board-col">
-        <PlayerBar headers={a.headers} color={orientation === "white" ? "black" : "white"} isYou={(orientation === "white" ? "black" : "white") === side} accuracy={a.accuracy[orientation === "white" ? "black" : "white"]} />
+        <PlayerBar headers={a.headers} color={orientation === "white" ? "black" : "white"} isYou={(orientation === "white" ? "black" : "white") === side} accuracy={a.accuracy[orientation === "white" ? "black" : "white"]} clock={variation ? undefined : clockAt(a, pos, orientation === "white" ? "black" : "white")} />
         <div className="board-row">
           <EvalBar whitePct={bar.whitePct} label={bar.label} side={orientation} />
           <Board
@@ -278,6 +307,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
             effect={retry ? undefined : effectFor(shownCls)}
             captured={captured}
             arrows={arrows}
+            marks={retry ? fb.fb?.marks : undefined}
             selected={activeSel}
             targets={targets}
             onSquareClick={onSquareClick}
@@ -286,7 +316,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
             onDragMove={onDragMove}
           />
         </div>
-        <PlayerBar headers={a.headers} color={orientation} isYou={orientation === side} accuracy={a.accuracy[orientation]} />
+        <PlayerBar headers={a.headers} color={orientation} isYou={orientation === side} accuracy={a.accuracy[orientation]} clock={variation ? undefined : clockAt(a, pos, orientation)} />
         <div className="controls">
           <button onClick={() => (variation ? goto(variation.base) : goto(0))} aria-label="First">|&lt;</button>
           <button onClick={() => (variation ? stepBack() : goto(pos - 1))} aria-label="Previous">&lt;</button>
@@ -307,8 +337,8 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
           <div className="bubble" key={`${variation ? `v${vIdx}${vcls ?? ""}` : pos}-${retry ? "r" : ""}${retry?.result ?? ""}`}>
             {retry ? (
               <p>
-                {retry.result === "right" && t("review.right")}
-                {retry.result === "wrong" && t("review.wrong")}
+                {retry.result === "right" && `${t("review.right")} ${fb.fb?.text ?? ""}`}
+                {retry.result === "wrong" && (fb.fb?.text ?? t("review.wrong"))}
                 {!retry.result && t(practice?.kind === "punish" ? "review.askPunish" : practice?.kind === "learn" ? "review.askLearn" : "review.ask")}
               </p>
             ) : variation ? (
@@ -329,6 +359,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
                   </div>
                 )}
                 <p>{commentFor(a, pos, side)}</p>
+                {pos > 0 && times[pos - 1] !== undefined && !tour && <p className="var-line">{t("review.time", { s: formatSeconds(times[pos - 1]!) })}</p>}
                 {tour && <p className="var-line">{t("review.tourStep", { i: tour.i + 1, n: tour.list.length })}</p>}
               </>
             )}

@@ -5,12 +5,16 @@ export interface Progress {
   streak: number;
   lastDay: string; // YYYY-MM-DD of the last activity
   done: string[]; // completed lesson ids
+  today: string; // the day todayXp belongs to
+  todayXp: number;
 }
+
+export const DAILY_GOAL = 50;
 
 const KEY = "zetje-progress";
 const day = (d = new Date()) => d.toISOString().slice(0, 10);
 
-export const loadProgress = (): Progress => readJson<Progress>(KEY, { xp: 0, streak: 0, lastDay: "", done: [] });
+export const loadProgress = (): Progress => readJson<Progress>(KEY, { xp: 0, streak: 0, lastDay: "", done: [], today: "", todayXp: 0 });
 
 /** Add XP and update the daily streak. Returns the new progress. */
 export function addXp(amount: number, lessonId?: string): Progress {
@@ -21,7 +25,12 @@ export function addXp(amount: number, lessonId?: string): Progress {
     p.streak = p.lastDay === yesterday ? p.streak + 1 : 1;
     p.lastDay = today;
   }
+  if (p.today !== today) {
+    p.today = today;
+    p.todayXp = 0;
+  }
   p.xp += amount;
+  p.todayXp += amount;
   if (lessonId && !p.done.includes(lessonId)) p.done.push(lessonId);
   writeJson(KEY, p);
   return p;

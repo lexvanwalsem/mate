@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Chess, Square } from "chess.js";
-import Board, { Arrow, piecesFromFen } from "./Board";
+import Board, { Arrow, SquareMark, piecesFromFen } from "./Board";
 import { Side } from "@/lib/stats";
 
 interface Props {
@@ -11,11 +11,12 @@ interface Props {
   onMove: (uci: string) => void;
   disabled?: boolean;
   arrows?: Arrow[];
+  marks?: SquareMark[];
   lastMove?: { from: string; to: string };
 }
 
 /** Click-to-move board: click a piece, then a highlighted square. */
-export default function PlayBoard({ fen, orientation, pieceSet, onMove, disabled, arrows, lastMove }: Props) {
+export default function PlayBoard({ fen, orientation, pieceSet, onMove, disabled, arrows, marks, lastMove }: Props) {
   const [selected, setSelected] = useState<string>();
   const chess = useMemo(() => new Chess(fen), [fen]);
   const pieces = useMemo(() => piecesFromFen(fen), [fen]);
@@ -40,6 +41,7 @@ export default function PlayBoard({ fen, orientation, pieceSet, onMove, disabled
       orientation={orientation}
       pieceSet={pieceSet}
       arrows={arrows}
+      marks={marks}
       lastMove={lastMove}
       selected={selected}
       targets={legal.map((m) => m.to)}

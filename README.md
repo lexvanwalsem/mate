@@ -1,4 +1,4 @@
-# Zetje
+# Zetje (Mate in English)
 
 Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-shaped rook mascot who reviews your games.
 
@@ -16,6 +16,13 @@ Free, local chess game analysis as a Chrome extension. Meet Blokje, the block-sh
 
 - **Blokje colors**: unlock new mascot colors by leveling up.
 
+## More
+
+- **Draw on the board**: right-drag an arrow, right-click a square (blue; shift red, alt yellow, ctrl green). A left click clears them.
+- **Instant explanation**: in puzzles, lessons, training and review practice a wrong move shows your move, the engine's reply as arrows, the dangerous square marked, and a sentence on what it costs.
+- **Time per move** from the PGN clocks, **sound effects** (Lichess sounds, with a switch), **daily goal** ring in the header, **daily puzzle**, **annotated PGN export**, a **summary image**, and a **dark mode**.
+- **Blokje piece set**: twelve hand-drawn SVG pieces (`npm run make-pieces` regenerates them).
+
 ## Build and install
 
 ```bash
@@ -28,6 +35,10 @@ Open `chrome://extensions`, enable Developer mode, choose "Load unpacked" and se
 ## Test
 
 `npm run check:lessons` validates the lessons. `npm run test:ext -- "<path to chrome.exe>" dist` loads the built extension in a headless browser and runs a full Stockfish analysis inside it (no server needed).
+
+## Tests
+
+`npm run test:explore`, `test:practice`, `test:clocks`, `test:fit`, `test:audit` and `test:ext` drive the built extension in a headless Chrome.
 
 ## Notes
 

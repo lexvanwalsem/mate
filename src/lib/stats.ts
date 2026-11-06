@@ -81,3 +81,41 @@ export function phaseAccuracy(a: GameAnalysis, side: Side): Record<Phase, number
 /** Last opening name seen in the game. */
 export const openingName = (a: GameAnalysis): string | undefined =>
   [...a.positions].reverse().find((p) => p.opening)?.opening;
+
+/** Seconds spent on each move (undefined when the clocks are missing). Adds the increment back. */
+export function moveTimes(a: GameAnalysis): (number | undefined)[] {
+  const inc = Number(a.headers.TimeControl?.match(/\+(\d+)/)?.[1] ?? 0);
+  return a.clocks.map((now, i) => {
+    const before = a.clocks[i - 2];
+    return now === undefined || before === undefined ? undefined : Math.max(0, before - now + inc);
+  });
+}
+
+export interface TimeSummary { avg: number; slowest: { position: number; seconds: number } }
+
+export function timeSummary(a: GameAnalysis, side: Side): TimeSummary | undefined {
+  const times = moveTimes(a)
+    .map((seconds, i) => ({ position: i + 1, seconds }))
+    .filter((m): m is { position: number; seconds: number } => m.seconds !== undefined && sideOfPosition(m.position) === side);
+  if (!times.length) return undefined;
+  return {
+    avg: times.reduce((sum, m) => sum + m.seconds, 0) / times.length,
+    slowest: times.reduce((best, m) => (m.seconds > best.seconds ? m : best)),
+  };
+}
+
+/** Clock remaining for `color` once position `pos` is on the board. */
+export function clockAt(a: GameAnalysis, pos: number, color: Side): number | undefined {
+  for (let i = pos - 1; i >= 0; i--) {
+    if ((i % 2 === 0 ? "white" : "black") === color && a.clocks[i] !== undefined) return a.clocks[i];
+  }
+  // before the player's first move the clock still shows the starting time
+  const start = Number(a.headers.TimeControl?.match(/^(d+)/)?.[1]);
+  return a.clocks.some((c) => c !== undefined) && start ? start : undefined;
+}
+
+export const formatSeconds = (s: number): string => {
+  if (s >= 3600) return `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  if (s >= 60) return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  return s < 10 ? `${s.toFixed(1)}s` : `${Math.round(s)}s`;
+};

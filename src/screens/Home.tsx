@@ -93,6 +93,11 @@ export default function Home({ settings, history, level, onChangeSettings, onAna
             ))}
           </div>
         </div>
+        <label className="switch-row">
+          <span className="picker-label">{t("home.sound")}</span>
+          <input type="checkbox" checked={settings.sound} onChange={(e) => onChangeSettings({ ...settings, sound: e.target.checked })} />
+          <span className="switch" aria-hidden />
+        </label>
         <div className="swatches">
           <span className="picker-label">{t("home.pieces")}</span>
           <div className="piece-grid">
