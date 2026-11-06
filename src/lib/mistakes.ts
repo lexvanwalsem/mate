@@ -4,6 +4,17 @@ import { Side } from "./stats";
 import { uciToSan } from "./chess";
 import { PracticeKind, acceptedMoves, practiceAt } from "./practice";
 import { readJson, writeJson } from "./store";
+import { Chess } from "chess.js";
+
+/** From and to squares of a SAN move, or undefined when it does not fit the position. */
+export function moveSquares(fen: string, san: string): { from: string; to: string } | undefined {
+  try {
+    const m = new Chess(fen).move(san);
+    return { from: m.from, to: m.to };
+  } catch {
+    return undefined;
+  }
+}
 
 /** One saved exercise from an analyzed game (the file keeps its old name, it now holds all practice kinds). */
 export interface MistakeItem {
@@ -14,6 +25,8 @@ export interface MistakeItem {
   bestUci: string;
   accepted: string[]; // uci moves that count as good
   cls: MC;
+  /** The move that led to this position (shown on the board for "punish"). Missing in older saves. */
+  lastMove?: { from: string; to: string };
 }
 
 const KEY = "zetje-mistakes";
@@ -37,6 +50,7 @@ export function saveTraining(a: GameAnalysis, side: Side) {
       bestUci: target.bestUci,
       accepted: acceptedMoves(target),
       cls: a.positions[p].moveClassification!,
+      lastMove: target.kind === "punish" ? moveSquares(a.fens[p - 1], a.sans[p - 1]) : undefined,
     };
     (target.kind === "mine" ? mine : opponent).push(item);
   }

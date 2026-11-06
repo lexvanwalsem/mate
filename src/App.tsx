@@ -98,7 +98,7 @@ export default function App() {
   if (screen.name === "loading") return <Loading text={screen.text} progress={screen.progress} />;
   if (tab === "lessons") content = <Learn pieceSet={settings.pieceSet} progress={progress} onProgress={setProgress} getPool={getPool} />;
   else if (tab === "puzzles") content = <Puzzles pieceSet={settings.pieceSet} onProgress={setProgress} getPool={getPool} />;
-  else if (tab === "train") content = <Train key={progress.xp} pieceSet={settings.pieceSet} onProgress={setProgress} getPool={getPool} />;
+  else if (tab === "train") content = <Train pieceSet={settings.pieceSet} onProgress={setProgress} getPool={getPool} />;
   else if (screen.name === "summary" && analysis)
     content = (
       <Summary
