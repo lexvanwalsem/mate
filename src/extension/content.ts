@@ -1,5 +1,6 @@
 // Floating "analyze" button on chess.com and lichess. Also answers the toolbar button.
 import { isGameUrl } from "@/lib/gameUrl";
+import { BLOKJE_BODY } from "@/ui/blokjeShape";
 
 function detectSide(): "white" | "black" | undefined {
   const flipped =
@@ -56,10 +57,10 @@ root.innerHTML = `
   </style>
   <button>
     <svg class="face" viewBox="0 0 200 200">
-      <rect x="36" y="18" width="30" height="44" rx="12" fill="#c9bcff"/><rect x="85" y="10" width="30" height="52" rx="12" fill="#e2dbff"/><rect x="134" y="18" width="30" height="44" rx="12" fill="#c9bcff"/>
-      <rect x="22" y="46" width="156" height="136" rx="52" fill="#fff"/>
-      <rect x="58" y="88" width="32" height="42" rx="13" fill="#1f1b3a"/><rect x="110" y="88" width="32" height="42" rx="13" fill="#1f1b3a"/>
-      <circle cx="74" cy="104" r="6" fill="#fff"/><circle cx="126" cy="104" r="6" fill="#fff"/>
+      <path d="${BLOKJE_BODY}" fill="#fff"/>
+      <rect x="68" y="88" width="28" height="34" rx="13" fill="#1f1b3a"/><rect x="104" y="88" width="28" height="34" rx="13" fill="#1f1b3a"/>
+      <circle cx="86" cy="99" r="5" fill="#fff"/><circle cx="122" cy="99" r="5" fill="#fff"/>
+      <path d="M88 140 Q100 150 112 140" fill="none" stroke="#1f1b3a" stroke-width="7" stroke-linecap="round"/>
     </svg>
     <span>${chrome.i18n.getMessage("buttonLabel")}</span>
   </button>`;
