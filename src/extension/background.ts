@@ -33,7 +33,7 @@ function scanPage(): { pgn?: string; url?: string } {
   return link ? { url: link.href } : {};
 }
 
-// Toolbar button: ask the content script (chess.com, lichess); on other sites scan the page; else just open Zetje.
+// Toolbar button: ask the content script (chess.com, lichess, duolingo); on other sites scan the page; else just open Zetje.
 chrome.action.onClicked.addListener((tab) => {
   const scanOrOpen = async () => {
     try {
@@ -45,11 +45,11 @@ chrome.action.onClicked.addListener((tab) => {
   };
   if (tab.id === undefined) return openAnalysis({});
   chrome.tabs.sendMessage(tab.id, { type: "get-game" }, (res) => {
-    if (chrome.runtime.lastError || !res?.url) return void scanOrOpen();
-    openAnalysis({ url: res.url, side: res.side });
+    if (chrome.runtime.lastError || !(res?.url || res?.pgn)) return void scanOrOpen();
+    openAnalysis({ url: res.url, pgn: res.pgn, side: res.side });
   });
 });
 
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg?.type === "analyze") openAnalysis({ url: msg.url, side: msg.side });
+  if (msg?.type === "analyze") openAnalysis({ url: msg.url, pgn: msg.pgn, side: msg.side });
 });

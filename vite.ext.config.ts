@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
 import path from "node:path";
 
-// Content script and background service worker: standalone single files.
-const target = process.env.EXT_ENTRY === "content" ? "content" : "background";
+// Content scripts and background service worker: standalone single files, one build per entry.
+const ENTRIES = ["content", "background", "duolingo", "duolingo-hook"];
+const target = ENTRIES.includes(process.env.EXT_ENTRY ?? "") ? process.env.EXT_ENTRY! : "background";
 export default defineConfig({
   resolve: { alias: { "@": path.resolve(__dirname, "src") } },
   build: {
@@ -12,7 +13,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, `src/extension/${target}.ts`),
       formats: ["iife"],
-      name: `zetje_${target}`,
+      name: `zetje_${target.replace("-", "_")}`,
       fileName: () => `${target}.js`,
     },
   },

@@ -1,6 +1,6 @@
 {
   "name": "zetje",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Zetje — gratis, lokale schaakanalyse met Blokje de mascotte. Chrome-extensie voor chess.com, lichess en meer.",
   "private": true,
   "license": "AGPL-3.0-or-later",
@@ -9,7 +9,7 @@
     "dev": "vite",
     "icons": "node scripts/make-icons.mjs",
     "build:app": "vite build",
-    "build:ext": "cross-env EXT_ENTRY=content vite build --config vite.ext.config.ts && cross-env EXT_ENTRY=background vite build --config vite.ext.config.ts",
+    "build:ext": "cross-env EXT_ENTRY=content vite build --config vite.ext.config.ts && cross-env EXT_ENTRY=background vite build --config vite.ext.config.ts && cross-env EXT_ENTRY=duolingo vite build --config vite.ext.config.ts && cross-env EXT_ENTRY=duolingo-hook vite build --config vite.ext.config.ts",
     "build": "npm run icons && npm run build:app && npm run build:ext && node scripts/stamp-version.mjs",
     "typecheck": "tsc --noEmit",
     "check:lessons": "tsx scripts/check-lessons.ts",
@@ -26,7 +26,9 @@
     "check:reactions": "tsx scripts/check-reactions.ts",
     "test:train": "node scripts/test-train.mjs",
     "test:puzzle": "node scripts/test-puzzle.mjs",
-    "test:online": "node scripts/test-online.mjs"
+    "test:online": "node scripts/test-online.mjs",
+    "check:duolingo": "tsx scripts/check-duolingo.ts",
+    "test:duolingo": "node scripts/test-duolingo.mjs"
   },
   "dependencies": {
     "@fontsource-variable/fredoka": "^5.3.0",
