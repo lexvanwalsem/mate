@@ -10,7 +10,8 @@ import Mascot from "@/ui/Mascot";
 import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
 import { Side, clockAt, formatSeconds, moveTimes, sideOfPosition, winPctFor } from "@/lib/stats";
-import { commentFor, lineComment } from "@/lib/commentary";
+import { lineComment } from "@/lib/commentary";
+import { explainMove } from "@/lib/explain";
 import { Key, t } from "@/lib/i18n";
 import { getEvaluationBar, getLineEvalLabel, moveLineUciToSan, uciToSan } from "@/lib/chess";
 import { isGoodMove, practiceAt } from "@/lib/practice";
@@ -55,6 +56,10 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const fb = useMoveFeedback(getPool);
   const [tour, setTour] = useState<{ list: number[]; i: number } | null>(null);
   const [showBest, setShowBest] = useState(false);
+  // "Show the idea" / "Why is it bad?": an engine line played move by move on the board.
+  const [idea, setIdea] = useState<{ kind: "best" | "why"; from: number } | null>(null);
+  const ideaTimer = useRef<number>(undefined);
+  useEffect(() => () => window.clearTimeout(ideaTimer.current), []);
   const end = useMemo(() => gameEnd(a.fens[a.fens.length - 1], a.headers), [a]);
 
   // Every position of the game already has an engine evaluation; tries from the board add to this cache.
@@ -68,6 +73,8 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const orientation: Side = flipped ? (side === "white" ? "black" : "white") : side;
 
   const showPos = (p: number) => {
+    window.clearTimeout(ideaTimer.current);
+    setIdea(null);
     setShowBest(false);
     setRetry(null);
     setVariation(null);
@@ -191,9 +198,11 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   };
 
   // ---- what is on the board ----
-  const practice = !variation && pos > 0 ? practiceAt(a, pos, side) : undefined;
+  // The coach speaks to the player at the bottom of the board (flip the board to hear the other side).
+  const persp: Side = orientation;
+  const practice = !variation && pos > 0 ? practiceAt(a, pos, persp) : undefined;
   const cls = variation ? undefined : a.positions[pos].moveClassification;
-  const mine = !variation && pos > 0 && sideOfPosition(pos) === side;
+  const mine = !variation && pos > 0 && sideOfPosition(pos) === persp;
 
   const vIdx = variation?.idx ?? 0;
   const prevEval = variation && vdata ? cache.current.get(vdata.fens[vIdx - 1]) : undefined;
@@ -313,7 +322,26 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
       ? t(`end.${end.reason}` as Key, { winner: name(end.winner), loser: name(end.winner === "white" ? "black" : "white") })
       : t(`end.${end.reason}` as Key)
     : "";
-  const endYou = end ? t(!end.winner ? "end.drawn" : end.winner === side ? "end.youWon" : "end.youLost") : "";
+  const endYou = end ? t(!end.winner ? "end.drawn" : end.winner === persp ? "end.youWon" : "end.youLost") : "";
+
+  const playIdea = (kind: "best" | "why", from: number) => {
+    const base = kind === "best" ? from - 1 : from;
+    const moves = (a.positions[base]?.lines[0]?.pv ?? []).slice(0, kind === "best" ? 5 : 4);
+    if (!moves.length) return;
+    window.clearTimeout(ideaTimer.current);
+    setTour(null);
+    setSelected(undefined);
+    setIdea({ kind, from });
+    setVariation({ base, moves, idx: 0 });
+    const step = (i: number) => {
+      setVariation((v) => (v ? { ...v, idx: i } : v));
+      if (i < moves.length) ideaTimer.current = window.setTimeout(() => step(i + 1), 1100);
+    };
+    ideaTimer.current = window.setTimeout(() => step(1), 700);
+  };
+  const ideaBest = pos > 0 && !variation ? a.positions[pos - 1]?.bestMove : undefined;
+  const canIdea = !!ideaBest && ideaBest !== uci;
+  const canWhy = !!cls && [MC.Inaccuracy, MC.Mistake, MC.Blunder].includes(cls) && !!a.positions[pos]?.lines[0]?.pv.length;
   const evalLabel = !variation && pos > 0 && a.positions[pos].lines[0] ? getLineEvalLabel(a.positions[pos].lines[0]) : undefined;
   const evalWhite = evalLabel ? !evalLabel.startsWith("-") : true;
   const mat = material(playFen);
@@ -384,6 +412,16 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
                 {retry.result === "wrong" && (fb.fb?.text ?? t("review.wrong"))}
                 {!retry.result && t(practice?.kind === "punish" ? "review.askPunish" : practice?.kind === "learn" ? "review.askLearn" : "review.ask")}
               </p>
+            ) : variation && idea ? (
+              <>
+                <div className="bubble-title">{t(idea.kind === "best" ? "idea.title" : "idea.whyTitle")}</div>
+                <p>
+                  {idea.kind === "best"
+                    ? t("idea.intro", { best: uciToSan(a.fens[idea.from - 1], a.positions[idea.from - 1].bestMove) ?? "" })
+                    : t("idea.whyIntro", { san: a.sans[idea.from - 1] })}
+                </p>
+                {vdata && <p className="var-line idea-line">{lineText(vdata.fens, vdata.sans.slice(0, vIdx), vdata.movers.slice(0, vIdx)) || "..."}</p>}
+              </>
             ) : variation ? (
               <>
                 <div className="bubble-title">
@@ -406,7 +444,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
                 {atEnd ? (
                   <p className="end-line"><b>{endText}</b> {endYou}</p>
                 ) : (
-                  <p>{commentFor(a, pos, side)}</p>
+                  <p>{explainMove(a, pos, persp)}</p>
                 )}
                 {pos > 0 && times[pos - 1] !== undefined && !tour && <p className="var-line">{t("review.time", { s: formatSeconds(times[pos - 1]!) })}</p>}
                 {tour && <p className="var-line">{t("review.tourStep", { i: tour.i + 1, n: tour.list.length })}</p>}
@@ -419,13 +457,18 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
                     {t(practice.kind === "punish" ? "review.punish" : practice.kind === "learn" ? "review.find" : "review.retry")}
                   </button>
                 )}
-                {pos > 0 && a.positions[pos - 1]?.bestMove && a.positions[pos - 1].bestMove !== uci && !(cls && SHOW_BEST.includes(cls) && mine) && (
-                  <button className={`btn ghost small ${showBest ? "on" : ""}`} onClick={() => setShowBest(!showBest)}>{t("review.best")}</button>
-                )}
+                {canIdea && <button className="btn ghost small" onClick={() => playIdea("best", pos)}>{t("idea.show")}</button>}
+                {canWhy && <button className="btn ghost small" onClick={() => playIdea("why", pos)}>{t("idea.why")}</button>}
                 {pos < last && <button className="btn primary small next-btn" onClick={() => goto(pos + 1)}>{t("review.next")}</button>}
               </div>
             )}
-            {variation && !retry && (
+            {variation && idea && (
+              <div className="row coach-actions">
+                <button className="btn ghost small" onClick={() => playIdea(idea.kind, idea.from)}>{t("idea.replay")}</button>
+                <button className="btn primary small next-btn" onClick={() => goto(idea.from)}>{t("idea.back")}</button>
+              </div>
+            )}
+            {variation && !idea && !retry && (
               <div className="row">
                 <button className="btn ghost small" onClick={undo}>{t("explore.undo")}</button>
                 <button className="btn ghost small" disabled={!engineMove} onClick={() => engineMove && commit(engineMove)}>{t("explore.engine")}</button>

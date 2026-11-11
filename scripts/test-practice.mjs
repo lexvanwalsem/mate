@@ -12,7 +12,8 @@ const proc = spawn(browser, ["--headless=new", `--remote-debugging-port=${port}`
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const getJson = async (p) => (await fetch(`http://127.0.0.1:${port}${p}`)).json();
 
-const PGN = "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 5. exd5 Nxd5 6. Nxf7 Kxf7 7. Qf3+ Ke6 8. Nc3 Ncb4 9. O-O c6 10. d4 Kd6 1-0";
+// 2...Qg5?? hangs the queen to the knight: a blunder every run, punished by 3. Nxg5.
+const PGN = "1. e4 e5 2. Nf3 Qg5 3. Nxg5 Nc6 4. d3 Nf6 5. Nc3 h6 1-0";
 let failed = 0;
 const expect = (label, ok, detail = "") => {
   console.log(`${ok ? "PASS" : "FAIL"} ${label} ${detail}`);
@@ -57,9 +58,9 @@ try {
     await sleep(150);
   };
 
-  // Move 5...Nxd5 (index 9) is the opponent's slip, White (you) can win material with Nxf7.
+  // Move 2...Qg5 (index 3) is the opponent's slip, White (you) wins the queen with Nxg5.
   let found = "";
-  for (const idx of [9, 8, 10]) {
+  for (const idx of [3, 2, 4]) {
     await clickMove(idx);
     await sleep(250);
     found = await bubble();
@@ -81,8 +82,8 @@ try {
   expect("the dangerous square is marked", (await ev(`document.querySelectorAll(".mark").length`)) >= 1);
   await ev(`[...document.querySelectorAll(".bubble button")].find(b => b.innerText.trim() === "Once more")?.click()`);
   await sleep(200);
-  await click(6, 5); // g5 knight
-  await click(5, 7); // takes f7
+  await click(5, 3); // f3 knight
+  await click(6, 5); // takes the queen on g5
   const verdict = await bubble();
   expect("the punishing move is accepted", /strong move/i.test(verdict), JSON.stringify(verdict.slice(0, 60)));
 

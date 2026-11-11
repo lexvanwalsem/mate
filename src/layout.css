@@ -500,3 +500,5 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 .callout.top .callout-text { transform: translate(-50%, 100%); bottom: -4%; top: auto; animation-name: callout-in-below; }
 @keyframes callout-in-below { from { opacity: 0; transform: translate(-50%, 50%) scale(0.6); } to { opacity: 1; transform: translate(-50%, 100%) scale(1); } }
 .review .movelist { padding-bottom: 22px; }
+.coach-actions { flex-wrap: wrap; }
+.idea-line { font-weight: 600; color: var(--violet-dark); }
