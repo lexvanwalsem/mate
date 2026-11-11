@@ -17,6 +17,22 @@ export interface SquareMark {
   color: string;
 }
 
+/** A label on the board: an icon on the corner of a square and/or a short pill above it ("Checkmate", "Great!"). */
+export interface Callout {
+  square: string;
+  color: string;
+  text?: string;
+  icon?: "crown" | "mate" | "clock" | "flag" | "draw";
+}
+
+const CALLOUT_ICON: Record<NonNullable<Callout["icon"]>, string> = {
+  crown: "M4 17h16l1-9-5 4-4-7-4 7-5-4z M5 19h14v2H5z",
+  mate: "M9 3h2l-.5 5h3L14 3h2l-.5 5H19v2h-3.7l-.4 4H18v2h-3.3L14 21h-2l.5-5h-3L9 21H7l.5-5H5v-2h2.7l.4-4H5V8h3.3zM10.3 10l-.4 4h3l.4-4z",
+  clock: "M12 3a9 9 0 1 1 0 18 9 9 0 0 1 0-18zm-1 4v6l5 3 1-1.6-4-2.4V7z",
+  flag: "M5 3h2v18H5zM8 4h10l-2 4 2 4H8z",
+  draw: "M5 11h14v2H5z M7 6h10v2H7z M7 16h10v2H7z",
+};
+
 export interface Arrow {
   from: string;
   to: string;
@@ -77,6 +93,8 @@ interface Props {
   /** Accent color for the last move squares and the moved piece (e.g. the move class color). */
   highlight?: string;
   badge?: { square: string; cls: MoveClassification };
+  /** Labels on squares, e.g. a crown on the winner's king and the reason the game ended on the loser's. */
+  callouts?: Callout[];
   /** Changes every move; restarts the one-shot move animations. */
   animKey?: number | string;
   /** Mood of the last move: "great" sparkles, "good" ripples, "bad" shakes the board. */
@@ -95,7 +113,7 @@ interface Props {
   onDragMove?: (from: string, to: string) => void;
 }
 
-export default function Board({ pieces, orientation, pieceSet, lastMove, highlight = "#f5c120", badge, animKey, effect, captured, arrows = [], marks = [], selected, targets = [], onSquareClick, canDrag, onDragStart, onDragMove }: Props) {
+export default function Board({ pieces, orientation, pieceSet, lastMove, highlight = "#f5c120", badge, callouts = [], animKey, effect, captured, arrows = [], marks = [], selected, targets = [], onSquareClick, canDrag, onDragStart, onDragMove }: Props) {
   const flipped = orientation === "black";
   const ref = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<{ from: string; px: number; py: number } | null>(null);
@@ -277,6 +295,19 @@ export default function Board({ pieces, orientation, pieceSet, lastMove, highlig
           <ClassBadge cls={badge.cls} size={0} />
         </div>
       )}
+      {callouts.map((c) => {
+        const at = pos(c.square);
+        return (
+          <div key={`callout-${c.square}-${c.text ?? c.icon}`} className={`callout ${at.y < 0.5 ? "top" : ""}`} style={{ left: pct(at.x), top: pct(at.y), ["--cc" as string]: c.color }}>
+            {c.text && <span className={`callout-text ${at.y < 0.5 ? "below" : ""}`}>{c.text}</span>}
+            {c.icon && (
+              <span className="callout-icon">
+                <svg viewBox="0 0 24 24" aria-hidden><path d={CALLOUT_ICON[c.icon]} fill="#fff" fillRule="evenodd" /></svg>
+              </span>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

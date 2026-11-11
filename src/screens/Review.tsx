@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chess, Square } from "chess.js";
-import Board, { Arrow, BoardPiece, buildFrames, piecesFromFen } from "@/ui/Board";
+import Board, { Arrow, BoardPiece, Callout, buildFrames, piecesFromFen } from "@/ui/Board";
+import { gameEnd } from "@/lib/gameEnd";
+import { material } from "@/lib/material";
 import { EvalBar, EvalGraph } from "@/ui/Charts";
 import ClassBadge from "@/ui/ClassBadge";
 import PlayerBar from "@/ui/PlayerBar";
@@ -9,7 +11,7 @@ import { CLASS_META, Mood, classLabel } from "@/ui/classes";
 import { GameAnalysis } from "@/lib/analyze";
 import { Side, clockAt, formatSeconds, moveTimes, sideOfPosition, winPctFor } from "@/lib/stats";
 import { commentFor, lineComment } from "@/lib/commentary";
-import { t } from "@/lib/i18n";
+import { Key, t } from "@/lib/i18n";
 import { getEvaluationBar, getLineEvalLabel, moveLineUciToSan, uciToSan } from "@/lib/chess";
 import { isGoodMove, practiceAt } from "@/lib/practice";
 import { Variation, classifyTried, lineText, replay, withTurn } from "@/lib/variation";
@@ -52,6 +54,8 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const capturedRef = useRef(false);
   const fb = useMoveFeedback(getPool);
   const [tour, setTour] = useState<{ list: number[]; i: number } | null>(null);
+  const [showBest, setShowBest] = useState(false);
+  const end = useMemo(() => gameEnd(a.fens[a.fens.length - 1], a.headers), [a]);
 
   // Every position of the game already has an engine evaluation; tries from the board add to this cache.
   const cache = useRef(new Map<string, PositionEval>());
@@ -64,6 +68,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const orientation: Side = flipped ? (side === "white" ? "black" : "white") : side;
 
   const showPos = (p: number) => {
+    setShowBest(false);
     setRetry(null);
     setVariation(null);
     setSelected(undefined);
@@ -268,6 +273,11 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
     const best = a.positions[pos - 1]?.bestMove;
     if (best && best !== uci && cls && SHOW_BEST.includes(cls)) arrows.push({ from: best.slice(0, 2), to: best.slice(2, 4), color: "#22c58b" });
   }
+  // "Best move" button: the engine's choice for any move, also when yours was fine
+  if (showBest && !variation && !retry && pos > 0) {
+    const best = a.positions[pos - 1]?.bestMove;
+    if (best && best !== uci && !arrows.length) arrows.push({ from: best.slice(0, 2), to: best.slice(2, 4), color: "#22c58b" });
+  }
 
   if (retry && fb.fb) arrows.push(...fb.fb.arrows);
 
@@ -275,6 +285,38 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const pieces: BoardPiece[] = retry && practice ? piecesFromFen(practice.fen) : frame;
   const framePrev = variation ? vframes?.[Math.min(vIdx, vframes.length - 1) - 1] : pos > 0 ? frames[pos - 1] : undefined;
   const captured = !retry && framePrev ? framePrev.find((p) => !frame.some((q) => q.id === p.id)) : undefined;
+
+  // ---- labels on the board: how the game ended, and a word for special moves ----
+  const atEnd = !variation && !retry && pos === last && !!end;
+  const kingOf = (fen: string, color: "w" | "b") => new Chess(fen).findPiece({ type: "k", color })[0];
+  const callouts: Callout[] = [];
+  if (atEnd && end) {
+    const fen = a.fens[last];
+    if (end.winner) {
+      const loser = end.winner === "white" ? "b" : "w";
+      callouts.push({ square: kingOf(fen, end.winner === "white" ? "w" : "b"), color: "#22c58b", icon: "crown", text: t("label.winner") });
+      const icon = end.reason === "checkmate" ? "mate" : end.reason === "timeout" ? "clock" : "flag";
+      callouts.push({ square: kingOf(fen, loser), color: "#e5384f", icon, text: t(`label.${end.winner ? (end.reason === "checkmate" || end.reason === "timeout" || end.reason === "abandon" ? end.reason : "resign") : end.reason === "stalemate" ? "stalemate" : "draw"}` as Key) });
+    } else {
+      callouts.push({ square: kingOf(fen, "w"), color: "#8f93a8", icon: "draw", text: t(`label.${end.winner ? (end.reason === "checkmate" || end.reason === "timeout" || end.reason === "abandon" ? end.reason : "resign") : end.reason === "stalemate" ? "stalemate" : "draw"}` as Key) });
+      callouts.push({ square: kingOf(fen, "b"), color: "#8f93a8", icon: "draw" });
+    }
+  } else if (!retry && lastMove) {
+    const san = variation ? (vdata && vIdx > 0 ? vdata.sans[vIdx - 1] : undefined) : a.sans[pos - 1];
+    if (shownCls === MC.Splendid || shownCls === MC.Perfect) callouts.push({ square: lastMove.to, color: CLASS_META[shownCls].color, text: `${classLabel(shownCls)}!` });
+    else if (san?.startsWith("O-O")) callouts.push({ square: lastMove.to, color: "#6c4cf5", text: t("label.castles") });
+    else if (san?.endsWith("+")) callouts.push({ square: lastMove.to, color: "#ff8a1f", text: t("label.check") });
+  }
+  const name = (s: Side) => a.headers[s === "white" ? "White" : "Black"] ?? t(s === "white" ? "puzzle.white" : "puzzle.black");
+  const endText = end
+    ? end.winner
+      ? t(`end.${end.reason}` as Key, { winner: name(end.winner), loser: name(end.winner === "white" ? "black" : "white") })
+      : t(`end.${end.reason}` as Key)
+    : "";
+  const endYou = end ? t(!end.winner ? "end.drawn" : end.winner === side ? "end.youWon" : "end.youLost") : "";
+  const evalLabel = !variation && pos > 0 && a.positions[pos].lines[0] ? getLineEvalLabel(a.positions[pos].lines[0]) : undefined;
+  const evalWhite = evalLabel ? !evalLabel.startsWith("-") : true;
+  const mat = material(playFen);
 
   const shownEval: PositionEval = variation ? nowEval ?? prevEval ?? a.positions[variation.base] : a.positions[pos];
   const bar = getEvaluationBar(shownEval);
@@ -293,7 +335,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   return (
     <div className="screen review">
       <div className="board-col">
-        <PlayerBar headers={a.headers} color={orientation === "white" ? "black" : "white"} isYou={(orientation === "white" ? "black" : "white") === side} accuracy={a.accuracy[orientation === "white" ? "black" : "white"]} clock={variation ? undefined : clockAt(a, pos, orientation === "white" ? "black" : "white")} />
+        <PlayerBar headers={a.headers} color={orientation === "white" ? "black" : "white"} isYou={(orientation === "white" ? "black" : "white") === side} accuracy={a.accuracy[orientation === "white" ? "black" : "white"]} clock={variation ? undefined : clockAt(a, pos, orientation === "white" ? "black" : "white")} pieceSet={pieceSet} taken={mat.taken[orientation === "white" ? "black" : "white"]} plus={mat.plus[orientation === "white" ? "black" : "white"]} />
         <div className="board-row">
           <EvalBar whitePct={bar.whitePct} label={bar.label} side={orientation} />
           <Board
@@ -303,6 +345,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
             lastMove={retry ? undefined : lastMove}
             highlight={shownCls ? CLASS_META[shownCls].color : undefined}
             badge={!retry && lastMove && shownCls ? { square: lastMove.to, cls: shownCls } : undefined}
+            callouts={callouts}
             animKey={variation ? `v${vIdx}${variation.moves.length}` : pos}
             effect={retry ? undefined : effectFor(shownCls)}
             captured={captured}
@@ -316,7 +359,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
             onDragMove={onDragMove}
           />
         </div>
-        <PlayerBar headers={a.headers} color={orientation} isYou={orientation === side} accuracy={a.accuracy[orientation]} clock={variation ? undefined : clockAt(a, pos, orientation)} />
+        <PlayerBar headers={a.headers} color={orientation} isYou={orientation === side} accuracy={a.accuracy[orientation]} clock={variation ? undefined : clockAt(a, pos, orientation)} pieceSet={pieceSet} taken={mat.taken[orientation]} plus={mat.plus[orientation]} />
         <div className="controls">
           <button onClick={() => (variation ? goto(variation.base) : goto(0))} aria-label="First">|&lt;</button>
           <button onClick={() => (variation ? stepBack() : goto(pos - 1))} aria-label="Previous">&lt;</button>
@@ -354,20 +397,32 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
             ) : (
               <>
                 {cls && (
-                  <div className="bubble-title">
-                    <ClassBadge cls={cls} size={22} /> {classLabel(cls)}
+                  <div className="bubble-title headline">
+                    <ClassBadge cls={cls} size={22} />
+                    <span className="headline-text">{t("review.headline", { san: a.sans[pos - 1], cls: t(`head.${cls}` as Key) })}</span>
+                    {evalLabel && <span className={`eval-pill ${evalWhite ? "w" : "b"}`}>{evalLabel}</span>}
                   </div>
                 )}
-                <p>{commentFor(a, pos, side)}</p>
+                {atEnd ? (
+                  <p className="end-line"><b>{endText}</b> {endYou}</p>
+                ) : (
+                  <p>{commentFor(a, pos, side)}</p>
+                )}
                 {pos > 0 && times[pos - 1] !== undefined && !tour && <p className="var-line">{t("review.time", { s: formatSeconds(times[pos - 1]!) })}</p>}
                 {tour && <p className="var-line">{t("review.tourStep", { i: tour.i + 1, n: tour.list.length })}</p>}
               </>
             )}
-            {practice && !retry && (
-              <div className="row">
-                <button className="btn primary small" onClick={() => setRetry({})}>
-                  {t(practice.kind === "punish" ? "review.punish" : practice.kind === "learn" ? "review.find" : "review.retry")}
-                </button>
+            {!variation && !retry && (
+              <div className="row coach-actions">
+                {practice && (
+                  <button className="btn ghost small" onClick={() => setRetry({})}>
+                    {t(practice.kind === "punish" ? "review.punish" : practice.kind === "learn" ? "review.find" : "review.retry")}
+                  </button>
+                )}
+                {pos > 0 && a.positions[pos - 1]?.bestMove && a.positions[pos - 1].bestMove !== uci && !(cls && SHOW_BEST.includes(cls) && mine) && (
+                  <button className={`btn ghost small ${showBest ? "on" : ""}`} onClick={() => setShowBest(!showBest)}>{t("review.best")}</button>
+                )}
+                {pos < last && <button className="btn primary small next-btn" onClick={() => goto(pos + 1)}>{t("review.next")}</button>}
               </div>
             )}
             {variation && !retry && (
@@ -390,7 +445,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
           <EvalGraph a={a} side={side} current={variation ? variation.base : pos} onSelect={goto} />
         </div>
 
-        {!retry && lines.length > 0 && (
+        {!retry && lines.some((l) => l.pv.length > 0) && (
           <div className="card lines">
             <h3>{t("review.lines")}{thinking ? " ..." : ""}</h3>
             {lines.map((l) => (
@@ -418,6 +473,11 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
               )}
             </div>
           ))}
+          {end && (
+            <div className="move-result">
+              {a.headers.Result} <span>{t(`label.${end.winner ? (end.reason === "checkmate" || end.reason === "timeout" || end.reason === "abandon" ? end.reason : "resign") : end.reason === "stalemate" ? "stalemate" : "draw"}` as Key)}</span>
+            </div>
+          )}
         </div>
         <button className="btn ghost" onClick={onBack}>{t("review.back")}</button>
       </div>
