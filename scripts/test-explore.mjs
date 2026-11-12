@@ -70,7 +70,7 @@ try {
   await mouse("mouseReleased", a1.x, a1.y);
   await sleep(150);
   expect("a left click clears your drawing", (await arrowsNow()) === arrowsBefore && (await marksNow()) === 0);
-  await ev(`document.querySelectorAll(".bubble button")`);
+  await ev(`document.querySelectorAll(".coach button")`);
 
   // Drag d2 -> d4 (the game continued with e4, so this starts a variation).
   const from = await square(3, 2);
@@ -83,7 +83,7 @@ try {
   expect("a ghost piece follows the pointer while dragging", during === true);
   const hasLine = await ev(`document.querySelector(".var-line")?.textContent ?? ""`);
   expect("your own line is shown", /1\. d4/.test(hasLine), JSON.stringify(hasLine));
-  expect("coach offers undo and back to game", await ev(`[...document.querySelectorAll(".bubble button")].map(b => b.innerText).join("|")`) !== "");
+  expect("coach offers undo and back to game", await ev(`[...document.querySelectorAll(".coach button")].map(b => b.innerText).join("|")`) !== "");
 
   // The engine judges the move (a label shows up once it is evaluated).
   let label = "";
@@ -106,7 +106,7 @@ try {
   expect("the line continues with the clicked move", /d4 d5/.test(line2), JSON.stringify(line2));
 
   // Undo twice leaves the variation.
-  const clickText = (text) => ev(`(() => { const b = [...document.querySelectorAll(".bubble button")].find(x => x.innerText.trim() === ${JSON.stringify(text)}); if (b) b.click(); return !!b; })()`);
+  const clickText = (text) => ev(`(() => { const b = [...document.querySelectorAll(".coach button")].find(x => x.innerText.trim() === ${JSON.stringify(text)}); if (b) b.click(); return !!b; })()`);
   const undoLabel = (await ev(`document.documentElement.lang`)) ? "Undo" : "Undo";
   await clickText(undoLabel);
   await sleep(200);
@@ -137,13 +137,13 @@ try {
   // Engine answers for the side to move.
   let enabled = false;
   for (let k = 0; k < 40; k++) {
-    enabled = await ev(`(() => { const b = [...document.querySelectorAll(".bubble button")].find(x => x.innerText.trim() === "Engine move"); return !!b && !b.disabled; })()`);
+    enabled = await ev(`(() => { const b = [...document.querySelectorAll(".coach button")].find(x => x.innerText.trim() === "Engine move"); return !!b && !b.disabled; })()`);
     if (enabled) break;
     await sleep(500);
   }
   expect("the engine move button becomes available", enabled);
   const before = (await ev(`document.querySelector(".var-line")?.textContent ?? ""`)).split(" ").length;
-  await ev(`[...document.querySelectorAll(".bubble button")].find(x => x.innerText.trim() === "Engine move")?.click()`);
+  await ev(`[...document.querySelectorAll(".coach button")].find(x => x.innerText.trim() === "Engine move")?.click()`);
   await sleep(300);
   const after = (await ev(`document.querySelector(".var-line")?.textContent ?? ""`)).split(" ").length;
   expect("the engine move extends the line", after > before, `${before} -> ${after}`);

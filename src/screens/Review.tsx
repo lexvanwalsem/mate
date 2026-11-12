@@ -275,12 +275,13 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   const onDragMove = (from: string, to: string) => playMove(from, to);
 
   // ---- arrows, pieces, eval ----
+  const ex = !variation && !retry && pos > 0 && !(pos === last && end) ? explainMove(a, pos, persp) : undefined;
   const arrows: Arrow[] = [];
   if (variation) {
     if (vcls && SHOW_BEST.includes(vcls) && prevEval?.bestMove) arrows.push({ from: prevEval.bestMove.slice(0, 2), to: prevEval.bestMove.slice(2, 4), color: "#22c58b" });
-  } else if (!retry && mine && pos > 0) {
-    const best = a.positions[pos - 1]?.bestMove;
-    if (best && best !== uci && cls && SHOW_BEST.includes(cls)) arrows.push({ from: best.slice(0, 2), to: best.slice(2, 4), color: "#22c58b" });
+  } else if (!retry && ex) {
+    // the arrows that go with the coach's words: the better move, the punishing answer, a threat, the plan
+    arrows.push(...ex.arrows);
   }
   // "Best move" button: the engine's choice for any move, also when yours was fine
   if (showBest && !variation && !retry && pos > 0) {
@@ -444,43 +445,45 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
                 {atEnd ? (
                   <p className="end-line"><b>{endText}</b> {endYou}</p>
                 ) : (
-                  <p>{explainMove(a, pos, persp)}</p>
+                  <p>{ex?.text}</p>
                 )}
                 {pos > 0 && times[pos - 1] !== undefined && !tour && <p className="var-line">{t("review.time", { s: formatSeconds(times[pos - 1]!) })}</p>}
                 {tour && <p className="var-line">{t("review.tourStep", { i: tour.i + 1, n: tour.list.length })}</p>}
               </>
             )}
-            {!variation && !retry && (
-              <div className="row coach-actions">
-                {practice && (
-                  <button className="btn ghost small" onClick={() => setRetry({})}>
-                    {t(practice.kind === "punish" ? "review.punish" : practice.kind === "learn" ? "review.find" : "review.retry")}
-                  </button>
-                )}
-                {canIdea && <button className="btn ghost small" onClick={() => playIdea("best", pos)}>{t("idea.show")}</button>}
-                {canWhy && <button className="btn ghost small" onClick={() => playIdea("why", pos)}>{t("idea.why")}</button>}
-                {pos < last && <button className="btn primary small next-btn" onClick={() => goto(pos + 1)}>{t("review.next")}</button>}
-              </div>
-            )}
-            {variation && idea && (
-              <div className="row coach-actions">
-                <button className="btn ghost small" onClick={() => playIdea(idea.kind, idea.from)}>{t("idea.replay")}</button>
-                <button className="btn primary small next-btn" onClick={() => goto(idea.from)}>{t("idea.back")}</button>
-              </div>
-            )}
-            {variation && !idea && !retry && (
-              <div className="row">
-                <button className="btn ghost small" onClick={undo}>{t("explore.undo")}</button>
-                <button className="btn ghost small" disabled={!engineMove} onClick={() => engineMove && commit(engineMove)}>{t("explore.engine")}</button>
-                <button className="btn primary small" onClick={() => goto(variation.base)}>{t("explore.exit")}</button>
-              </div>
-            )}
-            {retry && (
-              <div className="row">
-                {retry.result === "wrong" && <button className="btn ghost small" onClick={() => setRetry({})}>{t("review.again")}</button>}
-                <button className="btn ghost small" onClick={() => setRetry(null)}>{t("review.stop")}</button>
-              </div>
-            )}
+          </div>
+          <div className="coach-bar">
+              {!variation && !retry && (
+                <div className="coach-actions">
+                  {practice && (
+                    <button className="btn ghost small" onClick={() => setRetry({})}>
+                      {t(practice.kind === "punish" ? "review.punish" : practice.kind === "learn" ? "review.find" : "review.retry")}
+                    </button>
+                  )}
+                  {canIdea && <button className="btn ghost small" onClick={() => playIdea("best", pos)}>{t("idea.show")}</button>}
+                  {canWhy && <button className="btn ghost small" onClick={() => playIdea("why", pos)}>{t("idea.why")}</button>}
+                  {pos < last && <button className="btn primary small next-btn" onClick={() => goto(pos + 1)}>{t("review.next")}</button>}
+                </div>
+              )}
+              {variation && idea && (
+                <div className="coach-actions">
+                  <button className="btn ghost small" onClick={() => playIdea(idea.kind, idea.from)}>{t("idea.replay")}</button>
+                  <button className="btn primary small next-btn" onClick={() => goto(idea.from)}>{t("idea.back")}</button>
+                </div>
+              )}
+              {variation && !idea && !retry && (
+                <div className="coach-actions">
+                  <button className="btn ghost small" onClick={undo}>{t("explore.undo")}</button>
+                  <button className="btn ghost small" disabled={!engineMove} onClick={() => engineMove && commit(engineMove)}>{t("explore.engine")}</button>
+                  <button className="btn primary small" onClick={() => goto(variation.base)}>{t("explore.exit")}</button>
+                </div>
+              )}
+              {retry && (
+                <div className="coach-actions">
+                  {retry.result === "wrong" && <button className="btn ghost small" onClick={() => setRetry({})}>{t("review.again")}</button>}
+                  <button className="btn ghost small" onClick={() => setRetry(null)}>{t("review.stop")}</button>
+                </div>
+              )}
           </div>
         </div>
 
@@ -500,6 +503,9 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
           </div>
         )}
 
+      </div>
+
+      <div className="moves-col">
         <div className="card movelist">
           {Array.from({ length: Math.ceil(a.sans.length / 2) }, (_, i) => (
             <div className="move-row" key={i}>

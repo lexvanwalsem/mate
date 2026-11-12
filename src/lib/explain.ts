@@ -5,6 +5,8 @@ import { Side, sideOfPosition } from "./stats";
 import { uciMoveParams, uciToSan } from "./chess";
 import { Key, t } from "./i18n";
 import { commentFor } from "./commentary";
+import { lineText } from "./followUp";
+import type { Arrow } from "@/ui/Board";
 
 const VALUE: Record<string, number> = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 100 };
 const BAD = [MC.Inaccuracy, MC.Mistake, MC.Blunder];
@@ -55,16 +57,75 @@ function quietMove(before: Chess, board: Chess, m: ReturnType<Chess["move"]>, vo
   return t("x.quiet", v);
 }
 
+
+/** The explanation of a move: the words, and the arrows that show them on the board. */
+export interface Explanation {
+  text: string;
+  arrows: Arrow[];
+}
+
+const GREEN = "#22c58b"; // the better move
+const ORANGE = "#ff8a1f"; // the answer that punishes
+const YELLOW = "#f5c120"; // a new attack
+const RED = "#e5384f"; // a piece that can be taken
+const VIOLET = "#7b5cff"; // the plan, a few moves ahead
+const arrow = (from: string, to: string, color: string): Arrow => ({ from, to, color });
+
+/** White's material lead in a position, in pawns. */
+const lead = (fen: string) => {
+  let sum = 0;
+  for (const ch of fen.split(" ")[0]) {
+    const v = VALUE[ch.toLowerCase()];
+    if (v && ch.toLowerCase() !== "k") sum += ch === ch.toUpperCase() ? v : -v;
+  }
+  return sum;
+};
+
+const gainText = (n: number) => t(n >= 8 ? "x.gain.q" : n >= 5 ? "x.gain.r" : n >= 3 ? "x.gain.piece" : n >= 2 ? "x.gain.pawns" : "x.gain.pawn", { n });
+
+/**
+ * The plan behind an engine line: plays it until the position is calm and looks at what comes out of it for `mover`:
+ * checkmate, or material won. This is how the coach can say what the idea a few moves ahead is.
+ */
+function planOf(fen: string, pv: string[], mover: "w" | "b"): { mate: boolean; gain: number; line: string; arrows: Arrow[] } | undefined {
+  const game = new Chess(fen);
+  const steps: { san: string; from: string; to: string; color: string; captured?: string }[] = [];
+  // Play on until things are calm: at least four half-moves, then stop at the first two moves without a capture,
+  // so a line never ends in the middle of a trade.
+  let calm = false;
+  for (const uci of pv.slice(0, 10)) {
+    try {
+      const m = game.move(uciMoveParams(uci));
+      steps.push(m);
+      if (game.isCheckmate()) break;
+      const prev = steps[steps.length - 2];
+      if (steps.length >= 4 && !m.captured && prev && !prev.captured) {
+        calm = true;
+        break;
+      }
+    } catch {
+      break;
+    }
+  }
+  if (!steps.length || (!calm && !game.isCheckmate())) return undefined;
+  const mate = game.isCheckmate() && steps[steps.length - 1].color === mover;
+  const gain = (lead(game.fen()) - lead(fen)) * (mover === "w" ? 1 : -1);
+  const arrows = steps.filter((m) => m.color === mover).slice(0, 3).map((m) => arrow(m.from, m.to, VIOLET));
+  return { mate, gain, line: lineText(fen, steps as never), arrows };
+}
+
 /**
  * What a move does, in one or two sentences, told to the player at the bottom of the board:
  * "you" for their own moves, "your opponent" for the other side. Like a coach next to the board.
+ * Every claim that is about a square comes with an arrow on the board.
  */
-export function explainMove(a: GameAnalysis, p: number, persp: Side): string {
+export function explainMove(a: GameAnalysis, p: number, persp: Side): Explanation {
   const cls = a.positions[p]?.moveClassification;
-  if (!cls) return "";
-  if (cls === MC.Opening) return commentFor(a, p, persp);
+  if (!cls) return { text: "", arrows: [] };
+  if (cls === MC.Opening) return { text: commentFor(a, p, persp), arrows: [] };
 
   const mine = sideOfPosition(p) === persp;
+  const me = mine ? "me" : "opp";
   const voice = { S: t(mine ? "x.you" : "x.they"), P: t(mine ? "x.your" : "x.their") };
   const before = new Chess(a.fens[p - 1]);
   const wasCheck = before.inCheck();
@@ -74,6 +135,7 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): string {
   const to = m.to as Square;
   const attackedBack = board.attackers(to, enemy).length > 0;
   const defended = board.attackers(to, m.color).length > 0;
+  const arrows: Arrow[] = [];
 
   // What the move itself does.
   let main: string;
@@ -88,9 +150,9 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): string {
   else if ((m.piece === "n" || m.piece === "b") && /[18]/.test(m.from[1]) && p <= 24) main = t("x.develop", { ...voice, piece: piece(m.piece) });
   else if (m.piece === "p" && ["d4", "e4", "d5", "e5"].includes(m.to) && p <= 16) main = t("x.center", voice);
   else main = quietMove(before, board, m, voice);
-  if (board.isCheckmate()) return main;
+  if (board.isCheckmate()) return { text: main, arrows };
 
-  // What it leads to: for weak moves the engine's answer, for good moves a new threat.
+  // What it leads to: for weak moves the engine's answer, for good moves the threat or the plan.
   const extra: string[] = [];
   const bestUci = a.positions[p - 1].bestMove;
   const bestSan = bestUci && bestUci !== a.uciMoves[p - 1] ? uciToSan(a.fens[p - 1], bestUci) : undefined;
@@ -100,6 +162,7 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): string {
     if (replyUci) {
       const g = new Chess(a.fens[p]);
       const r = g.move(uciMoveParams(replyUci));
+      arrows.push(arrow(r.from, r.to, ORANGE));
       const mateAgainst = replyMate !== undefined && (m.color === "w" ? replyMate < 0 : replyMate > 0);
       const other = { O: t(mine ? "x.oppLower" : "x.youLower") };
       const chased = !r.captured && g.attackers(to, enemy).includes(r.to as Square) && VALUE[m.piece] > VALUE[r.piece];
@@ -110,20 +173,41 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): string {
       else if (chased) extra.push(t("x.chased", { ...other, reply: r.san, mover: piece(m.piece) }));
       else extra.push(t("x.allowsMove", { ...other, reply: r.san }));
     }
-    if (bestSan) extra.push(t("x.better", { best: bestSan }));
-  } else if (cls === MC.Miss && bestSan) {
-    extra.push(t("x.missed", { ...voice, best: bestSan }));
-  } else if (!m.captured) {
+    if (bestSan && bestUci) {
+      extra.push(t("x.better", { best: bestSan }));
+      arrows.push(arrow(bestUci.slice(0, 2), bestUci.slice(2, 4), GREEN));
+    }
+  } else if (cls === MC.Miss && bestSan && bestUci) {
+    arrows.push(arrow(bestUci.slice(0, 2), bestUci.slice(2, 4), GREEN));
+    const plan = planOf(a.fens[p - 1], a.positions[p - 1].lines[0]?.pv ?? [], m.color);
+    if (plan && (plan.mate || plan.gain >= 1)) {
+      extra.push(t(plan.mate ? `x.missedMate.${me}` : `x.missedPlan.${me}`, { best: bestSan, line: plan.line, gain: gainText(plan.gain) }));
+      arrows.push(...plan.arrows.slice(1));
+    } else extra.push(t("x.missed", { ...voice, best: bestSan }));
+  } else {
     // A new attack: the moved piece now hits something loose or worth more.
-    const targets = board
-      .board()
-      .flat()
-      .filter((s): s is NonNullable<typeof s> => !!s && s.color === enemy && s.type !== "k")
-      .filter((s) => board.attackers(s.square, m.color).includes(to))
-      .filter((s) => VALUE[s.type] > VALUE[m.piece] || board.attackers(s.square, enemy).length === 0)
-      .sort((x, y) => VALUE[y.type] - VALUE[x.type]);
-    if (targets[0]) extra.push(t("x.attack", { mover: piece(m.piece), piece: piece(targets[0].type), sq: targets[0].square }));
-    else if (!defended && attackedBack && VALUE[m.piece] >= 3) extra.push(t("x.hanging", { mover: piece(m.piece), sq: m.to }));
+    const targets = m.captured
+      ? []
+      : board
+          .board()
+          .flat()
+          .filter((s): s is NonNullable<typeof s> => !!s && s.color === enemy && s.type !== "k")
+          .filter((s) => board.attackers(s.square, m.color).includes(to))
+          .filter((s) => VALUE[s.type] > VALUE[m.piece] || board.attackers(s.square, enemy).length === 0)
+          .sort((x, y) => VALUE[y.type] - VALUE[x.type]);
+    // The plan: what the engine expects a few moves ahead, when it wins something for the mover.
+    const plan = planOf(a.fens[p], a.positions[p].lines[0]?.pv ?? [], m.color);
+    if (plan && (plan.mate || plan.gain >= 2)) {
+      extra.push(t(plan.mate ? `x.planMate.${me}` : `x.planWin.${me}`, { line: plan.line, gain: gainText(plan.gain) }));
+      arrows.push(...plan.arrows);
+    } else if (targets[0]) {
+      extra.push(t("x.attack", { mover: piece(m.piece), piece: piece(targets[0].type), sq: targets[0].square }));
+      arrows.push(arrow(m.to, targets[0].square, YELLOW));
+    } else if (!defended && attackedBack && VALUE[m.piece] >= 3) {
+      extra.push(t("x.hanging", { mover: piece(m.piece), sq: m.to }));
+      const hitter = board.attackers(to, enemy)[0];
+      if (hitter) arrows.push(arrow(hitter, m.to, RED));
+    }
   }
-  return [main, ...extra].join(" ");
+  return { text: [main, ...extra].join(" "), arrows };
 }

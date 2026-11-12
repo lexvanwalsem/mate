@@ -502,3 +502,34 @@ h1, h2, h3 { font-weight: 600; letter-spacing: 0; }
 .review .movelist { padding-bottom: 22px; }
 .coach-actions { flex-wrap: wrap; }
 .idea-line { font-weight: 600; color: var(--violet-dark); }
+
+/* ---------- review in three columns: board, coach (with room to explain), move list ---------- */
+.main .review {
+  --board: min(calc(var(--avail) - 164px), calc(100vw - 32px - 32px - 380px - 220px - 36px));
+  grid-template-columns: calc(var(--board) + 36px) 380px 220px;
+}
+.review .side-col { height: var(--avail); display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 12px; }
+.review .moves-col { height: var(--avail); display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 12px; min-width: 0; }
+.review .moves-col > .btn { height: 40px; min-height: 40px; padding: 0; }
+.review .movelist { height: auto; min-height: 0; }
+.review .coach { height: auto; min-height: 0; padding: 14px; display: grid; grid-template-columns: 80px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; gap: 12px; align-items: start; }
+.review .coach .bubble { min-height: 0; max-height: 100%; overflow: auto; font-size: 14.5px; line-height: 1.5; }
+.review .coach-bar { grid-column: 1 / -1; }
+.review .coach-bar .coach-actions { display: flex; flex-wrap: nowrap; gap: 8px; margin: 0; }
+.review .coach-bar .coach-actions .btn { flex: 1; white-space: nowrap; padding-left: 8px; padding-right: 8px; }
+.review .coach-bar .coach-actions .next-btn { flex: 1.4; }
+.review .coach-bar:empty { display: none; }
+
+/* narrower windows: the move list goes under the coach */
+@media (max-width: 1240px) and (min-width: 1001px) {
+  .main .review { --board: min(calc(var(--avail) - 164px), calc(100vw - 32px - 16px - 380px - 36px)); grid-template-columns: calc(var(--board) + 36px) 380px; grid-template-rows: auto auto; }
+  .review .board-col { grid-row: span 2; }
+  .review .side-col { height: calc(var(--avail) * 0.66); }
+  .review .moves-col { height: calc(var(--avail) * 0.34 - 16px); }
+}
+@media (max-width: 1000px), (max-height: 560px) {
+  .review .side-col, .review .moves-col { height: auto; }
+  .review .movelist { height: 280px; }
+}
+.review .coach .bubble p { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.review .coach .bubble p.var-line { display: -webkit-box; }

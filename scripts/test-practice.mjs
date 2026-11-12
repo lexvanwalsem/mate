@@ -46,7 +46,7 @@ try {
   await sleep(500);
 
   const clickMove = (n) => ev(`document.querySelectorAll(".move")[${n}].click()`);
-  const bubble = () => ev(`document.querySelector(".bubble")?.innerText ?? ""`);
+  const bubble = () => ev(`document.querySelector(".coach")?.innerText ?? ""`);
   const square = async (file, rank) => {
     const r = JSON.parse(await ev(`JSON.stringify(document.querySelector(".board").getBoundingClientRect())`));
     return { x: r.left + ((file + 0.5) / 8) * r.width, y: r.top + ((8 - rank + 0.5) / 8) * r.height };
@@ -67,7 +67,7 @@ try {
     if (/Punish it/.test(found)) break;
   }
   expect("an opponent slip offers a punish exercise", /Punish it/.test(found), JSON.stringify(found.slice(0, 80)));
-  await ev(`[...document.querySelectorAll(".bubble button")].find(b => b.innerText.trim() === "Punish it")?.click()`);
+  await ev(`[...document.querySelectorAll(".coach button")].find(b => b.innerText.trim() === "Punish it")?.click()`);
   await sleep(250);
   expect("the exercise asks for the punishing move", /slipped|punishes/i.test(await bubble()));
   // Wrong try first: a quiet pawn move.
@@ -80,7 +80,7 @@ try {
   expect("the wrong try is explained", /loses|gives away|not the best|allows mate/i.test(why), JSON.stringify(why.slice(0, 90)));
   expect("the engine reply is drawn too", (await arrowCount()) >= 2, String(await arrowCount()));
   expect("the dangerous square is marked", (await ev(`document.querySelectorAll(".mark").length`)) >= 1);
-  await ev(`[...document.querySelectorAll(".bubble button")].find(b => b.innerText.trim() === "Once more")?.click()`);
+  await ev(`[...document.querySelectorAll(".coach button")].find(b => b.innerText.trim() === "Once more")?.click()`);
   await sleep(200);
   await click(5, 3); // f3 knight
   await click(6, 5); // takes the queen on g5
