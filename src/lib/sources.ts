@@ -1,6 +1,7 @@
 import { t } from "./i18n";
 import { LICHESS_RESERVED } from "./gameUrl";
 import { Chess } from "chess.js";
+import { decodeTcn } from "./tcn";
 
 export type GameSource = "lichess" | "chesscom" | "pgn";
 
@@ -63,6 +64,19 @@ async function fetchChessCom(kind: "live" | "daily", id: string, side?: "white" 
   throw new Error(t("err.chesscomPgn"));
 }
 
+/** A game against a chess.com bot: not in the public archives, but its own page data has the moves (as TCN). */
+async function fetchChessComComputer(id: string, side?: "white" | "black"): Promise<LoadedGame> {
+  const res = await fetch(`https://www.chess.com/computer/callback/game/${id}`);
+  if (!res.ok) throw new Error(t("err.chesscom", { status: res.status }));
+  const game = (await res.json())?.game;
+  if (!game?.moveList) throw new Error(t("err.chesscomPgn"));
+  const headers: Record<string, string | number> = game.pgnHeaders ?? {};
+  const board = new Chess(typeof headers.FEN === "string" ? headers.FEN : undefined);
+  for (const m of decodeTcn(game.moveList)) board.move(m);
+  for (const [k, v] of Object.entries(headers)) board.setHeader(k, String(v));
+  return { pgn: board.pgn(), source: "chesscom", url: `https://www.chess.com/game/computer/${id}`, side };
+}
+
 /** Which side did `user` play in this PGN? */
 function sideOf(pgn: string, user: string): "white" | "black" | undefined {
   const name = user.toLowerCase();
@@ -122,6 +136,12 @@ export async function loadGame(input: string, sideHint?: "white" | "black", user
   const li = url.match(/lichess\.org\/(?:embed\/)?([a-zA-Z0-9]{8})(?:[a-zA-Z0-9]{4})?(?:\/(white|black))?(?:[/?#]|$)/);
   if (li && !LICHESS_RESERVED.has(li[1])) {
     const g = await fetchLichess(li[1], (li[2] as "white" | "black" | undefined) ?? sideHint);
+    return { ...g, pgn: validatePgn(g.pgn) };
+  }
+
+  const bot = url.match(/chess\.com\/(?:[a-z]{2}\/)?(?:analysis\/)?game\/computer\/(\d+)/);
+  if (bot) {
+    const g = await fetchChessComComputer(bot[1], sideHint);
     return { ...g, pgn: validatePgn(g.pgn) };
   }
 

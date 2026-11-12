@@ -6,7 +6,7 @@ export const LICHESS_RESERVED = new Set([
 ]);
 
 const LICHESS = /lichess\.org\/(?:embed\/)?([a-zA-Z0-9]{8})(?:[a-zA-Z0-9]{4})?(?:\/(?:white|black))?(?:[/?#]|$)/;
-const CHESSCOM = /chess\.com\/(?:[a-z]{2}\/)?(?:analysis\/)?game\/(?:live|daily)\/\d+/;
+const CHESSCOM = /chess\.com\/(?:[a-z]{2}\/)?(?:analysis\/)?game\/(?:live|daily|computer)\/\d+/;
 
 export function isGameUrl(url: string): boolean {
   const li = url.match(LICHESS);

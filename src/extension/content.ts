@@ -26,7 +26,7 @@ function detectUser(): string | undefined {
 function findGameUrl(): string | undefined {
   if (isGameUrl(location.href)) return location.href;
   const link = document.querySelector<HTMLAnchorElement>(
-    'a[href*="/game/live/"], a[href*="/game/daily/"], a[href*="/analysis/game/"]'
+    'a[href*="/game/live/"], a[href*="/game/daily/"], a[href*="/game/computer/"], a[href*="/analysis/game/"]'
   );
   return link && isGameUrl(link.href) ? link.href : undefined;
 }
