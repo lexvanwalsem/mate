@@ -1,6 +1,6 @@
 {
   "name": "zetje",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "description": "Zetje — gratis, lokale schaakanalyse met Blokje de mascotte. Chrome-extensie voor chess.com, lichess en meer.",
   "private": true,
   "license": "AGPL-3.0-or-later",

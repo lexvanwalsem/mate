@@ -195,6 +195,11 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): Explanatio
           .filter((s) => board.attackers(s.square, m.color).includes(to))
           .filter((s) => VALUE[s.type] > VALUE[m.piece] || board.attackers(s.square, enemy).length === 0)
           .sort((x, y) => VALUE[y.type] - VALUE[x.type]);
+    // A fine move that was not the best: still show the best one, in words and as a green arrow.
+    if (bestSan && bestUci && (cls === MC.Okay || cls === MC.Excellent)) {
+      extra.push(t("x.bestWas", { best: bestSan }));
+      arrows.push(arrow(bestUci.slice(0, 2), bestUci.slice(2, 4), GREEN));
+    }
     // The plan: what the engine expects a few moves ahead, when it wins something for the mover.
     const plan = planOf(a.fens[p], a.positions[p].lines[0]?.pv ?? [], m.color);
     if (plan && (plan.mate || plan.gain >= 2)) {
