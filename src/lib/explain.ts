@@ -149,7 +149,8 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): Explanatio
   else if (board.inCheck()) main = t("x.check", { ...voice, piece: piece(m.piece) });
   else if ((m.piece === "n" || m.piece === "b") && /[18]/.test(m.from[1]) && p <= 24) main = t("x.develop", { ...voice, piece: piece(m.piece) });
   else if (m.piece === "p" && ["d4", "e4", "d5", "e5"].includes(m.to) && p <= 16) main = t("x.center", voice);
-  else main = quietMove(before, board, m, voice);
+  // A weak quiet move gets a plain description, not praise like "where it is strongest".
+  else main = BAD.includes(cls) ? t("x.moved", { ...voice, piece: piece(m.piece), sq: m.to }) : quietMove(before, board, m, voice);
   if (board.isCheckmate()) return { text: main, arrows };
 
   // What it leads to: for weak moves the engine's answer, for good moves the threat or the plan.
@@ -172,6 +173,13 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): Explanatio
       else if (!defended && attackedBack && VALUE[m.piece] >= 3) extra.push(t("x.hanging", { mover: piece(m.piece), sq: m.to }));
       else if (chased) extra.push(t("x.chased", { ...other, reply: r.san, mover: piece(m.piece) }));
       else extra.push(t("x.allowsMove", { ...other, reply: r.san }));
+      // The engine may prefer something else (like a mate), but a piece left hanging is still worth saying.
+      const loose = !defended && attackedBack && VALUE[m.piece] >= 3 && !r.captured;
+      if (loose && !extra.some((e) => e === t("x.hanging", { mover: piece(m.piece), sq: m.to }))) {
+        extra.push(t("x.hanging", { mover: piece(m.piece), sq: m.to }));
+        const hitter = board.attackers(to, enemy)[0];
+        if (hitter) arrows.push(arrow(hitter, m.to, RED));
+      }
     }
     if (bestSan && bestUci) {
       extra.push(t("x.better", { best: bestSan }));
@@ -213,6 +221,12 @@ export function explainMove(a: GameAnalysis, p: number, persp: Side): Explanatio
       const hitter = board.attackers(to, enemy)[0];
       if (hitter) arrows.push(arrow(hitter, m.to, RED));
     }
+  }
+  // Already decided before this move: say so, it changes what the move means.
+  const mateBefore = a.positions[p - 1].lines[0]?.mate;
+  if (mateBefore !== undefined && mateBefore !== 0) {
+    const forMover = (mateBefore > 0) === (m.color === "w");
+    extra.push(t(`x.${forMover ? "wonAnyway" : "lostAnyway"}.${me}` as Key, { n: Math.abs(mateBefore) }));
   }
   return { text: [main, ...extra].join(" "), arrows };
 }

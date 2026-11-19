@@ -1,4 +1,5 @@
 import { Chess } from "chess.js";
+import { applyMaterialLoss } from "./materialLoss";
 import { EnginePool } from "@/engine/pool";
 import { Accuracy, EstimatedElo, PositionEval } from "@/types/eval";
 import { MoveClassification as MC } from "@/types/enums";
@@ -76,7 +77,7 @@ export async function analyzeGame(
     })
   );
 
-  const positions = applyMisses(getMovesClassification(raw, parsed.uciMoves, parsed.fens));
+  const positions = applyMaterialLoss(applyMisses(getMovesClassification(raw, parsed.uciMoves, parsed.fens)), parsed.fens, parsed.uciMoves);
   const wp = positions.map(getPositionWinPercentage);
 
   return {
