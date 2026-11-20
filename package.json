@@ -32,7 +32,8 @@
     "test:ending": "node scripts/test-ending.mjs",
     "check:tcn": "tsx scripts/check-tcn.ts",
     "check:chesscom-bot": "tsx scripts/check-chesscom-bot.ts",
-    "check:material": "tsx scripts/check-material-loss.ts"
+    "check:material": "tsx scripts/check-material-loss.ts",
+    "test": "npm run typecheck && npm run check:lessons && npm run check:reactions && npm run check:material && npm run check:duolingo && npm run check:tcn"
   },
   "dependencies": {
     "@fontsource-variable/fredoka": "^5.3.0",

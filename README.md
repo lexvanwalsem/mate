@@ -11,6 +11,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/lexvanwalsem/zetje/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/lexvanwalsem/zetje/actions/workflows/test.yml/badge.svg"></a>
   <img alt="Chrome extension, Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-0fa3a3">
   <img alt="Stockfish 18 in WebAssembly" src="https://img.shields.io/badge/engine-Stockfish%2018%20(local)-0fa3a3">
   <img alt="Works on chess.com, lichess and Duolingo" src="https://img.shields.io/badge/works%20on-chess.com%20%C2%B7%20lichess%20%C2%B7%20Duolingo-0fa3a3">
@@ -252,6 +253,12 @@ without scrolling, `DARK=1` for dark mode) and `test-audit` (no clipped text, bo
 | `public/` | Manifest, locales, icons, piece sets, sounds, Stockfish builds |
 
 The code and comments are in English, the interface is Dutch and English.
+
+## Contributing
+
+Contributions are welcome as pull requests. The `main` branch is protected: every change is reviewed and approved by the
+maintainer before it is merged, and the tests must pass. See [CONTRIBUTING.md](CONTRIBUTING.md). To report a security
+problem, see [SECURITY.md](SECURITY.md).
 
 ## Credits and license
 
