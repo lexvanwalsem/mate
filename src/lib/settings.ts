@@ -32,7 +32,6 @@ export const PIECE_SETS = [
   { id: "cburnett", name: "Classic" },
   { id: "merida", name: "Merida" },
   { id: "staunty", name: "Staunty" },
-  { id: "kosal", name: "Kosal" },
   { id: "chessnut", name: "Chessnut" },
   { id: "fantasy", name: "Fantasy" },
   { id: "spatial", name: "Spatial" },
@@ -60,7 +59,9 @@ const DEFAULTS: Settings = { lang: detectLang(), depth: 14, usernames: "", piece
 
 export function loadSettings(): Settings {
   try {
-    return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") };
+    const saved: Settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") };
+    // a piece set that is no longer shipped falls back to the default
+    return PIECE_SETS.some((p) => p.id === saved.pieceSet) ? saved : { ...saved, pieceSet: DEFAULTS.pieceSet };
   } catch {
     return DEFAULTS;
   }

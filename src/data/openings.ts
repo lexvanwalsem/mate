@@ -1,3 +1,4 @@
+// Based on Chesskit (https://github.com/GuillaumeSD/Chesskit), AGPL-3.0. Modified for Mate since November 2026.
 export const openings: { name: string; fen: string }[] = [
   {
     name: "Amar Gambit",

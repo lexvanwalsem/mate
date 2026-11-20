@@ -139,7 +139,7 @@ date. Under the field it says on which site each name was found.
 Blokje is a little rook with big eyes that follow your mouse. He cheers at a brilliant move, worries at a blunder and
 falls asleep when there is nothing to do. The Blokje piece set is drawn in his style, and with **Pieces react to the
 board** on, a king in check gets a fright, a loose piece worries and the piece that just captured is happy. Prefer
-classic pieces? Eleven sets and five board colours are in the knight menu in the header, on every screen.
+classic pieces? Ten sets and five board colours are in the knight menu in the header, on every screen.
 
 <p align="center">
   <img src="docs/dark.png" alt="The review in dark mode with the Blokje pieces" width="900">
@@ -262,11 +262,19 @@ problem, see [SECURITY.md](SECURITY.md).
 
 ## Credits and license
 
-Built on [Chesskit](https://github.com/GuillaumeSD/Chesskit) by GuillaumeSD: engine helpers, move classification,
-accuracy and rating estimation, openings data, Stockfish builds and piece sets. The way to read Duolingo matches follows
-[duolingo-chess-history](https://github.com/JohnVitor-Dev/duolingo-chess-history) by John Vitor (MIT). Puzzles come from
-the [Lichess puzzle database](https://database.lichess.org/#puzzles) (CC0), sounds from Lichess (AGPL-3.0). Fonts:
-[Fredoka](https://fonts.google.com/specimen/Fredoka) and [Nunito](https://fonts.google.com/specimen/Nunito), SIL Open
-Font License.
+**Mate is a modified version of [Chesskit](https://github.com/GuillaumeSD/Chesskit)** by GuillaumeSD, a free chess
+analysis web app. Mate takes Chesskit's engine helpers (move classification, accuracy, win chance, rating estimate),
+its openings data, the Stockfish build and most piece sets, and turns them into a browser extension with its own
+interface, coach, explanations, training, lessons, puzzles and mascot. The files that come from Chesskit say so at the
+top. Thank you, Guillaume.
 
-Mate is licensed under the [AGPL-3.0](LICENSE). See `CHESSKIT-COPYING.md` for the licenses of the bundled piece sets.
+Also inside: [Stockfish](https://github.com/official-stockfish/Stockfish) through
+[Stockfish.js](https://github.com/nmrugg/stockfish.js) (GPL-3.0), piece sets by Colin M.L. Burnett, Armando Hernandez
+Marroquin, sadsnake1, Alexis Luengas, Maurizio Monge, RhosGFX, usolando and therealqtpi,
+[React](https://react.dev), [chess.js](https://github.com/jhlywa/chess.js) and the fonts
+[Fredoka](https://fonts.google.com/specimen/Fredoka) and [Nunito](https://fonts.google.com/specimen/Nunito). Puzzles
+come live from the [Lichess puzzle database](https://database.lichess.org/#puzzles) (CC0). Reading Duolingo matches
+follows [duolingo-chess-history](https://github.com/JohnVitor-Dev/duolingo-chess-history) by John Vitor (MIT).
+
+Mate is licensed under the [AGPL-3.0](LICENSE), like Chesskit. [THIRD-PARTY.md](THIRD-PARTY.md) lists every file and
+asset that comes from elsewhere, with its author and license.
