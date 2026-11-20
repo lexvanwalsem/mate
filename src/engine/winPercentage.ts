@@ -1,3 +1,4 @@
+// Based on Chesskit (https://github.com/GuillaumeSD/Chesskit), AGPL-3.0. Modified for Mate since November 2026.
 import { ceilsNumber } from "@/lib/math";
 import { LineEval, PositionEval } from "@/types/eval";
 
