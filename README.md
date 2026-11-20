@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/lexvanwalsem/zetje/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/lexvanwalsem/zetje/actions/workflows/test.yml/badge.svg"></a>
+  <a href="https://github.com/lexvanwalsem/mate/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/lexvanwalsem/mate/actions/workflows/test.yml/badge.svg"></a>
   <img alt="Chrome extension, Manifest V3" src="https://img.shields.io/badge/Chrome-Manifest%20V3-0fa3a3">
   <img alt="Stockfish 18 in WebAssembly" src="https://img.shields.io/badge/engine-Stockfish%2018%20(local)-0fa3a3">
   <img alt="Works on chess.com, lichess and Duolingo" src="https://img.shields.io/badge/works%20on-chess.com%20%C2%B7%20lichess%20%C2%B7%20Duolingo-0fa3a3">
