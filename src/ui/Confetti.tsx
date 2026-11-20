@@ -1,4 +1,4 @@
-const COLORS = ["#6c4cf5", "#ff6b6b", "#ffc93c", "#22c58b", "#22c7e8"];
+const COLORS = ["#0fa3a3", "#ff6b6b", "#ffc93c", "#22c58b", "#22c7e8"];
 
 /** Falling colored blocks, pure CSS. Place inside a positioned container. */
 export default function Confetti() {

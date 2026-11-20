@@ -51,7 +51,7 @@ export async function saveSummaryImage(a: GameAnalysis, side: Side) {
   const body = '"Nunito Variable", system-ui, sans-serif';
 
   const bg = ctx.createLinearGradient(0, 0, size, size);
-  bg.addColorStop(0, "#e4dbff");
+  bg.addColorStop(0, "#d6eef0");
   bg.addColorStop(1, "#ffe9d8");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, size, size);
@@ -66,8 +66,8 @@ export async function saveSummaryImage(a: GameAnalysis, side: Side) {
   ctx.translate(90, 90);
   ctx.scale(0.85, 0.85);
   const body2 = ctx.createLinearGradient(0, 26, 0, 186);
-  body2.addColorStop(0, "#8d6bff");
-  body2.addColorStop(1, "#5b3df0");
+  body2.addColorStop(0, "#2cc4c0");
+  body2.addColorStop(1, "#0b8f92");
   ctx.fillStyle = body2;
   roundRect(ctx, 38, 94, 24, 38, 12); ctx.fill();
   roundRect(ctx, 138, 94, 24, 38, 12); ctx.fill();
@@ -75,26 +75,26 @@ export async function saveSummaryImage(a: GameAnalysis, side: Side) {
   ctx.fillStyle = "#fff";
   roundRect(ctx, 68, 87, 28, 34, 13); ctx.fill();
   roundRect(ctx, 104, 87, 28, 34, 13); ctx.fill();
-  ctx.fillStyle = "#1f1b3a";
+  ctx.fillStyle = "#12262e";
   ctx.beginPath(); ctx.arc(82, 106, 9, 0, 7); ctx.arc(118, 106, 9, 0, 7); ctx.fill();
-  ctx.strokeStyle = "#1f1b3a";
+  ctx.strokeStyle = "#12262e";
   ctx.lineWidth = 6;
   ctx.lineCap = "round";
   ctx.beginPath(); ctx.moveTo(88, 132); ctx.quadraticCurveTo(100, 142, 112, 132); ctx.stroke();
   ctx.restore();
 
-  ctx.fillStyle = "#6c4cf5";
+  ctx.fillStyle = "#0fa3a3";
   ctx.font = `600 64px ${display}`;
   ctx.fillText(t("app.name"), 290, 190);
-  ctx.fillStyle = "#7a76a0";
+  ctx.fillStyle = "#6b8590";
   ctx.font = `500 30px ${body}`;
   ctx.fillText(`${a.headers.White ?? "?"} vs ${a.headers.Black ?? "?"}`, 290, 238);
 
   const mine = a.accuracy[side];
-  ctx.fillStyle = "#1f1b3a";
+  ctx.fillStyle = "#12262e";
   ctx.font = `600 200px ${display}`;
   ctx.fillText(`${mine.toFixed(1)}%`, 110, 520);
-  ctx.fillStyle = "#7a76a0";
+  ctx.fillStyle = "#6b8590";
   ctx.font = `500 36px ${body}`;
   ctx.fillText(t("summary.accuracy"), 116, 574);
   const result = resultFor(a.headers, side);
@@ -128,7 +128,7 @@ export async function saveSummaryImage(a: GameAnalysis, side: Side) {
 
   const opening = openingName(a);
   if (opening) {
-    ctx.fillStyle = "#7a76a0";
+    ctx.fillStyle = "#6b8590";
     ctx.font = `500 26px ${body}`;
     ctx.fillText(opening.length > 60 ? `${opening.slice(0, 57)}...` : opening, 110, 960);
   }

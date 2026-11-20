@@ -59,8 +59,9 @@ export function piecesFromFen(fen: string, idPrefix = "f"): BoardPiece[] {
 }
 
 /** One piece list per position, with stable ids so pieces slide between moves. */
-export function buildFrames(startFen: string, uciMoves: string[]): BoardPiece[][] {
-  let current = piecesFromFen(startFen, "s").map((p, i) => ({ ...p, id: `p${i}` }));
+/** `start` keeps the ids of pieces already on the board (a line starting inside a game), so only moved pieces glide. */
+export function buildFrames(startFen: string, uciMoves: string[], start?: BoardPiece[]): BoardPiece[][] {
+  let current = start ?? piecesFromFen(startFen, "s").map((p, i) => ({ ...p, id: `p${i}` }));
   const frames = [current];
   for (const uci of uciMoves) {
     const from = uci.slice(0, 2);

@@ -16,7 +16,7 @@ export interface MascotTheme { id: string; unlockLevel: number; swatch: string; 
 
 /** Blokje colors. Higher ones unlock as you level up in lessons and puzzles. */
 export const MASCOT_THEMES: MascotTheme[] = [
-  { id: "violet", unlockLevel: 1, swatch: "#6c4cf5", vars: { top: "#8d6bff", bottom: "#5b3df0", light: "#7a5bff", mid: "#6a49f5", dark: "#4a2fd0" } },
+  { id: "violet", unlockLevel: 1, swatch: "#0fa3a3", vars: { top: "#2cc4c0", bottom: "#0b8f92", light: "#1fb5b2", mid: "#12a3a3", dark: "#0b7c7e" } },
   { id: "coral", unlockLevel: 2, swatch: "#f25a5f", vars: { top: "#ff8f8f", bottom: "#e8454f", light: "#ff7a7a", mid: "#f25a5f", dark: "#b92f3a" } },
   { id: "mint", unlockLevel: 3, swatch: "#22c58b", vars: { top: "#52e0b0", bottom: "#14a37a", light: "#3fd6a3", mid: "#22c58b", dark: "#0e7d5c" } },
   { id: "sun", unlockLevel: 4, swatch: "#f7b928", vars: { top: "#ffd95e", bottom: "#f0a500", light: "#ffcf3f", mid: "#f7b928", dark: "#b87d00" } },
@@ -42,7 +42,7 @@ export const PIECE_SETS = [
 ];
 
 export const BOARD_THEMES = [
-  { id: "violet", light: "#f1ecff", dark: "#a58df3" },
+  { id: "violet", light: "#e6eef0", dark: "#7fa7b0" },
   { id: "green", light: "#eeeed2", dark: "#769656" },
   { id: "blue", light: "#dee3e6", dark: "#8ca2ad" },
   { id: "wood", light: "#f0d9b5", dark: "#b58863" },

@@ -137,7 +137,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   // ---- your own line ----
   const vdata = useMemo(() => (variation ? replay(a.fens[variation.base], variation.moves) : null), [variation?.base, variation?.moves, a]);
   const vfen = variation && vdata ? vdata.fens[Math.min(variation.idx, vdata.fens.length - 1)] : undefined;
-  const vframes = useMemo(() => (variation && vdata ? buildFrames(a.fens[variation.base], vdata.ucis) : null), [vdata, variation?.base]);
+  const vframes = useMemo(() => (variation && vdata ? buildFrames(a.fens[variation.base], vdata.ucis, frames[variation.base]) : null), [vdata, variation?.base, frames]);
 
   useEffect(() => {
     if (!vfen) {
@@ -314,7 +314,7 @@ export default function Review({ a, side, pieceSet, start, getPool, onBack }: Pr
   } else if (!retry && lastMove) {
     const san = variation ? (vdata && vIdx > 0 ? vdata.sans[vIdx - 1] : undefined) : a.sans[pos - 1];
     if (shownCls === MC.Splendid || shownCls === MC.Perfect) callouts.push({ square: lastMove.to, color: CLASS_META[shownCls].color, text: `${classLabel(shownCls)}!` });
-    else if (san?.startsWith("O-O")) callouts.push({ square: lastMove.to, color: "#6c4cf5", text: t("label.castles") });
+    else if (san?.startsWith("O-O")) callouts.push({ square: lastMove.to, color: "#0fa3a3", text: t("label.castles") });
     else if (san?.endsWith("+")) callouts.push({ square: lastMove.to, color: "#ff8a1f", text: t("label.check") });
   }
   const name = (s: Side) => a.headers[s === "white" ? "White" : "Black"] ?? t(s === "white" ? "puzzle.white" : "puzzle.black");

@@ -46,7 +46,7 @@ async function gameOf(item: DuolingoListItem): Promise<{ pgn: string; side: "whi
 }
 
 const LABEL = chrome.i18n.getMessage("buttonLabel");
-const ICON = `<svg viewBox="0 0 200 200" width="18" height="18" aria-hidden="true"><path d="${BLOKJE_BODY}" fill="#fff"/><rect x="68" y="88" width="28" height="34" rx="13" fill="#1f1b3a"/><rect x="104" y="88" width="28" height="34" rx="13" fill="#1f1b3a"/></svg>`;
+const ICON = `<svg viewBox="0 0 200 200" width="18" height="18" aria-hidden="true"><path d="${BLOKJE_BODY}" fill="#fff"/><rect x="68" y="88" width="28" height="34" rx="13" fill="#12262e"/><rect x="104" y="88" width="28" height="34" rx="13" fill="#12262e"/></svg>`;
 
 function makeButton(item: DuolingoListItem): HTMLButtonElement {
   const btn = document.createElement("button");
@@ -54,8 +54,8 @@ function makeButton(item: DuolingoListItem): HTMLButtonElement {
   btn.className = "mate-analyze";
   btn.style.cssText =
     "all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;height:32px;margin-left:10px;padding:0 12px 0 8px;" +
-    "border-radius:16px 16px 16px 6px;background:#6c4cf5;color:#fff;font:600 13px system-ui,sans-serif;cursor:pointer;" +
-    "box-shadow:0 4px 12px rgba(74,47,208,.35);flex:none;white-space:nowrap;";
+    "border-radius:16px 16px 16px 6px;background:#0fa3a3;color:#fff;font:600 13px system-ui,sans-serif;cursor:pointer;" +
+    "box-shadow:0 4px 12px rgba(11,124,126,.35);flex:none;white-space:nowrap;";
   btn.innerHTML = `${ICON}<span>${LABEL}</span>`;
   const text = btn.querySelector("span")!;
   btn.addEventListener("click", async (e) => {

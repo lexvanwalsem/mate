@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="100" height="100">
   <defs>
     <g id="swn"><path d="M60 146 C56 158 32 158 32 170 V174 Q32 186 44 186 H156 Q168 186 168 174 V170 C168 158 144 158 140 146Z"/><path d="M52 160 C56 132 72 116 80 96 C64 104 48 120 32 116 C16 112 16 92 24 84 C36 72 52 60 64 44 C72 32 80 28 88 24 L96 6 L112 22 C140 32 160 76 156 116 C155 136 152 148 150 160Z"/></g>
-    <linearGradient id="gwn" gradientUnits="userSpaceOnUse" x1="0" y1="10" x2="0" y2="186"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ddd3fa"/></linearGradient>
+    <linearGradient id="gwn" gradientUnits="userSpaceOnUse" x1="0" y1="10" x2="0" y2="186"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d3ebec"/></linearGradient>
     <radialGradient id="lwn" cx="0.32" cy="0.2" r="0.62"><stop offset="0" stop-color="#fff" stop-opacity="0.6"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-    <linearGradient id="dwn" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="186"><stop offset="0" stop-color="#1f1b3a" stop-opacity="0"/><stop offset="1" stop-color="#1f1b3a" stop-opacity="0.16"/></linearGradient>
+    <linearGradient id="dwn" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="186"><stop offset="0" stop-color="#12262e" stop-opacity="0"/><stop offset="1" stop-color="#12262e" stop-opacity="0.16"/></linearGradient>
     <clipPath id="cwn"><use xlink:href="#swn"/></clipPath>
   </defs>
-  <use xlink:href="#swn" fill="#7a66d4" stroke="#7a66d4" stroke-width="7" stroke-linejoin="round"/>
+  <use xlink:href="#swn" fill="#4c9aa3" stroke="#4c9aa3" stroke-width="7" stroke-linejoin="round"/>
   <use xlink:href="#swn" fill="url(#gwn)"/>
   <g clip-path="url(#cwn)"><rect width="200" height="200" fill="url(#lwn)"/><rect y="140" width="200" height="60" fill="url(#dwn)"/></g>
-  <rect x="64" y="49" width="16" height="26" rx="8" fill="#1f1b3a"/><circle cx="74.5" cy="55" r="2.8" fill="#fff"/><ellipse cx="30" cy="96" rx="4" ry="5" fill="#1f1b3a"/>
+  <rect x="64" y="49" width="16" height="26" rx="8" fill="#12262e"/><circle cx="74.5" cy="55" r="2.8" fill="#fff"/><ellipse cx="30" cy="96" rx="4" ry="5" fill="#12262e"/>
 </svg>

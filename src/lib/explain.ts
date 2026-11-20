@@ -68,7 +68,7 @@ const GREEN = "#22c58b"; // the better move
 const ORANGE = "#ff8a1f"; // the answer that punishes
 const YELLOW = "#f5c120"; // a new attack
 const RED = "#e5384f"; // a piece that can be taken
-const VIOLET = "#7b5cff"; // the plan, a few moves ahead
+const VIOLET = "#22b8b5"; // the plan, a few moves ahead
 const arrow = (from: string, to: string, color: string): Arrow => ({ from, to, color });
 
 /** White's material lead in a position, in pawns. */

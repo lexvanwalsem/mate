@@ -147,6 +147,15 @@ try {
   await sleep(300);
   const after = (await ev(`document.querySelector(".var-line")?.textContent ?? ""`)).split(" ").length;
   expect("the engine move extends the line", after > before, `${before} -> ${after}`);
+
+  // A line that starts in the middle of the game: only the piece you move may change square, the rest stays put.
+  await ev(`document.querySelectorAll(".move")[19].click()`); // after 10...Nbd7
+  await sleep(700);
+  await ev(`window.__pieces = [...document.querySelectorAll(".board .piece")].map((e) => [e, e.style.transform])`);
+  await dragSquares(0, 2, 0, 4); // a2-a4
+  await sleep(100);
+  const moved = await ev(`window.__pieces.filter(([e, t]) => e.isConnected && e.style.transform !== t).length`);
+  expect("starting a line mid-game moves only the piece you drag", moved === 1, `${moved} pieces moved`);
 } finally {
   proc.kill();
 }

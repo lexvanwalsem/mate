@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 200 200" width="100" height="100">
   <defs>
     <g id="sbr"><path d="M44 38 Q44 26 56 26 H60 Q72 26 72 38 V40 Q72 46 78 46 H80 Q86 46 86 40 V38 Q86 26 98 26 H102 Q114 26 114 38 V40 Q114 46 120 46 H122 Q128 46 128 40 V38 Q128 26 140 26 H144 Q156 26 156 38 V60 C156 70 146 72 146 82 V136 C146 152 168 154 168 170 V174 Q168 186 156 186 H44 Q32 186 32 174 V170 C32 154 54 152 54 136 V82 C54 72 44 70 44 60 Z"/></g>
-    <linearGradient id="gbr" gradientUnits="userSpaceOnUse" x1="0" y1="10" x2="0" y2="186"><stop offset="0" stop-color="#8263ff"/><stop offset="1" stop-color="#3a24b4"/></linearGradient>
+    <linearGradient id="gbr" gradientUnits="userSpaceOnUse" x1="0" y1="10" x2="0" y2="186"><stop offset="0" stop-color="#2bb8b6"/><stop offset="1" stop-color="#0a6e72"/></linearGradient>
     <radialGradient id="lbr" cx="0.32" cy="0.2" r="0.62"><stop offset="0" stop-color="#fff" stop-opacity="0.34"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-    <linearGradient id="dbr" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="186"><stop offset="0" stop-color="#1f1b3a" stop-opacity="0"/><stop offset="1" stop-color="#1f1b3a" stop-opacity="0.16"/></linearGradient>
+    <linearGradient id="dbr" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="186"><stop offset="0" stop-color="#12262e" stop-opacity="0"/><stop offset="1" stop-color="#12262e" stop-opacity="0.16"/></linearGradient>
     <clipPath id="cbr"><use xlink:href="#sbr"/></clipPath>
   </defs>
-  <use xlink:href="#sbr" fill="#1d1458" stroke="#1d1458" stroke-width="7" stroke-linejoin="round"/>
+  <use xlink:href="#sbr" fill="#08343a" stroke="#08343a" stroke-width="7" stroke-linejoin="round"/>
   <use xlink:href="#sbr" fill="url(#gbr)"/>
   <g clip-path="url(#cbr)"><rect width="200" height="200" fill="url(#lbr)"/><rect y="140" width="200" height="60" fill="url(#dbr)"/></g>
-  <rect x="71" y="85" width="22" height="34" rx="10" fill="#fff"/><circle cx="82" cy="104" r="5" fill="#1f1b3a"/><circle cx="84.5" cy="101" r="2.2" fill="#fff"/><rect x="107" y="85" width="22" height="34" rx="10" fill="#fff"/><circle cx="118" cy="104" r="5" fill="#1f1b3a"/><circle cx="120.5" cy="101" r="2.2" fill="#fff"/><ellipse cx="100" cy="128" rx="7" ry="9" fill="#1f1b3a"/>
+  <rect x="71" y="85" width="22" height="34" rx="10" fill="#fff"/><circle cx="82" cy="104" r="5" fill="#12262e"/><circle cx="84.5" cy="101" r="2.2" fill="#fff"/><rect x="107" y="85" width="22" height="34" rx="10" fill="#fff"/><circle cx="118" cy="104" r="5" fill="#12262e"/><circle cx="120.5" cy="101" r="2.2" fill="#fff"/><ellipse cx="100" cy="128" rx="7" ry="9" fill="#12262e"/>
 </svg>

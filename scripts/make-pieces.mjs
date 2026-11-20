@@ -3,10 +3,10 @@
 // Writes public/pieces/blokje/<color><TYPE>.svg plus -happy, -worried and -shocked variants for the reactions (not for pawns).
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
-const INK = "#1f1b3a";
+const INK = "#12262e";
 const SIDES = {
-  w: { top: "#ffffff", bottom: "#ddd3fa", edge: "#7a66d4", gloss: 0.6, eyeWhite: false },
-  b: { top: "#8263ff", bottom: "#3a24b4", edge: "#1d1458", gloss: 0.34, eyeWhite: true },
+  w: { top: "#ffffff", bottom: "#d3ebec", edge: "#4c9aa3", gloss: 0.6, eyeWhite: false },
+  b: { top: "#2bb8b6", bottom: "#0a6e72", edge: "#08343a", gloss: 0.34, eyeWhite: true },
 };
 const MOODS = ["idle", "happy", "worried", "shocked"];
 

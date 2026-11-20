@@ -1,4 +1,4 @@
-// Writes the extension icons and favicon: Blokje himself, the violet tower, on a transparent background.
+// Writes the extension icons and favicon: Blokje himself, the teal tower, on a transparent background.
 // Usage: node scripts/make-icons.mjs
 import sharp from "sharp";
 import { mkdirSync, readFileSync } from "node:fs";
@@ -6,11 +6,11 @@ import { mkdirSync, readFileSync } from "node:fs";
 // The same tower path the app uses (src/ui/blokjeShape.ts).
 const src = readFileSync("src/ui/blokjeShape.ts", "utf8");
 const body = [...src.matchAll(/"([^"]+)"/g)].map((m) => m[1]).join("");
-const INK = "#1f1b3a";
+const INK = "#12262e";
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 18 168 168">
   <defs>
-    <linearGradient id="b" x1="0" y1="26" x2="0" y2="186" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8d6bff"/><stop offset="1" stop-color="#5b3df0"/></linearGradient>
+    <linearGradient id="b" x1="0" y1="26" x2="0" y2="186" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2cc4c0"/><stop offset="1" stop-color="#0b8f92"/></linearGradient>
     <radialGradient id="g" cx="0.3" cy="0.22" r="0.6"><stop offset="0" stop-color="#fff" stop-opacity="0.34"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
     <clipPath id="c"><path d="${body}"/></clipPath>
   </defs>
@@ -29,6 +29,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 18 168 168">
 
 mkdirSync("public/icons", { recursive: true });
 for (const size of [16, 32, 48, 128]) {
-  await sharp(Buffer.from(svg), { density: 300 }).resize(size, size).png().toFile(`public/icons/blokje-${size}.png`);
+  await sharp(Buffer.from(svg), { density: 300 }).resize(size, size).png().toFile(`public/icons/mate-${size}.png`);
 }
 console.log("icons written");

@@ -45,10 +45,10 @@ const root = host.attachShadow({ mode: "open" });
 root.innerHTML = `
   <style>
     button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; height: 48px;
-      padding: 6px 18px 6px 6px; background: #6c4cf5; color: #fff; border-radius: 24px 24px 24px 10px;
+      padding: 6px 18px 6px 6px; background: #0fa3a3; color: #fff; border-radius: 24px 24px 24px 10px;
       font: 600 14px "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; letter-spacing: 0.1px;
-      box-shadow: 0 8px 22px rgba(74, 47, 208, 0.38), inset 0 -3px 0 rgba(0, 0, 0, 0.16); transition: transform 0.15s, box-shadow 0.15s; user-select: none; }
-    button:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(74, 47, 208, 0.45), inset 0 -3px 0 rgba(0, 0, 0, 0.16); }
+      box-shadow: 0 8px 22px rgba(11, 124, 126, 0.38), inset 0 -3px 0 rgba(0, 0, 0, 0.16); transition: transform 0.15s, box-shadow 0.15s; user-select: none; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(11, 124, 126, 0.45), inset 0 -3px 0 rgba(0, 0, 0, 0.16); }
     button:active { transform: translateY(1px); }
     button.over { animation: pulse 1.4s ease-in-out infinite; }
     .face { width: 36px; height: 36px; flex: none; }
@@ -58,9 +58,9 @@ root.innerHTML = `
   <button>
     <svg class="face" viewBox="0 0 200 200">
       <path d="${BLOKJE_BODY}" fill="#fff"/>
-      <rect x="68" y="88" width="28" height="34" rx="13" fill="#1f1b3a"/><rect x="104" y="88" width="28" height="34" rx="13" fill="#1f1b3a"/>
+      <rect x="68" y="88" width="28" height="34" rx="13" fill="#12262e"/><rect x="104" y="88" width="28" height="34" rx="13" fill="#12262e"/>
       <circle cx="86" cy="99" r="5" fill="#fff"/><circle cx="122" cy="99" r="5" fill="#fff"/>
-      <path d="M88 140 Q100 150 112 140" fill="none" stroke="#1f1b3a" stroke-width="7" stroke-linecap="round"/>
+      <path d="M88 140 Q100 150 112 140" fill="none" stroke="#12262e" stroke-width="7" stroke-linecap="round"/>
     </svg>
     <span>${chrome.i18n.getMessage("buttonLabel")}</span>
   </button>`;

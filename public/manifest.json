@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "action": {
@@ -53,10 +53,10 @@
     }
   ],
   "icons": {
-    "16": "icons/blokje-16.png",
-    "32": "icons/blokje-32.png",
-    "48": "icons/blokje-48.png",
-    "128": "icons/blokje-128.png"
+    "16": "icons/mate-16.png",
+    "32": "icons/mate-32.png",
+    "48": "icons/mate-48.png",
+    "128": "icons/mate-128.png"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"

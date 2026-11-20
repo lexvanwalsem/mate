@@ -111,7 +111,7 @@ function LessonPlayer({ lesson, pieceSet, alreadyDone, onProgress, getPool, onEx
   const answer = step.kind === "move" ? step.accept[0] : undefined;
   const baseArrows =
     step.kind === "info"
-      ? (step.arrows ?? []).map(([from, to]) => ({ from, to, color: "#6c4cf5" }))
+      ? (step.arrows ?? []).map(([from, to]) => ({ from, to, color: "#0fa3a3" }))
       : answer && (showHint || wrongs >= 2) && feedback === "none"
         ? [{ from: answer.slice(0, 2), to: answer.slice(2, 4), color: "#22c58b" }]
         : [];

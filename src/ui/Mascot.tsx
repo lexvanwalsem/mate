@@ -7,7 +7,7 @@ interface Props {
   size?: number;
 }
 
-const INK = "#1f1b3a";
+const INK = "#12262e";
 
 const Star = ({ cx, cy }: { cx: number; cy: number }) => (
   <g transform={`translate(${cx} ${cy})`}>
@@ -165,8 +165,8 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
           <stop offset="1" stopColor="#fff" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="mascot-shade" gradientUnits="userSpaceOnUse" x1="0" y1="138" x2="0" y2="186">
-          <stop offset="0" stopColor="#1f1b3a" stopOpacity="0" />
-          <stop offset="1" stopColor="#1f1b3a" stopOpacity="0.16" />
+          <stop offset="0" stopColor="#12262e" stopOpacity="0" />
+          <stop offset="1" stopColor="#12262e" stopOpacity="0.16" />
         </linearGradient>
         <clipPath id="mascot-clip">
           <path d={BLOKJE_BODY} />
@@ -202,7 +202,7 @@ export default function Mascot({ mood = "idle", size = 140 }: Props) {
           {mood === "shocked" && <path className="m-drop" d="M150 52 Q156 66 150 72 Q144 66 150 52Z" fill="#7fd6ff" />}
         </g>
         {mood === "sleepy" && (
-          <text className="m-zzz" x="160" y="34" fontSize="26" fontWeight="700" fill="#7a76a0">
+          <text className="m-zzz" x="160" y="34" fontSize="26" fontWeight="700" fill="#6b8590">
             z
           </text>
         )}
